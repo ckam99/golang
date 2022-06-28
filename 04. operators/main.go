@@ -19,6 +19,11 @@ func main() {
 	fmt.Println(a >= b)
 	fmt.Println(a <= b)
 
+	a++
+
+	c--
+	b = a + c
+
 	fmt.Println(a <= b || a == c)
 	fmt.Println(a >= b && a == b)
 }
