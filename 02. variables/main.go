@@ -12,8 +12,7 @@ func main() {
 	)
 	salary := 9000.45
 
-	firstname = "Claver"
-	lastname = "Amon"
+	firstname, lastname = "Claver", "Amon"
 	gender = "male"
 	age = 29
 
