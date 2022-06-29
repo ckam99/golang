@@ -28,4 +28,14 @@ func main() {
 	fmt.Printf("Hello\tWorld!\n")
 	fmt.Printf("Hello\vWorld!\n")
 
+	fmt.Println("============================")
+	fmt.Print("hello, world")
+	fmt.Print("hello, world")
+	fmt.Println("hello, world")
+	fmt.Print("hello, world")
+
+	fmt.Print("33", 27)   // Ivan27
+	fmt.Println("33", 27) // Ivan 27
+	fmt.Print(33, 27)     // 33 27
+	fmt.Print("33", "27") // 3327
 }
