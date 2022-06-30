@@ -13,6 +13,7 @@ func main() {
 
 	// Other way to define map
 	var capitalCountry map[string]string = make(map[string]string)
+	// var capitalCountry map[string]string = map[string]string{}
 
 	capitalCountry["Ivory Cost"] = "Abidjan"
 	capitalCountry["Cameroun"] = "Yaounde"
