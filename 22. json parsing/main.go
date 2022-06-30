@@ -55,5 +55,4 @@ func main() {
 		fmt.Println(err.Error())
 	}
 	fmt.Printf("type: %T \n %s\n", jsonFromTodo, jsonFromTodo)
-
 }
