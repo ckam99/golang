@@ -27,6 +27,19 @@ func Welcome(name string, age int) {
 func main() {
 	SayHello()
 
+	// anonymous functions
+	Goodbye := func() {
+		fmt.Println("Goodbye!")
+	}
+
+	Bonjour := func() string {
+		return "Bonjour!"
+	}()
+
+	fmt.Println(Bonjour)
+
+	Goodbye()
+
 	fmt.Println(Divide(3, 9))
 	fmt.Println(Divide(5, 0))
 
