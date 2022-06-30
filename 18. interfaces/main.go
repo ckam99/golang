@@ -21,15 +21,15 @@ type Circle struct {
 	x, y, radius float64
 }
 
-func (s Square) Area() float64 {
+func (s *Square) Area() float64 {
 	return s.size * s.size
 }
 
-func (r Rectangle) Area() float64 {
+func (r *Rectangle) Area() float64 {
 	return r.height * r.width
 }
 
-func (c Circle) Area() float64 {
+func (c *Circle) Area() float64 {
 	return math.Pi * c.radius * c.radius
 }
 
@@ -41,7 +41,7 @@ func main() {
 	circle := Circle{x: 0, y: 0, radius: 10}
 	rect := Rectangle{width: 23, height: 90}
 	square := Square{size: 15}
-	fmt.Println("Circle area:", GetArea(circle))
-	fmt.Println("Rectangle area:", GetArea(rect))
-	fmt.Println("Square area:", GetArea(square))
+	fmt.Println("Circle area:", GetArea(&circle))
+	fmt.Println("Rectangle area:", GetArea(&rect))
+	fmt.Println("Square area:", GetArea(&square))
 }
