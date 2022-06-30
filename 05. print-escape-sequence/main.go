@@ -34,6 +34,24 @@ func main() {
 	fmt.Println("hello, world")
 	fmt.Print("hello, world")
 
+	s := "hello world"
+	fmt.Println(s[:])
+	fmt.Println(s[1:])
+	fmt.Println(s[1:4])
+
+	abc := "abc"
+
+	b := []byte(abc)
+	for _, k := range b {
+		fmt.Print(string(k))
+		fmt.Printf(" %c\n", k)
+	}
+
+	fmt.Printf("\\")
+	fmt.Printf("\"")
+	fmt.Printf("123\f456\f789")
+	fmt.Printf("\vf\v")
+
 	fmt.Print("33", 27)   // Ivan27
 	fmt.Println("33", 27) // Ivan 27
 	fmt.Print(33, 27)     // 33 27
