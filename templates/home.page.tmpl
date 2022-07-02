@@ -1,0 +1,8 @@
+{{ template "base" . }}
+
+{{ define "content" }}
+
+<h1>Welcome golang, thank you!</h1>
+<a href="/about">about</a>
+{{ index .Data "message"}}
+{{ end }}
