@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/json"
 	"example/gorm/database"
 	"example/gorm/models"
 	"fmt"
@@ -9,6 +10,14 @@ import (
 
 	"github.com/joho/godotenv"
 )
+
+func toJson(v any) {
+	if s, e := json.MarshalIndent(v, "", "  "); e != nil {
+		panic(e.Error())
+	} else {
+		fmt.Println(string(s))
+	}
+}
 
 func main() {
 
@@ -32,11 +41,11 @@ func main() {
 	// if result := db.Create(&book); result.Error != nil {
 	// 	panic(result.Error)
 	// }
-	books := []models.Author{}
-	if err := db.Find(&books).Error; err != nil {
+	books := models.Book{}
+	if err := db.First(&books).Error; err != nil {
 		panic(err.Error)
 	} else {
-		fmt.Println(books)
+		toJson(books)
 	}
 
 	// userRepo := repositories.UserRepository{
