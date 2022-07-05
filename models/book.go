@@ -1,10 +1,18 @@
 package models
 
-import "time"
+import (
+	"time"
+
+	"gorm.io/gorm"
+)
 
 type Author struct {
-	Name  string `gorm:"type:varchar(50);NOT NULL"`
-	Phone string `gorm:"type:varchar(50);NOT NULL;UNIQUE;UNIQUE_INDEX"`
+	gorm.Model
+	Name      string `gorm:"type:varchar(50);NOT NULL"`
+	Phone     string `gorm:"type:varchar(50);NOT NULL;UNIQUE;UNIQUE_INDEX"`
+	CreatedAt time.Time
+	UpdatedAt time.Time
+	DeletedAt gorm.DeletedAt
 }
 
 type Book struct {
@@ -13,4 +21,5 @@ type Book struct {
 	Isbn      string `gorm:"index: , unique"`
 	CreatedAt time.Time
 	UpdatedAt time.Time
+	DeletedAt gorm.DeletedAt
 }

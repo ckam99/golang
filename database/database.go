@@ -62,7 +62,11 @@ func Init(config *Config, migrate bool) *gorm.DB {
 }
 
 func RunMigrations(db *gorm.DB) error {
-	err := db.AutoMigrate(&models.User{}, &models.Book{})
+	err := db.AutoMigrate(
+		&models.User{},
+		&models.Book{},
+		&models.Author{},
+	)
 
 	return err
 }

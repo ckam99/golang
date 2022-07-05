@@ -3,7 +3,6 @@ package main
 import (
 	"example/gorm/database"
 	"example/gorm/models"
-	"example/gorm/repositories"
 	"fmt"
 	"log"
 	"os"
@@ -26,70 +25,83 @@ func main() {
 		TimeZone: os.Getenv("TIMEZONE"),
 	}
 	db := database.Init(config, true)
-
-	userRepo := repositories.UserRepository{
-		Db: db,
-	}
-
-	/* crrate single user */
-	if user, err := userRepo.CreateUser(&models.User{
-		Name:  "Alain SHuer",
-		Email: "alainsh 90@mail.ru",
-	}); err != nil {
-		panic(err.Error())
+	// book := models.Author{
+	// 	Name:  "Leopol Singa Singore",
+	// 	Phone: "+04059409640",
+	// }
+	// if result := db.Create(&book); result.Error != nil {
+	// 	panic(result.Error)
+	// }
+	books := []models.Author{}
+	if err := db.Find(&books).Error; err != nil {
+		panic(err.Error)
 	} else {
-		fmt.Println(user)
+		fmt.Println(books)
 	}
 
-	/*
-	 create many users
-	*/
-	if users, err := userRepo.CreateUsers(&[]models.User{
-		{Name: "User 15", Email: "use15@mail.ru"},
-		{Name: "User 16", Email: "user16@mail.ru"},
-	}); err != nil {
-		panic(err.Error())
-	} else {
-		fmt.Println("Created many users", users)
-	}
+	// userRepo := repositories.UserRepository{
+	// 	Db: db,
+	// }
 
-	/* Get list users */
-	fmt.Println(userRepo.GetUsers(100, 0))
+	// /* crrate single user */
+	// if user, err := userRepo.CreateUser(&models.User{
+	// 	Name:  "Alain SHuer",
+	// 	Email: "alainsh 90@mail.ru",
+	// }); err != nil {
+	// 	panic(err.Error())
+	// } else {
+	// 	fmt.Println(user)
+	// }
 
-	/* fetch single user by Object */
+	// /*
+	//  create many users
+	// */
+	// if users, err := userRepo.CreateUsers(&[]models.User{
+	// 	{Name: "User 15", Email: "use15@mail.ru"},
+	// 	{Name: "User 16", Email: "user16@mail.ru"},
+	// }); err != nil {
+	// 	panic(err.Error())
+	// } else {
+	// 	fmt.Println("Created many users", users)
+	// }
 
-	testUser := models.User{}
-	testUser.ID = 1
-	if user, err := userRepo.GetUser(&testUser); err != nil {
-		panic(err.Error())
-	} else {
-		fmt.Println("======fetch single user by Object =======")
-		fmt.Println(user)
-	}
+	// /* Get list users */
+	// fmt.Println(userRepo.GetUsers(100, 0))
 
-	/* Get User by ID */
-	if user, err := userRepo.GetUserByID(2); err != nil {
-		panic(err.Error())
-	} else {
-		fmt.Println("======Get User by ID =========")
-		fmt.Println(user)
-	}
+	// /* fetch single user by Object */
 
-	/* Get User by Email */
-	if user, err := userRepo.GetUserByEmail("user7@mail.ru"); err != nil {
-		panic(err.Error())
-	} else {
-		fmt.Println("======Get User by Email ========")
-		fmt.Println(user)
-	}
+	// testUser := models.User{}
+	// testUser.ID = 1
+	// if user, err := userRepo.GetUser(&testUser); err != nil {
+	// 	panic(err.Error())
+	// } else {
+	// 	fmt.Println("======fetch single user by Object =======")
+	// 	fmt.Println(user)
+	// }
 
-	/* update user with payload */
-	if user, err := userRepo.UpdateUser(
-		1, models.UpdateUserSchema{Name: "Mariam Sala"}); err != nil {
-		panic(err)
-	} else {
-		fmt.Println("======update user with payload ========")
-		fmt.Println(user)
-	}
+	// /* Get User by ID */
+	// if user, err := userRepo.GetUserByID(2); err != nil {
+	// 	panic(err.Error())
+	// } else {
+	// 	fmt.Println("======Get User by ID =========")
+	// 	fmt.Println(user)
+	// }
+
+	// /* Get User by Email */
+	// if user, err := userRepo.GetUserByEmail("user7@mail.ru"); err != nil {
+	// 	panic(err.Error())
+	// } else {
+	// 	fmt.Println("======Get User by Email ========")
+	// 	fmt.Println(user)
+	// }
+
+	// /* update user with payload */
+	// if user, err := userRepo.UpdateUser(
+	// 	1, models.UpdateUserSchema{Name: "Mariam Sala"}); err != nil {
+	// 	panic(err)
+	// } else {
+	// 	fmt.Println("======update user with payload ========")
+	// 	fmt.Println(user)
+	// }
 
 }
