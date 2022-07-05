@@ -140,8 +140,18 @@ func TestHasManyRelationship(db *gorm.DB) {
 	}
 }
 
-func main() {
+func TestManyToManyRelationship(db *gorm.DB) {
+	repo := repositories.UserRepository{
+		Db: db,
+	}
+	if languages, err := repo.GetAllLanguages(); err != nil {
+		panic(err.Error)
+	} else {
+		toJson(languages)
+	}
+}
 
+func main() {
 	if err := godotenv.Load(".env"); err != nil {
 		log.Fatalln(err.Error())
 	}
@@ -155,7 +165,8 @@ func main() {
 		TimeZone: os.Getenv("TIMEZONE"),
 	}
 	db := database.Init(config, true)
-	//TestUserRepository(db)
+	// TestUserRepository(db)
 	// TestBelongsToOneRelationship(db)
-	TestHasManyRelationship(db)
+	// TestHasManyRelationship(db)
+	TestManyToManyRelationship(db)
 }

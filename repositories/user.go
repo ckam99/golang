@@ -67,3 +67,17 @@ func (repo *UserRepository) UpdateUser(id int, payload models.UpdateUserSchema) 
 
 	return user, err
 }
+
+// Retrieve user list with edger loading languages
+func (repo *UserRepository) GetAllUsers() ([]models.User, error) {
+	var users []models.User
+	err := repo.Db.Model(&models.User{}).Preload("Languages").Find(&users).Error
+	return users, err
+}
+
+// Retrieve language list with edger loading users
+func (repo *UserRepository) GetAllLanguages() ([]models.Language, error) {
+	var languages []models.Language
+	err := repo.Db.Model(&models.Language{}).Preload("Users").Find(&languages).Error
+	return languages, err
+}
