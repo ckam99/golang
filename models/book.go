@@ -7,12 +7,13 @@ import (
 )
 
 type Author struct {
-	gorm.Model
-	Name      string         `json:"id" gorm:"type:varchar(50);NOT NULL"`
+	ID        uint           `json:"id" gorm:"primaryKey"`
+	Name      string         `json:"name" gorm:"type:varchar(50);NOT NULL"`
 	Phone     string         `json:"phone" gorm:"type:varchar(50);NOT NULL;UNIQUE;UNIQUE_INDEX"`
 	CreatedAt time.Time      `json:"created_at"`
 	UpdatedAt time.Time      `json:"updated_at"`
 	DeletedAt gorm.DeletedAt `json:"deleted_at"`
+	Books     []Book
 }
 
 type Book struct {
