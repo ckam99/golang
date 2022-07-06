@@ -19,6 +19,11 @@ type User struct {
 	DeletedAt        gorm.DeletedAt `json:"deleted_at"`
 }
 
+type UserUpdateSchema struct {
+	Name  string `json:"name"`
+	Phone string `json:"phone"`
+}
+
 func (u *User) EncryptPassword() {
 	u.Password = utils.HashPassword(u.Password)
 }
