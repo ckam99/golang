@@ -7,7 +7,7 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
-func Print2Json(v any) {
+func PrintJson(v any) {
 	if s, e := json.MarshalIndent(v, "", "  "); e != nil {
 		panic(e.Error())
 	} else {
