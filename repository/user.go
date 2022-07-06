@@ -2,6 +2,7 @@ package repository
 
 import (
 	"example/fiber/entity"
+	"example/fiber/schema"
 	"example/fiber/utils"
 
 	"github.com/bxcodec/faker/v3"
@@ -12,20 +13,15 @@ type UserRepository struct {
 	Query *gorm.DB
 }
 
-type UserFilterParam struct {
-	Limit int
-	Skip  int
-}
-
-func (r *UserRepository) FetchAllUsers() (*[]entity.UserSchema, error) {
-	var users []entity.UserSchema
+func (r *UserRepository) FetchAllUsers() (*[]schema.User, error) {
+	var users []schema.User
 	if err := r.Query.Model(&entity.User{}).Find(&users).Error; err != nil {
 		return nil, err
 	}
 	return &users, nil
 }
 
-func (r *UserRepository) GetAllUsers(p UserFilterParam) (*[]entity.User, error) {
+func (r *UserRepository) GetAllUsers(p schema.UserFilterParam) (*[]entity.User, error) {
 	var users []entity.User
 	if err := r.Query.Offset(p.Skip).Limit(p.Limit).Find(&users).Error; err != nil {
 		return nil, err
@@ -33,7 +29,7 @@ func (r *UserRepository) GetAllUsers(p UserFilterParam) (*[]entity.User, error) 
 	return &users, nil
 }
 
-func (r *UserRepository) CreateUser(obj *entity.UserRegisterSchema) (*entity.User, error) {
+func (r *UserRepository) CreateUser(obj *schema.UserRegister) (*entity.User, error) {
 	user := entity.User{
 		Name:  obj.Name,
 		Email: obj.Email,
@@ -73,7 +69,7 @@ func (r *UserRepository) GetUserByEmail(email string) (*entity.User, error) {
 	return &user, nil
 }
 
-func (r *UserRepository) UpdateUser(userId uint, payload *entity.UserUpdateSchema) (*entity.User, error) {
+func (r *UserRepository) UpdateUser(userId uint, payload *schema.UserUpdate) (*entity.User, error) {
 	if user, err := r.GetUserByID(userId); err != nil {
 		return nil, err
 	} else {

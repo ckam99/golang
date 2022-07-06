@@ -1,8 +1,8 @@
 package handler
 
 import (
-	"example/fiber/entity"
 	"example/fiber/repository"
+	"example/fiber/schema"
 	"example/fiber/utils"
 	"strconv"
 
@@ -14,7 +14,7 @@ type UserHanlder struct {
 }
 
 func (r *UserHanlder) GetUsersHandler(c *fiber.Ctx) error {
-	queryParam := repository.UserFilterParam{
+	queryParam := schema.UserFilterParam{
 		Skip:  0,
 		Limit: 100,
 	}
@@ -28,18 +28,18 @@ func (r *UserHanlder) GetUsersHandler(c *fiber.Ctx) error {
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(utils.SetHttpError(err.Error()))
 	}
-	return c.Status(fiber.StatusOK).JSON(entity.ToUserListResponse(users))
+	return c.Status(fiber.StatusOK).JSON(schema.UserListResponse(users))
 }
 
 func (r *UserHanlder) CreateUserHandler(c *fiber.Ctx) error {
-	body := entity.UserRegisterSchema{}
+	body := schema.UserRegister{}
 	if err := c.BodyParser(&body); err != nil {
 		return c.Status(fiber.StatusUnprocessableEntity).JSON(utils.SetHttpError(err.Error()))
 	}
 	if user, err := r.Repo.CreateUser(&body); err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(utils.SetHttpError(err.Error()))
 	} else {
-		return c.Status(fiber.StatusCreated).JSON(entity.ToUserReponse(user))
+		return c.Status(fiber.StatusCreated).JSON(schema.UserReponse(user))
 	}
 }
 
@@ -51,13 +51,13 @@ func (r *UserHanlder) GetUserHandler(c *fiber.Ctx) error {
 		if err != nil {
 			return c.Status(fiber.StatusNotFound).JSON(utils.SetHttpError(err.Error()))
 		}
-		return c.Status(fiber.StatusOK).JSON(entity.ToUserReponse(user))
+		return c.Status(fiber.StatusOK).JSON(schema.UserReponse(user))
 	}
 
 }
 
 func (r *UserHanlder) UpdateUserHandler(c *fiber.Ctx) error {
-	body := entity.UserUpdateSchema{}
+	body := schema.UserUpdate{}
 	id, _ := c.ParamsInt("id", 0)
 	if err := c.BodyParser(&body); err != nil {
 		return c.Status(fiber.StatusUnprocessableEntity).JSON(err.Error())
