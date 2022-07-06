@@ -3,6 +3,7 @@ package handler
 import (
 	"example/fiber/repository"
 	"example/fiber/schema"
+	"example/fiber/schema/validators"
 	"example/fiber/utils"
 	"strconv"
 
@@ -36,6 +37,9 @@ func (r *UserHanlder) CreateUserHandler(c *fiber.Ctx) error {
 	if err := c.BodyParser(&body); err != nil {
 		return c.Status(fiber.StatusUnprocessableEntity).JSON(utils.SetHttpError(err.Error()))
 	}
+	if errors := validators.ValidateSchema(body); errors != nil {
+		return c.Status(fiber.StatusUnprocessableEntity).JSON(errors)
+	}
 	if user, err := r.Repo.CreateUser(&body); err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(utils.SetHttpError(err.Error()))
 	} else {
@@ -53,7 +57,6 @@ func (r *UserHanlder) GetUserHandler(c *fiber.Ctx) error {
 		}
 		return c.Status(fiber.StatusOK).JSON(schema.UserReponse(user))
 	}
-
 }
 
 func (r *UserHanlder) UpdateUserHandler(c *fiber.Ctx) error {

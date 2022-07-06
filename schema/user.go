@@ -7,6 +7,8 @@ import (
 	"gorm.io/gorm"
 )
 
+// https://pkg.go.dev/github.com/go-playground/validator
+
 type User struct {
 	ID               uint           `json:"id" `
 	Name             string         `json:"name" `
@@ -19,15 +21,15 @@ type User struct {
 }
 
 type UserUpdate struct {
-	Name  string `json:"name"`
-	Phone string `json:"phone"`
+	Name  string `validate:"required,min=2,max=60"`
+	Phone string `validate:"min=6,max=60"`
 }
 
 type UserRegister struct {
-	Name     string `json:"name"`
-	Email    string `json:"email"`
-	Phone    string `json:"phone"`
-	Password string `json:"password"`
+	Name     string `validate:"required,min=2,max=60"`
+	Phone    string `validate:"min=6,max=60"`
+	Email    string `validate:"required,email,max=255"`
+	Password string `validate:"required,min=6"`
 }
 
 type UserFilterParam struct {
