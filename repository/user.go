@@ -9,8 +9,7 @@ import (
 )
 
 type UserRepository struct {
-	Query  *gorm.DB
-	Filter UserFilterParam
+	Query *gorm.DB
 }
 
 type UserFilterParam struct {
@@ -20,28 +19,35 @@ type UserFilterParam struct {
 
 func (r *UserRepository) FetchAllUsers() (*[]entity.UserSchema, error) {
 	var users []entity.UserSchema
-	if err := r.Query.Model(&entity.User{}).Limit(r.Filter.Limit).Offset(r.Filter.Skip).Find(&users).Error; err != nil {
+	if err := r.Query.Model(&entity.User{}).Find(&users).Error; err != nil {
 		return nil, err
 	}
 	return &users, nil
 }
 
-func (r *UserRepository) GetAllUsers() (*[]entity.User, error) {
+func (r *UserRepository) GetAllUsers(p UserFilterParam) (*[]entity.User, error) {
 	var users []entity.User
-	if err := r.Query.Limit(r.Filter.Limit).Offset(r.Filter.Skip).Find(&users).Error; err != nil {
+	if err := r.Query.Offset(p.Skip).Limit(p.Limit).Find(&users).Error; err != nil {
 		return nil, err
 	}
 	return &users, nil
 }
 
-func (r *UserRepository) CreateUser(user *entity.User) (*entity.User, error) {
-	if user.Password != "" {
-		user.Password = utils.HashPassword(user.Password)
+func (r *UserRepository) CreateUser(obj *entity.UserRegisterSchema) (*entity.User, error) {
+	user := entity.User{
+		Name:  obj.Name,
+		Email: obj.Email,
+		Phone: obj.Phone,
 	}
-	if err := r.Query.Omit("email_confirmed_at").Create(&user).Error; err != nil {
+	var err error
+	user.Password, err = utils.HashPassword(obj.Password)
+	if err != nil {
 		return nil, err
 	}
-	return user, nil
+	if err = r.Query.Omit("email_confirmed_at").Create(&user).Error; err != nil {
+		return nil, err
+	}
+	return &user, nil
 }
 
 func (r *UserRepository) GetUser(user *entity.User) (*entity.User, error) {
@@ -71,23 +77,28 @@ func (r *UserRepository) UpdateUser(userId uint, payload *entity.UserUpdateSchem
 	if user, err := r.GetUserByID(userId); err != nil {
 		return nil, err
 	} else {
-		user.Name = payload.Name
-		user.Phone = payload.Phone
-		err := r.Query.Save(&user).Error
+		err := r.Query.Model(&user).Updates(entity.User{
+			Name:  payload.Name,
+			Phone: payload.Phone,
+		}).Error
 		return user, err
 	}
 }
 
-func (r *UserRepository) DeleteUser(userId uint, permanlty bool) error {
-	if permanlty {
+func (r *UserRepository) DeleteUser(userId uint, isSoftDelete bool) error {
+	if !isSoftDelete {
 		return r.Query.Unscoped().Where("id = ?", userId).Delete(&entity.User{}).Error
 	}
 	return r.Query.Where("id = ?", userId).Delete(&entity.User{}).Error
 }
 
 func (r *UserRepository) ChangeUserPassword(user *entity.User, newPassword string) error {
-	user.Password = utils.HashPassword(newPassword)
-	err := r.Query.Save(&user).Error
+	var err error
+	user.Password, err = utils.HashPassword(newPassword)
+	if err != nil {
+		return err
+	}
+	err = r.Query.Save(&user).Error
 	return err
 }
 

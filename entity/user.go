@@ -34,6 +34,13 @@ type UserUpdateSchema struct {
 	Phone string `json:"phone"`
 }
 
+type UserRegisterSchema struct {
+	Name     string `json:"name"`
+	Email    string `json:"email"`
+	Phone    string `json:"phone"`
+	Password string `json:"password"`
+}
+
 func ToUserReponse(u *User) *UserSchema {
 	return &UserSchema{
 		ID:               u.ID,
