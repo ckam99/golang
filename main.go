@@ -3,6 +3,7 @@ package main
 import (
 	"example/fiber/config"
 	"example/fiber/database"
+	"example/fiber/middleware"
 	"example/fiber/router"
 	"log"
 
@@ -11,6 +12,9 @@ import (
 
 func main() {
 	app := fiber.New(fiber.Config{})
+	// middleware
+	app.Use(middleware.TestMiddleware)
+
 	if conf, err := config.LoadConfig(); err != nil {
 		log.Fatalln(err.Error())
 	} else {
