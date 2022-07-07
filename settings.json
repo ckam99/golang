@@ -1,0 +1,27 @@
+{
+    "server": {
+        "port": 8000,
+        "description": ""
+    },
+    "database": {
+        "name": "postgres",
+        "host": "localhost",
+        "port": 5432,
+        "username": "postgres",
+        "password": "postgres"
+    },
+    "mail": {
+        "smtp": "smtp.mailgun.com",
+        "port": 2525,
+        "username": "",
+        "password": "",
+        "tls": true,
+        "ssl": false
+    },
+    "static": "./static",
+    "template": [
+        "./template",
+        "./res",
+        "./hour"
+    ]
+}
