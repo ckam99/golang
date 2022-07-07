@@ -1,6 +1,8 @@
 # Web application with golang
 
 
-- [Fiber](https://gofiber.io)
-- [Gorm](https://gorm.io/docs/)
-- [Faker](https://github.com/bxcodec/faker/blob/master/example_with_tags_test.go)
+[Fiber](https://gofiber.io)
+
+[Gorm](https://gorm.io/docs/)
+
+[Faker](https://github.com/bxcodec/faker/blob/master/example_with_tags_test.go)
