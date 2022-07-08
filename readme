@@ -3,4 +3,5 @@
 
 - [Fiber](https://gofiber.io)
 - [Gorm](https://gorm.io/docs/)
-- [Faker](https://github.com/bxcodec/faker/blob/master/example_with_tags_test.go)
+- [Faker](https://github.com/bxcodec/faker)
+- [GoDotenv](github.com/joho/godotenv)

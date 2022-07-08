@@ -7,27 +7,14 @@ import (
 	"github.com/joho/godotenv"
 )
 
-type AppConfig struct {
+type ServerConfig struct {
 	Name        string
 	Description string
 }
 
 type Config struct {
-	App      *AppConfig
+	Server   *ServerConfig
 	Database *database.Config
-}
-
-func LoadConfig() (*Config, error) {
-	err := godotenv.Load(".env")
-	config := &Config{
-		App: &AppConfig{
-			Name:        os.Getenv("APP_NAME"),
-			Description: os.Getenv("APP_DESCRIPTION"),
-		},
-		Database: LoadDbConfig(),
-	}
-	return config, err
-
 }
 
 func LoadDbConfig() *database.Config {
@@ -41,4 +28,17 @@ func LoadDbConfig() *database.Config {
 		Timezone: os.Getenv("TIMEZONE"),
 	}
 	return config
+}
+
+func LoadConfig() (*Config, error) {
+	err := godotenv.Load(".env")
+	config := &Config{
+		Server: &ServerConfig{
+			Name:        os.Getenv("APP_NAME"),
+			Description: os.Getenv("APP_DESCRIPTION"),
+		},
+		Database: LoadDbConfig(),
+	}
+	return config, err
+
 }

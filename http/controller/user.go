@@ -1,21 +1,21 @@
-package handler
+package controller
 
 import (
+	"example/fiber/http/request"
+	"example/fiber/http/response"
 	"example/fiber/repository"
-	"example/fiber/schema"
-	"example/fiber/schema/validators"
 	"example/fiber/utils"
 	"strconv"
 
 	"github.com/gofiber/fiber/v2"
 )
 
-type UserHanlder struct {
+type UserController struct {
 	Repo repository.UserRepository
 }
 
-func (r *UserHanlder) GetUsersHandler(c *fiber.Ctx) error {
-	queryParam := schema.UserFilterParam{
+func (r *UserController) GetUsersHandler(c *fiber.Ctx) error {
+	queryParam := request.UserFilterParam{
 		Skip:  0,
 		Limit: 100,
 	}
@@ -29,25 +29,25 @@ func (r *UserHanlder) GetUsersHandler(c *fiber.Ctx) error {
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(utils.SetHttpError(err.Error()))
 	}
-	return c.Status(fiber.StatusOK).JSON(schema.UserListResponse(users))
+	return c.Status(fiber.StatusOK).JSON(response.ParseUserListEntity(users))
 }
 
-func (r *UserHanlder) CreateUserHandler(c *fiber.Ctx) error {
-	body := schema.UserRegister{}
+func (r *UserController) CreateUserHandler(c *fiber.Ctx) error {
+	body := request.CreateUser{}
 	if err := c.BodyParser(&body); err != nil {
 		return c.Status(fiber.StatusUnprocessableEntity).JSON(utils.SetHttpError(err.Error()))
 	}
-	if errors := validators.ValidateSchema(body); errors != nil {
+	if errors := utils.ValidateSchema(body); errors != nil {
 		return c.Status(fiber.StatusUnprocessableEntity).JSON(errors)
 	}
 	if user, err := r.Repo.CreateUser(&body); err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(utils.SetHttpError(err.Error()))
 	} else {
-		return c.Status(fiber.StatusCreated).JSON(schema.UserReponse(user))
+		return c.Status(fiber.StatusCreated).JSON(response.ParseUserEntity(user))
 	}
 }
 
-func (r *UserHanlder) GetUserHandler(c *fiber.Ctx) error {
+func (r *UserController) GetUserHandler(c *fiber.Ctx) error {
 	if id, err := c.ParamsInt("id"); err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(utils.SetHttpError(err.Error()))
 	} else {
@@ -55,12 +55,12 @@ func (r *UserHanlder) GetUserHandler(c *fiber.Ctx) error {
 		if err != nil {
 			return c.Status(fiber.StatusNotFound).JSON(utils.SetHttpError(err.Error()))
 		}
-		return c.Status(fiber.StatusOK).JSON(schema.UserReponse(user))
+		return c.Status(fiber.StatusOK).JSON(response.ParseUserEntity(user))
 	}
 }
 
-func (r *UserHanlder) UpdateUserHandler(c *fiber.Ctx) error {
-	body := schema.UserUpdate{}
+func (r *UserController) UpdateUserHandler(c *fiber.Ctx) error {
+	body := request.UpdateUser{}
 	id, _ := c.ParamsInt("id", 0)
 	if err := c.BodyParser(&body); err != nil {
 		return c.Status(fiber.StatusUnprocessableEntity).JSON(err.Error())
@@ -72,7 +72,7 @@ func (r *UserHanlder) UpdateUserHandler(c *fiber.Ctx) error {
 	return c.Status(fiber.StatusAccepted).JSON(&user)
 }
 
-func (r *UserHanlder) DeleteUserHandler(c *fiber.Ctx) error {
+func (r *UserController) DeleteUserHandler(c *fiber.Ctx) error {
 	id, _ := c.ParamsInt("id")
 	if err := r.Repo.DeleteUser(uint(id), true); err != nil {
 		c.Status(fiber.StatusBadRequest).JSON(err.Error())

@@ -3,8 +3,8 @@ package main
 import (
 	"example/fiber/config"
 	"example/fiber/database"
-	"example/fiber/middleware"
-	"example/fiber/router"
+	"example/fiber/http/middleware"
+	"example/fiber/routes"
 	"log"
 
 	"github.com/gofiber/fiber/v2"
@@ -19,10 +19,12 @@ func main() {
 		log.Fatalln(err.Error())
 	} else {
 		db := database.Init(conf.Database, true) // true for migration database
-		web := router.WebRoute{DB: db, App: app}
-		api := router.APIRoute{DB: db, App: app}
+		web := routes.WebRoute{DB: db, App: app}
+		api := routes.APIRoute{DB: db, App: app}
 		web.SetupWebRoutes()
 		api.SetupAPIRoutes()
+
 	}
+
 	log.Fatal(app.Listen(":8000"))
 }

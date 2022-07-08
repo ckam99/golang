@@ -1,4 +1,4 @@
-package schema
+package response
 
 import (
 	"example/fiber/entity"
@@ -9,7 +9,7 @@ import (
 
 // https://pkg.go.dev/github.com/go-playground/validator
 
-type User struct {
+type UserResonse struct {
 	ID               uint           `json:"id" `
 	Name             string         `json:"name" `
 	Email            string         `json:"email" `
@@ -20,25 +20,8 @@ type User struct {
 	DeletedAt        gorm.DeletedAt `json:"deleted_at"`
 }
 
-type UserUpdate struct {
-	Name  string `validate:"required,min=2,max=60"`
-	Phone string `validate:"min=6,max=60"`
-}
-
-type UserRegister struct {
-	Name     string `validate:"required,min=2,max=60"`
-	Phone    string `validate:"min=6,max=60"`
-	Email    string `validate:"required,email,max=255"`
-	Password string `validate:"required,min=6"`
-}
-
-type UserFilterParam struct {
-	Limit int
-	Skip  int
-}
-
-func UserReponse(u *entity.User) *User {
-	return &User{
+func ParseUserEntity(u *entity.User) *UserResonse {
+	return &UserResonse{
 		ID:               u.ID,
 		Name:             u.Name,
 		Email:            u.Email,
@@ -50,10 +33,10 @@ func UserReponse(u *entity.User) *User {
 	}
 }
 
-func UserListResponse(users *[]entity.User) *[]User {
-	var newList []User
+func ParseUserListEntity(users *[]entity.User) *[]UserResonse {
+	var newList []UserResonse
 	for _, user := range *users {
-		newList = append(newList, *UserReponse(&user))
+		newList = append(newList, *ParseUserEntity(&user))
 	}
 	return &newList
 }
