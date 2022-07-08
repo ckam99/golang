@@ -13,6 +13,6 @@ func SetupWebRoutes(app *fiber.App, db *gorm.DB) {
 	})
 
 	app.Get("about", func(c *fiber.Ctx) error {
-		return c.Render("about", fiber.Map{}, "layouts/base")
+		return c.Render("about", fiber.Map{})
 	})
 }
