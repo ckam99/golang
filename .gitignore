@@ -25,3 +25,5 @@ go.work
 # local environment
 .env
 .env.local
+tmp
+.dev*
