@@ -11,6 +11,7 @@ import (
 )
 
 func main() {
+
 	// load environment variable
 	conf, err := config.LoadConfig()
 	if err != nil {
@@ -20,14 +21,14 @@ func main() {
 		Views: conf.Server.HtmlEngine,
 		// ViewsLayout: "layouts/base",
 	})
+
 	// middleware
 	app.Use(middleware.TestMiddleware)
 
 	db := database.Init(conf.Database, true) // true for migration database
-	web := routes.WebRoute{DB: db, App: app}
-	api := routes.APIRoute{DB: db, App: app}
-	web.SetupWebRoutes()
-	api.SetupAPIRoutes()
+
+	routes.SetupWebRoutes(app, db)
+	routes.SetupAPIRoutes(app, db)
 
 	log.Fatal(app.Listen(":8000"))
 }

@@ -8,15 +8,11 @@ import (
 	"gorm.io/gorm"
 )
 
-type APIRoute struct {
-	DB  *gorm.DB
-	App *fiber.App
-}
+func SetupAPIRoutes(app *fiber.App, db *gorm.DB) {
+	api := app.Group("/api")
 
-func (w *APIRoute) SetupAPIRoutes() {
-	api := w.App.Group("/api")
-
-	userController := &controller.UserController{Repo: repository.UserRepository{Query: w.DB}}
+	// user controller
+	userController := &controller.UserController{Repo: repository.UserRepository{Query: db}}
 	userRoute := api.Group("/users")
 	userRoute.Get("/", userController.GetUsersHandler)
 	userRoute.Post("/", userController.CreateUserHandler)

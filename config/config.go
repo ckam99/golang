@@ -2,7 +2,6 @@ package config
 
 import (
 	"example/fiber/database"
-	"html/template"
 	"os"
 
 	"github.com/gofiber/template/html"
@@ -12,7 +11,8 @@ import (
 type ServerConfig struct {
 	Name        string
 	Description string
-	HtmlEngine  *html.Engine
+	//HtmlEngine  *django.Engine
+	HtmlEngine *html.Engine
 }
 
 type Configuration struct {
@@ -35,12 +35,13 @@ func LoadDbConfig() *database.Config {
 
 func LoadConfig() (*Configuration, error) {
 	engine := html.New("./resource/templates", ".tmpl")
-	engine.AddFunc(
-		// add unescape function
-		"unescape", func(s string) template.HTML {
-			return template.HTML(s)
-		},
-	)
+	//engine := django.New("./resource/templates", ".html")
+	// engine.AddFunc(
+	// 	// add unescape function
+	// 	"unescape", func(s string) template.HTML {
+	// 		return template.HTML(s)
+	// 	},
+	// )
 	err := godotenv.Load(".env")
 	config := &Configuration{
 		Server: &ServerConfig{

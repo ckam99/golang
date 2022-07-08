@@ -5,19 +5,14 @@ import (
 	"gorm.io/gorm"
 )
 
-type WebRoute struct {
-	DB  *gorm.DB
-	App *fiber.App
-}
-
-func (w *WebRoute) SetupWebRoutes() {
-	w.App.Get("/", func(c *fiber.Ctx) error {
+func SetupWebRoutes(app *fiber.App, db *gorm.DB) {
+	app.Get("/", func(c *fiber.Ctx) error {
 		return c.Render("welcome", fiber.Map{
 			"Title": "Hello, <b>World</b>!",
 		})
 	})
 
-	w.App.Get("about", func(c *fiber.Ctx) error {
-		return c.Render("about", fiber.Map{})
+	app.Get("about", func(c *fiber.Ctx) error {
+		return c.Render("about", fiber.Map{}, "layouts/base")
 	})
 }
