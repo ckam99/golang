@@ -2,17 +2,20 @@ package config
 
 import (
 	"example/fiber/database"
+	"html/template"
 	"os"
 
+	"github.com/gofiber/template/html"
 	"github.com/joho/godotenv"
 )
 
 type ServerConfig struct {
 	Name        string
 	Description string
+	HtmlEngine  *html.Engine
 }
 
-type Config struct {
+type Configuration struct {
 	Server   *ServerConfig
 	Database *database.Config
 }
@@ -30,12 +33,20 @@ func LoadDbConfig() *database.Config {
 	return config
 }
 
-func LoadConfig() (*Config, error) {
+func LoadConfig() (*Configuration, error) {
+	engine := html.New("./resource/templates", ".tmpl")
+	engine.AddFunc(
+		// add unescape function
+		"unescape", func(s string) template.HTML {
+			return template.HTML(s)
+		},
+	)
 	err := godotenv.Load(".env")
-	config := &Config{
+	config := &Configuration{
 		Server: &ServerConfig{
 			Name:        os.Getenv("APP_NAME"),
 			Description: os.Getenv("APP_DESCRIPTION"),
+			HtmlEngine:  engine,
 		},
 		Database: LoadDbConfig(),
 	}

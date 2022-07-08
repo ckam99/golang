@@ -12,6 +12,12 @@ type WebRoute struct {
 
 func (w *WebRoute) SetupWebRoutes() {
 	w.App.Get("/", func(c *fiber.Ctx) error {
-		return c.SendString("hELLO, FIBER")
+		return c.Render("welcome", fiber.Map{
+			"Title": "Hello, <b>World</b>!",
+		})
+	})
+
+	w.App.Get("about", func(c *fiber.Ctx) error {
+		return c.Render("about", fiber.Map{})
 	})
 }
