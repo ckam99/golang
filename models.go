@@ -14,4 +14,9 @@ type User struct {
 	Name  string `json:"name"`
 	Email string `json:"email"`
 	Token Token  `json:"token"`
+	Role  Role   `json:"role"`
+}
+
+type Role struct {
+	Name string `json:"name"`
 }

@@ -5,7 +5,6 @@ import (
 	// "github.com/dgrijalva/jwt-go/v4"
 
 	"github.com/gofiber/fiber/v2"
-	"github.com/golang-jwt/jwt/v4"
 )
 
 func LoginHandler(ctx *fiber.Ctx) error {
@@ -15,71 +14,47 @@ func LoginHandler(ctx *fiber.Ctx) error {
 			"message": err.Error(),
 		})
 	}
-	if body.Email != "test@example" && body.Password != "123456" {
+	if body.Email != "test@example.com" || body.Password != "123456" {
 		return ctx.Status(fiber.StatusBadRequest).JSON(&fiber.Map{
 			"message": "Bad credentials",
 		})
 	}
-	token, err := GenerateExampleToken()
+
+	user := User{
+		Name:  "Test",
+		Email: body.Email,
+		Role:  Role{Name: "user"},
+	}
+	token, err := CreateAccessToken(&user)
 	if err != nil {
 		return ctx.Status(fiber.StatusBadRequest).JSON(&fiber.Map{
 			"message": err.Error(),
 		})
 	}
-	user := User{
-		Name:  "Test",
-		Email: body.Email,
-		Token: Token{
-			AccessToken: token,
-		},
+	user.Token = Token{
+		AccessToken: token,
 	}
 	return ctx.Status(fiber.StatusOK).JSON(&user)
 }
 
 func CurrentUserHandler(ctx *fiber.Ctx) error {
-	token, err := VerifyJWT(ctx.Get("Authorization"))
-	if err != nil {
-		return ctx.JSON(err)
-	}
-	println(token)
-
-	user := ctx.Locals("x-fiber-user").(*jwt.Token)
-	claims := user.Claims.(jwt.MapClaims)
-
-	//now := time.Now().Unix()
-
-	// // Get claims from JWT.
-	// claims, err := ExtractJWTMetadata(ctx)
-	// if err != nil {
-	// 	// Return status 500 and JWT parse error.
-	// 	return ctx.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
-	// 		"error": true,
-	// 		"msg":   err.Error(),
-	// 	})
-	// }
-	// // Set expiration time from JWT data of current book.
-	// expires := claims.Expires
-
-	// // Checking, if now time greather than expiration from JWT.
-	// if now > expires {
-	// 	// Return status 401 and unauthorized error message.
-	// 	return ctx.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
-	// 		"error": true,
-	// 		"msg":   "unauthorized, check expiration time of your token",
-	// 	})
-	// }
-
-	return ctx.JSON(claims)
-}
-
-func CurrentUserHandler2(ctx *fiber.Ctx) error {
-	user, err := ExtractTokenUser(ctx)
+	claims, err := ExtractJWT(ctx)
 	if err != nil {
 		return ctx.Status(fiber.StatusBadRequest).JSON(fiber.Map{
 			"message": err.Error(),
 		})
 	}
-	return ctx.JSON(user)
+	return ctx.JSON(claims)
+}
+
+func CurrentUserHandler2(ctx *fiber.Ctx) error {
+	claims, err := ExtractJsonWebToken(ctx)
+	if err != nil {
+		return ctx.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"message": err.Error(),
+		})
+	}
+	return ctx.JSON(claims)
 }
 
 func WelcomeHandler(ctx *fiber.Ctx) error {

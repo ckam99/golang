@@ -1,17 +1,12 @@
 package main
 
 import (
-	"errors"
 	"strings"
 	"time"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/golang-jwt/jwt/v4"
 )
-
-type TokenMetadata struct {
-	Expires int64
-}
 
 const secretKey = "ec52b01ce38571b4c4f0ecf157e52975f8f22bf580468aaddac98e0800a72d19"
 
@@ -30,24 +25,34 @@ func GenerateExampleToken() (string, error) {
 func CreateAccessToken(user *User) (string, error) {
 	claims := jwt.MapClaims{
 		"email": user.Email,
-		"exp":   time.Now().Add(time.Hour * 72).Unix(),
+		"role":  user.Role.Name,
+		"exp":   time.Now().Add(time.Minute * 2).Unix(),
 	}
 	return GenerateJWT(claims)
 }
 
-func ExtractTokenUser(ctx *fiber.Ctx) (*User, error) {
-	token := ctx.Locals("x-fiber-user").(*jwt.Token)
-	claims := token.Claims.(jwt.MapClaims)
-	if !token.Valid {
-		return nil, errors.New("Token is invalid")
-	}
-	expires := int64(claims["exp"].(float64))
-	println("token expire", expires)
+func GetUserFromClaim(claims jwt.MapClaims) *User {
 	user := User{
 		Email: claims["email"].(string),
 	}
-	//
-	return &user, nil
+	return &user
+}
+
+func ExtractJWT(ctx *fiber.Ctx) (*jwt.MapClaims, error) {
+	token := ctx.Locals("x-fiber-user").(*jwt.Token)
+	claims := token.Claims.(jwt.MapClaims)
+	// expires := int64(claims["exp"].(float64))
+	return &claims, nil
+}
+
+func ExtractJsonWebToken(c *fiber.Ctx) (*jwt.MapClaims, error) {
+	// Normally Authorization HTTP header.
+	token, err := VerifyJWT(c.Get("Authorization"))
+	if err != nil {
+		return nil, err
+	}
+	claims := token.Claims.(jwt.MapClaims)
+	return &claims, err
 }
 
 func GenerateJWT(claims jwt.MapClaims) (string, error) {
@@ -72,22 +77,4 @@ func DecodeJWT(bearToken string) string {
 		return onlyToken[1]
 	}
 	return ""
-}
-
-func ExtractJWTMetadata(c *fiber.Ctx) (*TokenMetadata, error) {
-	// Normally Authorization HTTP header.
-	token, err := VerifyJWT(c.Get("Authorization"))
-	if err != nil {
-		return nil, err
-	}
-	// Setting and checking token and credentials.
-	claims, ok := token.Claims.(jwt.MapClaims)
-	if ok && token.Valid {
-		// Expires time.
-		expires := int64(claims["exp"].(float64))
-		return &TokenMetadata{
-			Expires: expires,
-		}, nil
-	}
-	return nil, err
 }
