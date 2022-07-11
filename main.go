@@ -24,6 +24,7 @@ func main() {
 
 	// middleware
 	app.Use(middleware.TestMiddleware)
+	app.Use(middleware.RouteMiddleware)
 
 	db := database.Init(conf.Database, true, true) // true for migration database
 

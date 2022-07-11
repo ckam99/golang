@@ -14,3 +14,10 @@ func TestMiddleware(c *fiber.Ctx) error {
 	// Go to next middleware:
 	return c.Next()
 }
+
+func RouteMiddleware(c *fiber.Ctx) error {
+	// Return HTTP 404 status and JSON response.
+	return c.Status(fiber.StatusNotFound).JSON(fiber.Map{
+		"message": "sorry, endpoint is not found",
+	})
+}

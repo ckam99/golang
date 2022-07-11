@@ -38,7 +38,24 @@ func RunMigrations(db *gorm.DB) error {
 	return db.AutoMigrate(&entity.User{})
 }
 
-func Init(config *Config, runMigration bool, runSeeders bool) *gorm.DB {
+func runSeeders(db *gorm.DB) error {
+
+	if err := CreateRolesSeeder(db); err != nil {
+		return err
+	}
+	return nil
+}
+
+func RunDatabaseSeeders(db *gorm.DB) {
+	log.Println("Running seeders")
+	if err := runSeeders(db); err != nil {
+		log.Fatalf("Failed to run CreateRolesSeeder:  %v", err.Error())
+	} else {
+		log.Println("Seeders successfully executed")
+	}
+}
+
+func Init(config *Config, runMigration bool) *gorm.DB {
 	db, err := NewConnection(config)
 	if err != nil {
 		log.Fatalf("Failed to connect to the database %v", err.Error())
@@ -53,12 +70,7 @@ func Init(config *Config, runMigration bool, runSeeders bool) *gorm.DB {
 			log.Println("Migrations successfully executed")
 		}
 	}
-	if runSeeders {
-		log.Println("Running seeders")
-		if err := CreateRolesSeeder(db); err != nil {
-			log.Fatalf("Failed to run CreateRolesSeeder:  %v", err.Error())
-		}
-	}
+
 	//db.Logger = logger.Default.LogMode(logger.Info)
 	return db
 }
