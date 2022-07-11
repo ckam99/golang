@@ -16,4 +16,21 @@ type User struct {
 	UpdatedAt        time.Time      `json:"updated_at"`
 	EmailConfirmedAt time.Time      `json:"email_confirmed_at,omitempty" gorm:"autoCreateTime:false"`
 	DeletedAt        gorm.DeletedAt `json:"deleted_at"`
+	Roles            []*Role        `json:"roles" gorm:"many2many:user_roles"`
+}
+
+type Role struct {
+	ID        uint      `json:"id" gorm:"primaryKey"`
+	Name      string    `json:"name" gorm:"type:varchar(60)"`
+	CreatedAt time.Time `json:"created_at"`
+	UpdatedAt time.Time `json:"updated_at"`
+}
+
+func (u *User) HasRole(role string) bool {
+	for _, r := range u.Roles {
+		if r.Name == role {
+			return true
+		}
+	}
+	return false
 }

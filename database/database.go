@@ -38,19 +38,25 @@ func RunMigrations(db *gorm.DB) error {
 	return db.AutoMigrate(&entity.User{})
 }
 
-func Init(config *Config, migrate bool) *gorm.DB {
+func Init(config *Config, runMigration bool, runSeeders bool) *gorm.DB {
 	db, err := NewConnection(config)
 	if err != nil {
 		log.Fatalf("Failed to connect to the database %v", err.Error())
 		os.Exit(2)
 	}
 	log.Println("Connected to the database successfully")
-	if migrate {
+	if runMigration {
 		log.Println("Running migrations")
 		if err := RunMigrations(db); err != nil {
 			log.Fatalf("Failed to connect to the database %v", err.Error())
 		} else {
 			log.Println("Migrations successfully executed")
+		}
+	}
+	if runSeeders {
+		log.Println("Running seeders")
+		if err := CreateRolesSeeder(db); err != nil {
+			log.Fatalf("Failed to run CreateRolesSeeder:  %v", err.Error())
 		}
 	}
 	//db.Logger = logger.Default.LogMode(logger.Info)
