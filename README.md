@@ -4,6 +4,10 @@
 
 [Fiber + JWT Authentication](https://github.com/ckam225/golang/tree/fiber-jwt)
 
+[Fiber + gRPC](https://github.com/ckam225/golang/tree/fiber-grpc)
+
+[Fiber + Swagger](https://github.com/ckam225/golang/tree/fiber-swagger)
+
 [Gorm](https://github.com/ckam225/golang/tree/gorm)
 
 [Viper](https://github.com/ckam225/golang/tree/viper)
