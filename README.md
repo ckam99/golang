@@ -14,6 +14,8 @@
 
 [Basic web app](https://github.com/ckam225/golang/tree/webapp)
 
+[gRPC](https://github.com/ckam225/golang/tree/grpc)
+
 [Basic](https://github.com/ckam225/golang/tree/basics)
 
 [Advanced](https://github.com/ckam225/golang/tree/advanced)
