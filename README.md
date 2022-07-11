@@ -2,7 +2,7 @@
 
 [Fiber + Gorm](https://github.com/ckam225/golang/tree/fiber)
 
-[Fiber + Json Web Token](https://github.com/ckam225/golang/tree/fiber-jwt)
+[Fiber + JWT Authentication](https://github.com/ckam225/golang/tree/fiber-jwt)
 
 [Gorm](https://github.com/ckam225/golang/tree/gorm)
 
