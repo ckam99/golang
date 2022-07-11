@@ -26,7 +26,7 @@ func main() {
 	app.Use(middleware.TestMiddleware)
 	app.Use(middleware.RouteMiddleware)
 
-	db := database.Init(conf.Database, true, true) // true for migration database
+	db := database.Init(conf.Database, true) // true for migration database
 
 	routes.SetupWebRoutes(app, db)
 	routes.SetupAPIRoutes(app, db)
