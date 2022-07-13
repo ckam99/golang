@@ -4,6 +4,7 @@ import (
 	"example/fiber/entity"
 	"example/fiber/http/request"
 	"example/fiber/http/response"
+	"example/fiber/service"
 	"example/fiber/utils"
 
 	"gorm.io/gorm"
@@ -96,4 +97,12 @@ func (r *UserRepository) ChangeUserPassword(user *entity.User, newPassword strin
 	}
 	err = r.Query.Save(&user).Error
 	return err
+}
+
+func (r *UserRepository) CreateFakeUsers(maxLines int) error {
+	return service.CreateFakeUsers(r.Query, maxLines)
+}
+
+func (r *UserRepository) CreateFakeUser() error {
+	return service.CreateFakeUser(r.Query)
 }
