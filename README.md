@@ -8,6 +8,8 @@
 
 [Fiber + gRPC](https://github.com/ckam225/golang/tree/fiber-grpc)
 
+[Simple Project Architecture](https://github.com/ckam225/golang/tree/project-architecture)
+
 [Gorm](https://github.com/ckam225/golang/tree/gorm)
 
 [Viper](https://github.com/ckam225/golang/tree/viper)
