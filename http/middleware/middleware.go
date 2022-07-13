@@ -10,7 +10,6 @@ func TestMiddleware(c *fiber.Ctx) error {
 	c.Set("Strict-Transport-Security", "max-age=5184000")
 	c.Set("X-Frame-Options", "SAMEORIGIN")
 	c.Set("X-DNS-Prefetch-Control", "off")
-
 	// Go to next middleware:
 	return c.Next()
 }

@@ -20,6 +20,8 @@ type Config struct {
 	SSLMode  string
 }
 
+var DefaultDb *gorm.DB
+
 func NewConnection(config *Config) (*gorm.DB, error) {
 	dns := fmt.Sprintf(
 		"host=%s port=%s dbname=%s user=%s password=%s sslmode=%s timezone=%s",
@@ -34,22 +36,23 @@ func NewConnection(config *Config) (*gorm.DB, error) {
 	return gorm.Open(postgres.Open(dns), &gorm.Config{})
 }
 
-func RunMigrations(db *gorm.DB) error {
+func Migrate(db *gorm.DB) error {
 	return db.AutoMigrate(&entity.User{})
 }
 
-func runSeeders(db *gorm.DB) error {
-
-	if err := CreateRolesSeeder(db); err != nil {
-		return err
+func RunMigrations(db *gorm.DB) {
+	log.Println("Running migrations")
+	if err := Migrate(db); err != nil {
+		log.Fatalf("Failed to connect to the database %v", err.Error())
+	} else {
+		log.Println("Migrations successfully executed")
 	}
-	return nil
 }
 
 func RunDatabaseSeeders(db *gorm.DB) {
 	log.Println("Running seeders")
-	if err := runSeeders(db); err != nil {
-		log.Fatalf("Failed to run CreateRolesSeeder:  %v", err.Error())
+	if err := DatabaseSeeder(db); err != nil {
+		log.Fatalf("Failed to run DatabaseSeeder:  %v", err.Error())
 	} else {
 		log.Println("Seeders successfully executed")
 	}
@@ -63,14 +66,9 @@ func Init(config *Config, runMigration bool) *gorm.DB {
 	}
 	log.Println("Connected to the database successfully")
 	if runMigration {
-		log.Println("Running migrations")
-		if err := RunMigrations(db); err != nil {
-			log.Fatalf("Failed to connect to the database %v", err.Error())
-		} else {
-			log.Println("Migrations successfully executed")
-		}
+		RunMigrations(db)
 	}
-
+	DefaultDb = db
 	//db.Logger = logger.Default.LogMode(logger.Info)
 	return db
 }

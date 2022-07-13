@@ -15,3 +15,10 @@ func CreateRolesSeeder(db *gorm.DB) error {
 	err := db.Create(&roles).Error
 	return err
 }
+
+func DatabaseSeeder(db *gorm.DB) error {
+	if err := CreateRolesSeeder(db); err != nil {
+		return err
+	}
+	return nil
+}
