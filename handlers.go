@@ -3,9 +3,11 @@ package main
 import (
 
 	// "github.com/dgrijalva/jwt-go/v4"
-
 	"github.com/gofiber/fiber/v2"
+	"golang.org/x/crypto/bcrypt"
 )
+
+const hash = "$2a$10$0ngjo9r3Sl3PfUGKSqbxYO4nTDLixreZf83O0gTWJkxthTiWI1aLa" // hash of 123456
 
 func LoginHandler(ctx *fiber.Ctx) error {
 	var body LoginRequest
@@ -14,9 +16,14 @@ func LoginHandler(ctx *fiber.Ctx) error {
 			"message": err.Error(),
 		})
 	}
-	if body.Email != "test@example.com" || body.Password != "123456" {
+	if body.Email != "test@example.com" {
 		return ctx.Status(fiber.StatusBadRequest).JSON(&fiber.Map{
-			"message": "Bad credentials",
+			"message": "Bad credentials: email does not match",
+		})
+	}
+	if err := bcrypt.CompareHashAndPassword([]byte(hash), []byte(body.Password)); err != nil {
+		return ctx.Status(fiber.StatusBadRequest).JSON(&fiber.Map{
+			"message": "Bad credentials: password does not match",
 		})
 	}
 

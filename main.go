@@ -15,15 +15,15 @@ func main() {
 	app.Get("/", WelcomeHandler)
 
 	app.Post("/login", LoginHandler)
-
 	app.Post("/auth/token", TestTokenHandler)
 
 	app.Get("/auth/me", BearerAuthMiddleware(), CurrentUserHandler)
 	app.Get("/auth/user", BearerAuthMiddleware(), CurrentUserHandler2)
 
 	app.Get("/protected", BearerAuthMiddleware())
+
 	app.Use(RouteMiddleware)
 
-	log.Fatal(app.Listen(":8000"))
+	log.Fatal(app.Listen(":8001"))
 
 }
