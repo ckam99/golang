@@ -5,7 +5,6 @@ import (
 	"fmt"
 
 	"github.com/gofiber/fiber/v2"
-	"golang.org/x/crypto/bcrypt"
 )
 
 func PrintJson(v any) {
@@ -14,14 +13,6 @@ func PrintJson(v any) {
 	} else {
 		fmt.Println(string(s))
 	}
-}
-
-func HashPassword(password string) (string, error) {
-	hash, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.MinCost)
-	if err != nil {
-		return "", err
-	}
-	return string(hash), nil
 }
 
 func SetHttpError(msg string) *fiber.Map {

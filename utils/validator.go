@@ -11,12 +11,12 @@ func Validator() *validator.Validate {
 	return validator.New()
 }
 
-func ValidateSchema(s interface{}) []*response.ErrorResponse {
-	var errors []*response.ErrorResponse
+func ValidateCredentials(s interface{}) []*response.Error {
+	var errors []*response.Error
 	err := Validator().Struct(s)
 	if err != nil {
 		for _, err := range err.(validator.ValidationErrors) {
-			var element response.ErrorResponse
+			var element response.Error
 			element.Namespace = err.StructNamespace()
 			element.Tag = err.Tag()
 			element.Value = err.Param()

@@ -20,6 +20,12 @@ type UserResonse struct {
 	DeletedAt        gorm.DeletedAt `json:"deleted_at"`
 }
 
+type AccessToken struct {
+	ID          uint   `json:"id"`
+	Email       string `json:"email"`
+	AccessToken string `json:"access_token"`
+}
+
 func ParseUserEntity(u *entity.User) *UserResonse {
 	return &UserResonse{
 		ID:               u.ID,

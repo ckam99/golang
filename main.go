@@ -22,14 +22,14 @@ func main() {
 		// ViewsLayout: "layouts/base",
 	})
 
-	// middleware
-	app.Use(middleware.TestMiddleware)
-	app.Use(middleware.RouteMiddleware)
-
 	db := database.Init(conf.Database, true) // true for migration database
 
 	routes.SetupWebRoutes(app, db)
 	routes.SetupAPIRoutes(app, db)
+
+	// middleware
+	app.Use(middleware.TestMiddleware)
+	app.Use(middleware.RouteMiddleware)
 
 	log.Fatal(app.Listen(":8000"))
 }

@@ -5,7 +5,6 @@ import (
 	"example/fiber/http/request"
 	"example/fiber/http/response"
 	"example/fiber/service"
-	"example/fiber/utils"
 
 	"gorm.io/gorm"
 )
@@ -36,15 +35,8 @@ func (r *UserRepository) CreateUser(obj *request.CreateUser) (*entity.User, erro
 		Email: obj.Email,
 		Phone: obj.Phone,
 	}
-	var err error
-	user.Password, err = utils.HashPassword(obj.Password)
-	if err != nil {
-		return nil, err
-	}
-	if err = r.Query.Omit("email_confirmed_at").Create(&user).Error; err != nil {
-		return nil, err
-	}
-	return &user, nil
+	_, err := service.CreateUser(r.Query, &user)
+	return &user, err
 }
 
 func (r *UserRepository) GetUser(user *entity.User) (*entity.User, error) {
@@ -54,23 +46,15 @@ func (r *UserRepository) GetUser(user *entity.User) (*entity.User, error) {
 	return user, nil
 }
 
-func (r *UserRepository) GetUserByID(id uint) (*entity.User, error) {
-	var user entity.User
-	if err := r.Query.Where("id = ?", id).First(&user).Error; err != nil {
-		return nil, err
-	}
-	return &user, nil
+func (r *UserRepository) GetUserByID(id int) (*entity.User, error) {
+	return service.GetUserByID(r.Query, id)
 }
 
 func (r *UserRepository) GetUserByEmail(email string) (*entity.User, error) {
-	var user entity.User
-	if err := r.Query.Where("email = ?", email).First(&user).Error; err != nil {
-		return nil, err
-	}
-	return &user, nil
+	return service.GetUserByEmail(r.Query, email)
 }
 
-func (r *UserRepository) UpdateUser(userId uint, payload *request.UpdateUser) (*entity.User, error) {
+func (r *UserRepository) UpdateUser(userId int, payload *request.UpdateUser) (*entity.User, error) {
 	if user, err := r.GetUserByID(userId); err != nil {
 		return nil, err
 	} else {
@@ -87,16 +71,6 @@ func (r *UserRepository) DeleteUser(userId uint, isSoftDelete bool) error {
 		return r.Query.Unscoped().Where("id = ?", userId).Delete(&entity.User{}).Error
 	}
 	return r.Query.Where("id = ?", userId).Delete(&entity.User{}).Error
-}
-
-func (r *UserRepository) ChangeUserPassword(user *entity.User, newPassword string) error {
-	var err error
-	user.Password, err = utils.HashPassword(newPassword)
-	if err != nil {
-		return err
-	}
-	err = r.Query.Save(&user).Error
-	return err
 }
 
 func (r *UserRepository) CreateFakeUsers(maxLines int) error {

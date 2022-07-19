@@ -37,7 +37,7 @@ func (r *UserController) CreateUserHandler(c *fiber.Ctx) error {
 	if err := c.BodyParser(&body); err != nil {
 		return c.Status(fiber.StatusUnprocessableEntity).JSON(utils.SetHttpError(err.Error()))
 	}
-	if errors := utils.ValidateSchema(body); errors != nil {
+	if errors := utils.ValidateCredentials(body); errors != nil {
 		return c.Status(fiber.StatusUnprocessableEntity).JSON(errors)
 	}
 	if user, err := r.Repo.CreateUser(&body); err != nil {
@@ -51,7 +51,7 @@ func (r *UserController) GetUserHandler(c *fiber.Ctx) error {
 	if id, err := c.ParamsInt("id"); err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(utils.SetHttpError(err.Error()))
 	} else {
-		user, err := r.Repo.GetUserByID(uint(id))
+		user, err := r.Repo.GetUserByID(id)
 		if err != nil {
 			return c.Status(fiber.StatusNotFound).JSON(utils.SetHttpError(err.Error()))
 		}
@@ -65,7 +65,7 @@ func (r *UserController) UpdateUserHandler(c *fiber.Ctx) error {
 	if err := c.BodyParser(&body); err != nil {
 		return c.Status(fiber.StatusUnprocessableEntity).JSON(err.Error())
 	}
-	user, err := r.Repo.UpdateUser(uint(id), &body)
+	user, err := r.Repo.UpdateUser(id, &body)
 	if err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(utils.SetHttpError(err.Error()))
 	}

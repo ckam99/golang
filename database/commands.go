@@ -2,8 +2,8 @@ package database
 
 import (
 	"example/fiber/entity"
+	"example/fiber/security"
 	"example/fiber/service"
-	"example/fiber/utils"
 	"flag"
 	"fmt"
 	"os"
@@ -66,7 +66,6 @@ func fakerCommandHdler(db *gorm.DB, cmd *flag.FlagSet, all *bool, table *string,
 }
 
 func createSuperAdminCommandHdler(db *gorm.DB, cmd *flag.FlagSet, name *string, email *string, pwd *string) {
-	println(*name, *pwd, *email)
 	if *email == "" && *pwd == "" {
 		fmt.Println("table email and password are required to create superadmin user")
 		cmd.PrintDefaults()
@@ -75,9 +74,10 @@ func createSuperAdminCommandHdler(db *gorm.DB, cmd *flag.FlagSet, name *string, 
 	if *name == "" {
 		*name = "Administrator"
 	}
-	password, err := utils.HashPassword(*pwd)
+	password, err := security.HashPassword(*pwd)
 	if err != nil {
-		panic(err)
+		fmt.Println(err.Error())
+		os.Exit(1)
 	}
 
 	err = db.Omit("email_confirmed_at", "phone").Create(&entity.User{
@@ -86,7 +86,8 @@ func createSuperAdminCommandHdler(db *gorm.DB, cmd *flag.FlagSet, name *string, 
 		Password: password,
 	}).Error
 	if err != nil {
-		panic(err.Error())
+		fmt.Println(err.Error())
+		os.Exit(1)
 	}
 	fmt.Println("Super admin successfully created!")
 	return
