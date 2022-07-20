@@ -3,13 +3,20 @@ package routes
 import (
 	"example/fiber/http/controller"
 	"example/fiber/repository"
+	"example/fiber/utils"
+	"os"
 
 	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/swagger"
 	"gorm.io/gorm"
 )
 
 func SetupAPIRoutes(app *fiber.App, db *gorm.DB) {
+
 	api := app.Group("/api")
+	if os.Getenv("APP_ENV") != "production" {
+		SwaggerRoutes(app)
+	}
 	AuthControllerRoutes(api, db)
 	UserControllerRoutes(api, db)
 }
@@ -29,4 +36,9 @@ func AuthControllerRoutes(app fiber.Router, db *gorm.DB) {
 	authRoute := app.Group("/auth")
 	authRoute.Post("/signin", authCtr.SignInHandler)
 	authRoute.Post("/signup", authCtr.SignUpHandler)
+}
+
+func SwaggerRoutes(app *fiber.App) {
+	utils.SetSwaggerInfos()
+	app.Get("/docs/*", swagger.HandlerDefault)
 }

@@ -13,6 +13,10 @@ type Error struct {
 	Value     string `json:"value"`
 }
 
+type ErrorResponse struct {
+	Message string `json:"message"`
+}
+
 func HttpResponseError(c *fiber.Ctx, status int, message string) error {
 	log.Println(message)
 	return c.Status(status).JSON(fiber.Map{

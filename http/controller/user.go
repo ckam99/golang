@@ -14,6 +14,31 @@ type UserController struct {
 	Repo repository.UserRepository
 }
 
+// @Summary     User Health Check
+// @Description  User Health Check
+// @Tags         users
+// @Accept        */*
+// @Produce      json
+// @Success      200  {object}   response.ErrorResponse
+// @Failure      400  {object}   response.ErrorResponse
+// @Failure      404  {object}   response.ErrorResponse
+// @Failure      500  {object}   response.ErrorResponse
+// @Router       /users/health [get]
+func (r *UserController) UserHealthCheck(ctx *fiber.Ctx) error {
+	return ctx.JSON(fiber.Map{
+		"message": "ok",
+	})
+}
+
+// @Summary     Get Users
+// @Tags         users
+// @Accept       json
+// @Produce      json
+// @Param        limit    query     int  false  "Limit pagination"
+// @Param        skip     query     int  false  "Page pagination"
+// @Success      200  {array}   response.UserResponse
+// @Failure      404,400,401  {object}   response.ErrorResponse
+// @Router       /users [get]
 func (r *UserController) GetUsersHandler(c *fiber.Ctx) error {
 	queryParam := request.UserFilterParam{
 		Skip:  0,
@@ -32,6 +57,15 @@ func (r *UserController) GetUsersHandler(c *fiber.Ctx) error {
 	return c.Status(fiber.StatusOK).JSON(response.ParseUserListEntity(users))
 }
 
+// @Summary     Create User
+// @Security  ApiKeyAuth
+// @Tags         users
+// @Accept       json
+// @Produce      json
+// @Param input  body request.CreateUser true "User ID"
+// @Success      201  {object}  response.UserResponse
+// @Failure      404,422,400  {object}   response.ErrorResponse
+// @Router       /users [post]
 func (r *UserController) CreateUserHandler(c *fiber.Ctx) error {
 	body := request.CreateUser{}
 	if err := c.BodyParser(&body); err != nil {
@@ -47,6 +81,14 @@ func (r *UserController) CreateUserHandler(c *fiber.Ctx) error {
 	}
 }
 
+// @Summary     Get user by id
+// @Tags         users
+// @Accept       json
+// @Produce      json
+// @Param user_id   path int true "User ID"
+// @Success      200  {object}   response.UserResponse
+// @Failure      404  {object}   response.ErrorResponse
+// @Router       /users/{user_id} [get]
 func (r *UserController) GetUserHandler(c *fiber.Ctx) error {
 	if id, err := c.ParamsInt("id"); err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(utils.SetHttpError(err.Error()))
@@ -59,6 +101,15 @@ func (r *UserController) GetUserHandler(c *fiber.Ctx) error {
 	}
 }
 
+// @Summary     Update user
+// @Tags         users
+// @Accept       json
+// @Produce      json
+// @Param user_id   path int true "User ID"
+// @Param input  body request.UpdateUser true "User ID"
+// @Success      200  {object}   response.UserResponse
+// @Failure      404  {object}   response.ErrorResponse
+// @Router       /users/{user_id} [put]
 func (r *UserController) UpdateUserHandler(c *fiber.Ctx) error {
 	body := request.UpdateUser{}
 	id, _ := c.ParamsInt("id", 0)
@@ -72,6 +123,14 @@ func (r *UserController) UpdateUserHandler(c *fiber.Ctx) error {
 	return c.Status(fiber.StatusAccepted).JSON(&user)
 }
 
+// @Summary     Update user
+// @Tags         users
+// @Accept       json
+// @Produce      json
+// @Param user_id   path int true "User ID"
+// @Success      204
+// @Failure      404  {object}   response.ErrorResponse
+// @Router       /users/{user_id} [delete]
 func (r *UserController) DeleteUserHandler(c *fiber.Ctx) error {
 	id, _ := c.ParamsInt("id")
 	if err := r.Repo.DeleteUser(uint(id), true); err != nil {

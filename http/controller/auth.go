@@ -14,6 +14,15 @@ type AuthController struct {
 	Repo repository.AuthRepository
 }
 
+// @Summary     Sign In
+// @Security  ApiKeyAuth
+// @Tags         auth
+// @Accept       json
+// @Produce      json
+// @Param input  body request.LoginRequest true "Credential"
+// @Success      201  {object}  response.AccessToken
+// @Failure      404,422,400  {object}   response.ErrorResponse
+// @Router       /auth/signin [post]
 func (c *AuthController) SignInHandler(ctx *fiber.Ctx) error {
 	body := request.LoginRequest{}
 
@@ -38,6 +47,15 @@ func (c *AuthController) SignInHandler(ctx *fiber.Ctx) error {
 	})
 }
 
+// @Summary     Sign Up
+// @Security  ApiKeyAuth
+// @Tags         auth
+// @Accept       json
+// @Produce      json
+// @Param input  body request.RegisterRequest true "Credential"
+// @Success      201  {object}  response.UserResponse
+// @Failure      404,422,400  {object}   response.ErrorResponse
+// @Router       /auth/signup [post]
 func (c *AuthController) SignUpHandler(ctx *fiber.Ctx) error {
 	var body request.RegisterRequest
 	if err := ctx.BodyParser(&body); err != nil {

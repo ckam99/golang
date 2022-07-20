@@ -13,8 +13,8 @@ type UserRepository struct {
 	Query *gorm.DB
 }
 
-func (r *UserRepository) FetchAllUsers() (*[]response.UserResonse, error) {
-	var users []response.UserResonse
+func (r *UserRepository) FetchAllUsers() (*[]response.UserResponse, error) {
+	var users []response.UserResponse
 	if err := r.Query.Model(&entity.User{}).Find(&users).Error; err != nil {
 		return nil, err
 	}
