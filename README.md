@@ -1,6 +1,6 @@
 # golang
 
-[Fiber + Gorm](https://github.com/ckam225/golang/tree/fiber)
+[REST API Fiber + Gorm + swagger](https://github.com/ckam225/golang/tree/fiber)
 
 [Fiber + JWT Authentication](https://github.com/ckam225/golang/tree/fiber-jwt)
 
