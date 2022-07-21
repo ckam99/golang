@@ -23,3 +23,9 @@ func HttpResponseError(c *fiber.Ctx, status int, message string) error {
 		"message": message,
 	})
 }
+
+func SetHttpError(msg string) *ErrorResponse {
+	return &ErrorResponse{
+		Message: msg,
+	}
+}

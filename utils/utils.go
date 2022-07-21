@@ -5,8 +5,6 @@ import (
 	"example/fiber/docs"
 	"fmt"
 	"os"
-
-	"github.com/gofiber/fiber/v2"
 )
 
 func PrintJson(v any) {
@@ -14,12 +12,6 @@ func PrintJson(v any) {
 		fmt.Println(e.Error())
 	} else {
 		fmt.Println(string(s))
-	}
-}
-
-func SetHttpError(msg string) *fiber.Map {
-	return &fiber.Map{
-		"message": msg,
 	}
 }
 

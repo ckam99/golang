@@ -122,8 +122,8 @@ paths:
       produces:
       - application/json
       responses:
-        "201":
-          description: Created
+        "200":
+          description: OK
           schema:
             $ref: '#/definitions/response.AccessToken'
         "400":
@@ -138,8 +138,6 @@ paths:
           description: Unprocessable Entity
           schema:
             $ref: '#/definitions/response.ErrorResponse'
-      security:
-      - ApiKeyAuth: []
       summary: Sign In
       tags:
       - auth
@@ -165,17 +163,43 @@ paths:
           description: Bad Request
           schema:
             $ref: '#/definitions/response.ErrorResponse'
-        "404":
-          description: Not Found
-          schema:
-            $ref: '#/definitions/response.ErrorResponse'
         "422":
           description: Unprocessable Entity
           schema:
             $ref: '#/definitions/response.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+      summary: Sign Up
+      tags:
+      - auth
+  /auth/user:
+    get:
+      consumes:
+      - application/json
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.UserResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
       security:
       - ApiKeyAuth: []
-      summary: Sign Up
+      summary: Current user
       tags:
       - auth
   /users:
@@ -212,6 +236,8 @@ paths:
           description: Not Found
           schema:
             $ref: '#/definitions/response.ErrorResponse'
+      security:
+      - ApiKeyAuth: []
       summary: Get Users
       tags:
       - users
@@ -268,7 +294,9 @@ paths:
           description: Not Found
           schema:
             $ref: '#/definitions/response.ErrorResponse'
-      summary: Update user
+      security:
+      - ApiKeyAuth: []
+      summary: Delete user
       tags:
       - users
     get:
@@ -291,6 +319,8 @@ paths:
           description: Not Found
           schema:
             $ref: '#/definitions/response.ErrorResponse'
+      security:
+      - ApiKeyAuth: []
       summary: Get user by id
       tags:
       - users
@@ -320,6 +350,8 @@ paths:
           description: Not Found
           schema:
             $ref: '#/definitions/response.ErrorResponse'
+      security:
+      - ApiKeyAuth: []
       summary: Update user
       tags:
       - users
@@ -347,6 +379,8 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/response.ErrorResponse'
+      security:
+      - ApiKeyAuth: []
       summary: User Health Check
       tags:
       - users

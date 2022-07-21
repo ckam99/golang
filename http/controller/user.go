@@ -16,6 +16,7 @@ type UserController struct {
 
 // @Summary     User Health Check
 // @Description  User Health Check
+// @Security  ApiKeyAuth
 // @Tags         users
 // @Accept        */*
 // @Produce      json
@@ -31,6 +32,7 @@ func (r *UserController) UserHealthCheck(ctx *fiber.Ctx) error {
 }
 
 // @Summary     Get Users
+// @Security  ApiKeyAuth
 // @Tags         users
 // @Accept       json
 // @Produce      json
@@ -52,7 +54,7 @@ func (r *UserController) GetUsersHandler(c *fiber.Ctx) error {
 	}
 	users, err := r.Repo.GetAllUsers(queryParam)
 	if err != nil {
-		return c.Status(fiber.StatusInternalServerError).JSON(utils.SetHttpError(err.Error()))
+		return c.Status(fiber.StatusInternalServerError).JSON(response.SetHttpError(err.Error()))
 	}
 	return c.Status(fiber.StatusOK).JSON(response.ParseUserListEntity(users))
 }
@@ -69,19 +71,20 @@ func (r *UserController) GetUsersHandler(c *fiber.Ctx) error {
 func (r *UserController) CreateUserHandler(c *fiber.Ctx) error {
 	body := request.CreateUser{}
 	if err := c.BodyParser(&body); err != nil {
-		return c.Status(fiber.StatusUnprocessableEntity).JSON(utils.SetHttpError(err.Error()))
+		return c.Status(fiber.StatusUnprocessableEntity).JSON(response.SetHttpError(err.Error()))
 	}
 	if errors := utils.ValidateCredentials(body); errors != nil {
 		return c.Status(fiber.StatusUnprocessableEntity).JSON(errors)
 	}
 	if user, err := r.Repo.CreateUser(&body); err != nil {
-		return c.Status(fiber.StatusBadRequest).JSON(utils.SetHttpError(err.Error()))
+		return c.Status(fiber.StatusBadRequest).JSON(response.SetHttpError(err.Error()))
 	} else {
 		return c.Status(fiber.StatusCreated).JSON(response.ParseUserEntity(user))
 	}
 }
 
 // @Summary     Get user by id
+// @Security  ApiKeyAuth
 // @Tags         users
 // @Accept       json
 // @Produce      json
@@ -91,17 +94,18 @@ func (r *UserController) CreateUserHandler(c *fiber.Ctx) error {
 // @Router       /users/{user_id} [get]
 func (r *UserController) GetUserHandler(c *fiber.Ctx) error {
 	if id, err := c.ParamsInt("id"); err != nil {
-		return c.Status(fiber.StatusBadRequest).JSON(utils.SetHttpError(err.Error()))
+		return c.Status(fiber.StatusBadRequest).JSON(response.SetHttpError(err.Error()))
 	} else {
 		user, err := r.Repo.GetUserByID(id)
 		if err != nil {
-			return c.Status(fiber.StatusNotFound).JSON(utils.SetHttpError(err.Error()))
+			return c.Status(fiber.StatusNotFound).JSON(response.SetHttpError(err.Error()))
 		}
 		return c.Status(fiber.StatusOK).JSON(response.ParseUserEntity(user))
 	}
 }
 
 // @Summary     Update user
+// @Security  ApiKeyAuth
 // @Tags         users
 // @Accept       json
 // @Produce      json
@@ -118,12 +122,13 @@ func (r *UserController) UpdateUserHandler(c *fiber.Ctx) error {
 	}
 	user, err := r.Repo.UpdateUser(id, &body)
 	if err != nil {
-		return c.Status(fiber.StatusBadRequest).JSON(utils.SetHttpError(err.Error()))
+		return c.Status(fiber.StatusBadRequest).JSON(response.SetHttpError(err.Error()))
 	}
 	return c.Status(fiber.StatusAccepted).JSON(&user)
 }
 
-// @Summary     Update user
+// @Summary     Delete user
+// @Security  ApiKeyAuth
 // @Tags         users
 // @Accept       json
 // @Produce      json

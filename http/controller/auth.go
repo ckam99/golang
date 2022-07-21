@@ -15,12 +15,11 @@ type AuthController struct {
 }
 
 // @Summary     Sign In
-// @Security  ApiKeyAuth
 // @Tags         auth
 // @Accept       json
 // @Produce      json
 // @Param input  body request.LoginRequest true "Credential"
-// @Success      201  {object}  response.AccessToken
+// @Success      200  {object}  response.AccessToken
 // @Failure      404,422,400  {object}   response.ErrorResponse
 // @Router       /auth/signin [post]
 func (c *AuthController) SignInHandler(ctx *fiber.Ctx) error {
@@ -48,13 +47,12 @@ func (c *AuthController) SignInHandler(ctx *fiber.Ctx) error {
 }
 
 // @Summary     Sign Up
-// @Security  ApiKeyAuth
 // @Tags         auth
 // @Accept       json
 // @Produce      json
 // @Param input  body request.RegisterRequest true "Credential"
 // @Success      201  {object}  response.UserResponse
-// @Failure      404,422,400  {object}   response.ErrorResponse
+// @Failure      400,422,500  {object}   response.ErrorResponse
 // @Router       /auth/signup [post]
 func (c *AuthController) SignUpHandler(ctx *fiber.Ctx) error {
 	var body request.RegisterRequest
@@ -69,4 +67,24 @@ func (c *AuthController) SignUpHandler(ctx *fiber.Ctx) error {
 		return response.HttpResponseError(ctx, fiber.StatusBadRequest, err.Error())
 	}
 	return ctx.Status(fiber.StatusCreated).JSON(user)
+}
+
+// @Summary     Current user
+// @Security  ApiKeyAuth
+// @Tags         auth
+// @Accept       json
+// @Produce      json
+// @Success      200  {object}  response.UserResponse
+// @Failure      400,401,500  {object}   response.ErrorResponse
+// @Router       /auth/user [get]
+func (c *AuthController) CurrentUserHandler(ctx *fiber.Ctx) error {
+	claims, err := security.ExtractJWT(ctx)
+	if err != nil {
+		return response.HttpResponseError(ctx, fiber.StatusBadRequest, err.Error())
+	}
+	user := security.GetUserFromClaim(*claims)
+	if err = c.Repo.Query.Find(&user).Error; err != nil {
+		return response.HttpResponseError(ctx, fiber.StatusUnauthorized, "Bad credentials")
+	}
+	return ctx.JSON(user)
 }

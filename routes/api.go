@@ -2,6 +2,7 @@ package routes
 
 import (
 	"example/fiber/http/controller"
+	"example/fiber/http/middleware"
 	"example/fiber/repository"
 	"example/fiber/utils"
 	"os"
@@ -24,11 +25,11 @@ func SetupAPIRoutes(app *fiber.App, db *gorm.DB) {
 func UserControllerRoutes(app fiber.Router, db *gorm.DB) {
 	userCtr := &controller.UserController{Repo: repository.UserRepository{Query: db}}
 	userRoute := app.Group("/users")
-	userRoute.Get("/", userCtr.GetUsersHandler)
-	userRoute.Post("/", userCtr.CreateUserHandler)
-	userRoute.Get("/:id", userCtr.GetUserHandler)
-	userRoute.Put("/:id", userCtr.UpdateUserHandler)
-	userRoute.Delete("/:id", userCtr.DeleteUserHandler)
+	userRoute.Get("/", middleware.BearerAuthMiddleware(), userCtr.GetUsersHandler)
+	userRoute.Post("/", middleware.BearerAuthMiddleware(), userCtr.CreateUserHandler)
+	userRoute.Get("/:id", middleware.BearerAuthMiddleware(), userCtr.GetUserHandler)
+	userRoute.Put("/:id", middleware.BearerAuthMiddleware(), userCtr.UpdateUserHandler)
+	userRoute.Delete("/:id", middleware.BearerAuthMiddleware(), userCtr.DeleteUserHandler)
 }
 
 func AuthControllerRoutes(app fiber.Router, db *gorm.DB) {
@@ -36,6 +37,7 @@ func AuthControllerRoutes(app fiber.Router, db *gorm.DB) {
 	authRoute := app.Group("/auth")
 	authRoute.Post("/signin", authCtr.SignInHandler)
 	authRoute.Post("/signup", authCtr.SignUpHandler)
+	authRoute.Get("/user", middleware.BearerAuthMiddleware(), authCtr.CurrentUserHandler)
 }
 
 func SwaggerRoutes(app *fiber.App) {
