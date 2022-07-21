@@ -30,9 +30,7 @@ func SendMail() {
 	m.SetBody("text/html", buff)
 	m.Attach("./iphone-14.jpg")
 
-	// d := mail.NewDialer("smtp.example.com", 587, "user", "123456")
-	d := mail.NewDialer("smtp.mailtrap.io", 2525, "f10c9fcb8036ed", "db94187020064b")
-
+	d := mail.NewDialer("smtp.example.com", 587, "user", "123456")
 	d.StartTLSPolicy = mail.MandatoryStartTLS
 
 	// Send the email to Bob, Cora and Dan.
@@ -45,8 +43,8 @@ func SendMail() {
 }
 
 func SendCustomMail() {
-	username := "f10c9fcb8036ed"
-	password := "db94187020064b"
+	username := ""
+	password := ""
 	host := "smtp.mailtrap.io"
 	port := "2525"
 
