@@ -3,8 +3,10 @@ package main
 import (
 	"example/fiber/config"
 	"example/fiber/database"
+	"example/fiber/entity"
 	"example/fiber/http/middleware"
 	"example/fiber/routes"
+	"example/fiber/service"
 	"fmt"
 	"log"
 	"os"
@@ -46,7 +48,23 @@ func main() {
 	app.Use(middleware.CorsMiddleware())
 	//app.Use(middleware.RouteMiddleware)
 
-	fmt.Println(os.Getenv("APP_ENV"))
+	users := []entity.User{
+		{
+			Email: "admin@example.com",
+			Name:  "Claver Amon",
+		},
+		{
+			Email: "admin@example.com",
+			Name:  "Claver Amon",
+		},
+	}
+	data := map[string]string{
+		"name":  "PUSH",
+		"email": "BNBB",
+	}
+	if err := service.NotifyUsers(&users, "Welcome", data, "mail/register.tmpl"); err != nil {
+		fmt.Println(err.Error())
+	}
 
 	log.Fatal(app.Listen(fmt.Sprintf(":%s", os.Getenv("APP_PORT"))))
 }

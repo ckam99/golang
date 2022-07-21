@@ -2,6 +2,7 @@ package service
 
 import (
 	"example/fiber/entity"
+	"example/fiber/mailer"
 	"example/fiber/security"
 
 	"github.com/bxcodec/faker/v3"
@@ -66,4 +67,13 @@ func CreateUser(db *gorm.DB, user *entity.User) (*entity.User, error) {
 		return nil, err
 	}
 	return user, nil
+}
+
+func NotifyUsers(users *[]entity.User, subject string, data interface{}, template string) error {
+	m := mailer.GetMailInstance()
+	var to []string
+	for _, user := range *users {
+		to = append(to, user.Email)
+	}
+	return m.SendMail(subject, to, template, data, []mailer.ReplyTo{})
 }

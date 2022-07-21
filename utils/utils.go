@@ -1,9 +1,11 @@
 package utils
 
 import (
+	"bytes"
 	"encoding/json"
 	"example/fiber/docs"
 	"fmt"
+	"html/template"
 	"os"
 )
 
@@ -22,4 +24,16 @@ func SetSwaggerInfos() {
 	docs.SwaggerInfo.Host = fmt.Sprintf("%s:%s", os.Getenv("APP_HOST"), os.Getenv("APP_PORT"))
 	docs.SwaggerInfo.BasePath = "/api"
 	docs.SwaggerInfo.Schemes = []string{"http", "https"}
+}
+
+func ParseTemplate(templateFileName string, data interface{}) (string, error) {
+	t, err := template.ParseFiles(templateFileName)
+	if err != nil {
+		return "", err
+	}
+	buf := new(bytes.Buffer)
+	if err = t.Execute(buf, data); err != nil {
+		return "", err
+	}
+	return buf.String(), nil
 }
