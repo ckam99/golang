@@ -5,6 +5,7 @@ import (
 	"example/fiber/http/response"
 	"example/fiber/repository"
 	"example/fiber/security"
+	"example/fiber/service"
 	"example/fiber/utils"
 
 	"github.com/gofiber/fiber/v2"
@@ -66,6 +67,7 @@ func (c *AuthController) SignUpHandler(ctx *fiber.Ctx) error {
 	if err != nil {
 		return response.HttpResponseError(ctx, fiber.StatusBadRequest, err.Error())
 	}
+	service.SendConfirmationEmail(user)
 	return ctx.Status(fiber.StatusCreated).JSON(user)
 }
 

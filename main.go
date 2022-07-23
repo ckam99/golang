@@ -3,10 +3,9 @@ package main
 import (
 	"example/fiber/config"
 	"example/fiber/database"
-	"example/fiber/entity"
 	"example/fiber/http/middleware"
+	"example/fiber/jobs"
 	"example/fiber/routes"
-	"example/fiber/service"
 	"fmt"
 	"log"
 	"os"
@@ -27,44 +26,30 @@ import (
 // @in header
 // @name Authorization
 func main() {
-
 	// load environment variable
 	conf, err := config.LoadConfig()
 	if err != nil {
 		panic(err)
 	}
+	// http server
 	app := fiber.New(fiber.Config{
 		Views: conf.Server.HtmlEngine,
 		// ViewsLayout: "layouts/base",
 	})
-
+	// Database
 	db := database.Init(conf.Database, true) // true for migration database
-
+	// Routes
 	routes.SetupWebRoutes(app, db)
 	routes.SetupAPIRoutes(app, db)
-
 	// middleware
 	app.Use(middleware.TestMiddleware)
 	app.Use(middleware.CorsMiddleware())
 	//app.Use(middleware.RouteMiddleware)
 
-	users := []entity.User{
-		{
-			Email: "admin@example.com",
-			Name:  "Claver Amon",
-		},
-		{
-			Email: "admin@example.com",
-			Name:  "Claver Amon",
-		},
-	}
-	data := map[string]string{
-		"name":  "PUSH",
-		"email": "BNBB",
-	}
-	if err := service.NotifyUsers(&users, "Welcome", data, "mail/register.tmpl"); err != nil {
-		fmt.Println(err.Error())
-	}
+	// jobs
+	jobs.RegisterNotificationChannel()
+
+	defer jobs.UnregisterNotificationChannel()
 
 	log.Fatal(app.Listen(fmt.Sprintf(":%s", os.Getenv("APP_PORT"))))
 }

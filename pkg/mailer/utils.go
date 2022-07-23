@@ -5,7 +5,7 @@ import (
 	"strconv"
 )
 
-func GetMailInstance() *MailMessage {
+func MailInstance() *MailMessage {
 	port, _ := strconv.Atoi(os.Getenv("MAIL_PORT"))
 	return &MailMessage{
 		From:           os.Getenv("MAIL_FROM"),
@@ -15,4 +15,9 @@ func GetMailInstance() *MailMessage {
 		SMTPPassword:   os.Getenv("MAIL_PASSWORD"),
 		TemplateFolder: "./resource/templates",
 	}
+}
+
+func Notify(to []string, subject string, data interface{}, template string, cc []ReplyTo) error {
+	m := MailInstance()
+	return m.SendMail(subject, to, template, data, cc)
 }

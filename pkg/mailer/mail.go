@@ -6,6 +6,16 @@ import (
 	mail "gopkg.in/mail.v2"
 )
 
+type Notification struct {
+	To       []string
+	Subject  string
+	Data     interface{}
+	Template string
+	CC       []ReplyTo
+}
+
+var NotificationChannel = make(chan *Notification)
+
 type MailMessage struct {
 	From           string
 	ContenType     string
@@ -38,15 +48,10 @@ func MailBuilder(msg *MailMessage, subject string, body string, to []string, cc 
 	return m
 }
 
-func (sm *MailMessage) SendMail(
-	subject string,
-	to []string,
-	templateName string,
-	body interface{},
-	cc []ReplyTo) error {
+func (sm *MailMessage) SendMail(subject string, to []string, template string, body interface{}, cc []ReplyTo) error {
 	m := MailBuilder(sm, subject, "", to, cc)
 	// m.Attach("./iphone-14.jpg")
-	buff, err := utils.ParseTemplate(sm.TemplateFolder+"/"+templateName, body)
+	buff, err := utils.ParseTemplate(sm.TemplateFolder+"/"+template, body)
 	if err != nil {
 		return err
 	}
@@ -57,13 +62,7 @@ func (sm *MailMessage) SendMail(
 	return err
 }
 
-func (sm *MailMessage) Send(
-	subject string,
-	body string,
-	to []string,
-	templateName string,
-	templateData interface{},
-	cc []ReplyTo) error {
+func (sm *MailMessage) Send(subject string, body string, to []string, cc []ReplyTo) error {
 	m := MailBuilder(sm, subject, body, to, cc)
 	d := mail.NewDialer(sm.SMTPHost, sm.SMTPPort, sm.SMTPUser, sm.SMTPPassword)
 	d.StartTLSPolicy = mail.MandatoryStartTLS
