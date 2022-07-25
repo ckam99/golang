@@ -39,6 +39,8 @@ func AuthControllerRoutes(app fiber.Router, db *gorm.DB) {
 	authRoute := app.Group("/auth")
 	authRoute.Post("/signin", authCtr.SignInHandler)
 	authRoute.Post("/signup", authCtr.SignUpHandler)
+	authRoute.Post("/confirm/email", authCtr.EmailConfirmationHandler)
+	authRoute.Post("/confirm/phone", authCtr.EmailConfirmationHandler)
 	authRoute.Get("/user", middleware.BearerAuthMiddleware(), authCtr.CurrentUserHandler)
 }
 

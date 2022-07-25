@@ -13,6 +13,8 @@ import (
 	"github.com/ckam225/golang/fiber/docs"
 )
 
+const DefaultTimeLayout = "2006-01-02 15:04:05.999999999MST"
+
 func PrintJson(v any) {
 	if s, e := json.MarshalIndent(v, "", "  "); e != nil {
 		fmt.Println(e.Error())

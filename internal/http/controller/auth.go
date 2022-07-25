@@ -1,6 +1,9 @@
 package controller
 
 import (
+	"log"
+	"time"
+
 	"github.com/ckam225/golang/fiber/internal/http/request"
 	"github.com/ckam225/golang/fiber/internal/http/response"
 	"github.com/ckam225/golang/fiber/internal/repository"
@@ -89,4 +92,41 @@ func (c *AuthController) CurrentUserHandler(ctx *fiber.Ctx) error {
 		return response.HttpResponseError(ctx, fiber.StatusUnauthorized, "Bad credentials")
 	}
 	return ctx.JSON(response.ParseUserEntity(user))
+}
+
+// @Summary     Email|Phone confirmation
+// @Tags         auth
+// @Accept       json
+// @Produce      json
+// @Param input  body request.EmailConfirmRequest true "Credential"
+// @Success      204
+// @Failure      400,401,500  {object}   response.ErrorResponse
+// @Router       /auth/confirm/email [post]
+// @Router       /auth/confirm/phone [post]
+func (c *AuthController) EmailConfirmationHandler(ctx *fiber.Ctx) error {
+	var req request.EmailConfirmRequest
+	if err := ctx.BodyParser(&req); err != nil {
+		return response.HttpResponseError(ctx, fiber.StatusBadRequest, err.Error())
+	}
+	if errors := utils.ValidateCredentials(req); errors != nil {
+		return ctx.Status(fiber.StatusUnprocessableEntity).JSON(errors)
+	}
+	verifyCode, err := service.VerifyConfirmationCode(c.Repo.Query, &req)
+	if err != nil {
+		return response.HttpResponseError(ctx, fiber.StatusBadRequest, err.Error())
+	}
+	user, err := service.GetUserByEmail(c.Repo.Query, req.Email)
+	if err != nil {
+		return response.HttpResponseError(ctx, fiber.StatusBadRequest, err.Error())
+	}
+	if err = c.Repo.Query.Model(&user).UpdateColumn("email_confirmed_at", time.Now()).Error; err != nil {
+		return response.HttpResponseError(ctx, fiber.StatusBadRequest, err.Error())
+	}
+	go func() {
+		if err = c.Repo.Query.Unscoped().Delete(&verifyCode).Error; err != nil {
+			log.Println(err.Error())
+		}
+	}()
+
+	return ctx.Status(fiber.StatusNoContent).JSON(verifyCode)
 }

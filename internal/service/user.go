@@ -1,7 +1,11 @@
 package service
 
 import (
+	"errors"
+	"time"
+
 	"github.com/ckam225/golang/fiber/internal/entity"
+	"github.com/ckam225/golang/fiber/internal/http/request"
 	"github.com/ckam225/golang/fiber/internal/security"
 	"github.com/ckam225/golang/fiber/internal/utils"
 	"github.com/ckam225/golang/fiber/pkg/mailer"
@@ -72,8 +76,9 @@ func CreateUser(db *gorm.DB, user *entity.User) (*entity.User, error) {
 
 func SendConfirmationEmail(db *gorm.DB, user *entity.User) error {
 	vcode := entity.Verycode{
-		Email: user.Email,
-		Code:  utils.GenerateHashCode(),
+		Email:  user.Email,
+		Code:   utils.GenerateHashCode(),
+		Target: "email",
 	}
 	if err := db.Create(&vcode).Error; err != nil {
 		return err
@@ -81,12 +86,32 @@ func SendConfirmationEmail(db *gorm.DB, user *entity.User) error {
 	mailer.NotificationChannel <- &mailer.Notification{
 		To: []string{user.Email},
 		Data: map[string]string{
-			"email": user.Email,
-			"name":  user.Name,
-			"code":  vcode.Code,
+			"email":  user.Email,
+			"name":   user.Name,
+			"code":   vcode.Code,
+			"target": vcode.Target,
 		},
 		Subject:  "Registration",
 		Template: "mail/confirm_action.tmpl",
 	}
 	return nil
+}
+
+func VerifyConfirmationCode(db *gorm.DB, req *request.EmailConfirmRequest) (*entity.Verycode, error) {
+	var verifyCode entity.Verycode
+	if err := db.Where("email = ?", req.Email).Where("code = ?", req.Code).First(&verifyCode).Error; err != nil {
+		return nil, err
+	}
+	duration := time.Since(verifyCode.CreatedAt)
+	isExpired := false
+	switch req.Target {
+	case "email":
+		isExpired = duration.Hours() > 24.0
+	case "phone":
+		isExpired = duration.Seconds() > 30.0
+	}
+	if isExpired {
+		return nil, errors.New("token is expired")
+	}
+	return &verifyCode, nil
 }

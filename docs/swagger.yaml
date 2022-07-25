@@ -20,6 +20,23 @@ definitions:
     - name
     - password
     type: object
+  request.EmailConfirmRequest:
+    properties:
+      code:
+        type: string
+      email:
+        maxLength: 255
+        type: string
+      target:
+        enum:
+        - email
+        - phone
+        type: string
+    required:
+    - code
+    - email
+    - target
+    type: object
   request.LoginRequest:
     properties:
       email:
@@ -108,6 +125,68 @@ info:
     url: http://www.apache.org/licenses/LICENSE-2.0.html
   termsOfService: http://swagger.io/terms/
 paths:
+  /auth/confirm/email:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: Credential
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/request.EmailConfirmRequest'
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No Content
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+      summary: Email|Phone confirmation
+      tags:
+      - auth
+  /auth/confirm/phone:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: Credential
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/request.EmailConfirmRequest'
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No Content
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+      summary: Email|Phone confirmation
+      tags:
+      - auth
   /auth/signin:
     post:
       consumes:

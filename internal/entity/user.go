@@ -29,6 +29,7 @@ type Role struct {
 type Verycode struct {
 	ID        uint      `json:"id" gorm:"primaryKey"`
 	Email     string    `json:"email" gorm:"type:varchar(255)"`
+	Target    string    `json:"target" gorm:"type:varchar(60)"`
 	Code      string    `json:"code" gorm:"type:varchar(255)"`
 	CreatedAt time.Time `json:"created_at"`
 	UpdatedAt time.Time `json:"updated_at"`

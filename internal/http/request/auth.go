@@ -11,3 +11,9 @@ type LoginRequest struct {
 	Email    string `json:"email" validate:"required,email,max=255"`
 	Password string `json:"password" validate:"required"`
 }
+
+type EmailConfirmRequest struct {
+	Email  string `json:"email" validate:"required,email,max=255"`
+	Code   string `json:"code" validate:"required"`
+	Target string `json:"target" validate:"required,oneof=email phone"`
+}
