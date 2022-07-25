@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<style>
+    body {
+        background-color: #f5f5f5;
+    }
+
+    .email_container {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 500;
+        background-color: #fff;
+        padding: 30px;
+        flex-direction: column;
+    }
+
+    .email_container a {
+        border: 0;
+        padding: 20px 30px;
+        background-color: #ffd60a;
+        color: #fff;
+        text-decoration: none;
+    }
+</style>
+
+<body>
+
+    <div class="email_container">
+        <h1>Email Confirmation</h1>
+        <p>
+            Hey <b>{{.name}}</b>, you're almost ready to start enjoying our services.<br />
+            Simply click the big button below to verify your email address
+        </p>
+        <a href="http://localhost:8000/confirmation/?token={{.code}}">Verify email address</a>
+    </div>
+
+</body>
+
+</html>

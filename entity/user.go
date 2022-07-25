@@ -26,6 +26,14 @@ type Role struct {
 	UpdatedAt time.Time `json:"updated_at"`
 }
 
+type Verycode struct {
+	ID        uint      `json:"id" gorm:"primaryKey"`
+	Email     string    `json:"email" gorm:"type:varchar(255)"`
+	Code      string    `json:"code" gorm:"type:varchar(255)"`
+	CreatedAt time.Time `json:"created_at"`
+	UpdatedAt time.Time `json:"updated_at"`
+}
+
 func (u *User) HasRole(role string) bool {
 	for _, r := range u.Roles {
 		if r.Name == role {

@@ -4,6 +4,7 @@ import (
 	"example/fiber/entity"
 	"example/fiber/pkg/mailer"
 	"example/fiber/security"
+	"example/fiber/utils"
 
 	"github.com/bxcodec/faker/v3"
 	"gorm.io/gorm"
@@ -69,14 +70,23 @@ func CreateUser(db *gorm.DB, user *entity.User) (*entity.User, error) {
 	return user, nil
 }
 
-func SendConfirmationEmail(user *entity.User) {
+func SendConfirmationEmail(db *gorm.DB, user *entity.User) error {
+	vcode := entity.Verycode{
+		Email: user.Email,
+		Code:  utils.GenerateHashCode(),
+	}
+	if err := db.Create(&vcode).Error; err != nil {
+		return err
+	}
 	mailer.NotificationChannel <- &mailer.Notification{
 		To: []string{user.Email},
 		Data: map[string]string{
-			"name":  user.Email,
-			"email": user.Name,
+			"email": user.Email,
+			"name":  user.Name,
+			"code":  vcode.Code,
 		},
 		Subject:  "Registration",
-		Template: "mail/register.tmpl",
+		Template: "mail/confirm_action.tmpl",
 	}
+	return nil
 }

@@ -2,11 +2,14 @@ package utils
 
 import (
 	"bytes"
+	"encoding/base64"
 	"encoding/json"
 	"example/fiber/docs"
 	"fmt"
 	"html/template"
+	"math/rand"
 	"os"
+	"time"
 )
 
 func PrintJson(v any) {
@@ -36,4 +39,25 @@ func ParseTemplate(templateFileName string, data interface{}) (string, error) {
 		return "", err
 	}
 	return buf.String(), nil
+}
+
+func HashBase64(s string) string {
+	return base64.StdEncoding.EncodeToString([]byte(s))
+}
+
+func RandInt(min int, max int) int {
+	rand.Seed(time.Now().UnixNano())
+	return min + rand.Intn(max-min+1)
+}
+
+func GenerateCode() string {
+	code := ""
+	for i := 0; i < 6; i++ {
+		code += fmt.Sprintf("%v", RandInt(0, 9))
+	}
+	return code
+}
+
+func GenerateHashCode() string {
+	return base64.StdEncoding.EncodeToString([]byte(GenerateCode()))
 }

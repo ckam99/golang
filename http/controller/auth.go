@@ -67,8 +67,8 @@ func (c *AuthController) SignUpHandler(ctx *fiber.Ctx) error {
 	if err != nil {
 		return response.HttpResponseError(ctx, fiber.StatusBadRequest, err.Error())
 	}
-	service.SendConfirmationEmail(user)
-	return ctx.Status(fiber.StatusCreated).JSON(user)
+	service.SendConfirmationEmail(c.Repo.Query, user)
+	return ctx.Status(fiber.StatusCreated).JSON(response.ParseUserEntity(user))
 }
 
 // @Summary     Current user
@@ -88,5 +88,5 @@ func (c *AuthController) CurrentUserHandler(ctx *fiber.Ctx) error {
 	if err = c.Repo.Query.Find(&user).Error; err != nil {
 		return response.HttpResponseError(ctx, fiber.StatusUnauthorized, "Bad credentials")
 	}
-	return ctx.JSON(user)
+	return ctx.JSON(response.ParseUserEntity(user))
 }
