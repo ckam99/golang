@@ -1,10 +1,11 @@
 package main
 
 import (
-	"example/fiber/config"
-	"example/fiber/database"
 	"fmt"
 	"os"
+
+	"github.com/ckam225/golang/fiber/internal/config"
+	"github.com/ckam225/golang/fiber/internal/database"
 )
 
 const StringHelp = `

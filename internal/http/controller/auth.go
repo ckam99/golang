@@ -1,12 +1,12 @@
 package controller
 
 import (
-	"example/fiber/http/request"
-	"example/fiber/http/response"
-	"example/fiber/repository"
-	"example/fiber/security"
-	"example/fiber/service"
-	"example/fiber/utils"
+	"github.com/ckam225/golang/fiber/internal/http/request"
+	"github.com/ckam225/golang/fiber/internal/http/response"
+	"github.com/ckam225/golang/fiber/internal/repository"
+	"github.com/ckam225/golang/fiber/internal/security"
+	"github.com/ckam225/golang/fiber/internal/service"
+	"github.com/ckam225/golang/fiber/internal/utils"
 
 	"github.com/gofiber/fiber/v2"
 )
@@ -67,7 +67,7 @@ func (c *AuthController) SignUpHandler(ctx *fiber.Ctx) error {
 	if err != nil {
 		return response.HttpResponseError(ctx, fiber.StatusBadRequest, err.Error())
 	}
-	service.SendConfirmationEmail(c.Repo.Query, user)
+	go service.SendConfirmationEmail(c.Repo.Query, user)
 	return ctx.Status(fiber.StatusCreated).JSON(response.ParseUserEntity(user))
 }
 

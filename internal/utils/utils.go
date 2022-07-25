@@ -4,12 +4,13 @@ import (
 	"bytes"
 	"encoding/base64"
 	"encoding/json"
-	"example/fiber/docs"
 	"fmt"
 	"html/template"
 	"math/rand"
 	"os"
 	"time"
+
+	"github.com/ckam225/golang/fiber/docs"
 )
 
 func PrintJson(v any) {

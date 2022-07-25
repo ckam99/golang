@@ -1,11 +1,12 @@
 package controller
 
 import (
-	"example/fiber/http/request"
-	"example/fiber/http/response"
-	"example/fiber/repository"
-	"example/fiber/utils"
 	"strconv"
+
+	"github.com/ckam225/golang/fiber/internal/http/request"
+	"github.com/ckam225/golang/fiber/internal/http/response"
+	"github.com/ckam225/golang/fiber/internal/repository"
+	"github.com/ckam225/golang/fiber/internal/utils"
 
 	"github.com/gofiber/fiber/v2"
 )

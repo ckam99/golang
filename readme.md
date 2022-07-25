@@ -1,6 +1,12 @@
 # Web application with golang
 
 
+## run web
+
+```bash
+go run cmd/web/main.go
+```
+
 ## commands
 
 Help

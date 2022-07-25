@@ -1,8 +1,9 @@
 package config
 
 import (
-	"example/fiber/database"
 	"os"
+
+	"github.com/ckam225/golang/fiber/internal/database"
 
 	"github.com/gofiber/template/html"
 	"github.com/joho/godotenv"

@@ -1,8 +1,8 @@
 package controller
 
 import (
-	"example/fiber/entity"
-	"example/fiber/pkg/mailer"
+	"github.com/ckam225/golang/fiber/internal/entity"
+	"github.com/ckam225/golang/fiber/pkg/mailer"
 
 	"github.com/gofiber/fiber/v2"
 )

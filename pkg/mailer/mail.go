@@ -1,7 +1,7 @@
 package mailer
 
 import (
-	"example/fiber/utils"
+	"github.com/ckam225/golang/fiber/internal/utils"
 
 	mail "gopkg.in/mail.v2"
 )

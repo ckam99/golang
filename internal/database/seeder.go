@@ -1,7 +1,7 @@
 package database
 
 import (
-	"example/fiber/entity"
+	"github.com/ckam225/golang/fiber/internal/entity"
 
 	"gorm.io/gorm"
 )

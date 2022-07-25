@@ -1,10 +1,11 @@
 package database
 
 import (
-	"example/fiber/entity"
 	"fmt"
 	"log"
 	"os"
+
+	"github.com/ckam225/golang/fiber/internal/entity"
 
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
@@ -41,16 +42,14 @@ func Migrate(db *gorm.DB) error {
 }
 
 func RunMigrations(db *gorm.DB) {
-	log.Println("Running migrations")
 	if err := Migrate(db); err != nil {
-		log.Fatalf("Failed to connect to the database %v", err.Error())
+		log.Fatalf("[Migration] Failed to connect to the database %v", err.Error())
 	} else {
 		log.Println("Migrations successfully executed")
 	}
 }
 
 func RunDatabaseSeeders(db *gorm.DB) {
-	log.Println("Running seeders")
 	if err := DatabaseSeeder(db); err != nil {
 		log.Fatalf("Failed to run DatabaseSeeder:  %v", err.Error())
 	} else {

@@ -1,12 +1,13 @@
 package database
 
 import (
-	"example/fiber/entity"
-	"example/fiber/security"
-	"example/fiber/service"
 	"flag"
 	"fmt"
 	"os"
+
+	"github.com/ckam225/golang/fiber/internal/entity"
+	"github.com/ckam225/golang/fiber/internal/security"
+	"github.com/ckam225/golang/fiber/internal/service"
 
 	"gorm.io/gorm"
 )

@@ -1,11 +1,12 @@
 package routes
 
 import (
-	"example/fiber/http/controller"
-	"example/fiber/http/middleware"
-	"example/fiber/repository"
-	"example/fiber/utils"
 	"os"
+
+	"github.com/ckam225/golang/fiber/internal/http/controller"
+	"github.com/ckam225/golang/fiber/internal/http/middleware"
+	"github.com/ckam225/golang/fiber/internal/repository"
+	"github.com/ckam225/golang/fiber/internal/utils"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/swagger"

@@ -1,8 +1,9 @@
 package response
 
 import (
-	"example/fiber/entity"
 	"time"
+
+	"github.com/ckam225/golang/fiber/internal/entity"
 )
 
 // https://pkg.go.dev/github.com/go-playground/validator

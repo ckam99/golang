@@ -1,8 +1,9 @@
 package jobs
 
 import (
-	"example/fiber/pkg/mailer"
 	"log"
+
+	"github.com/ckam225/golang/fiber/pkg/mailer"
 )
 
 func RegisterNotificationChannel() {

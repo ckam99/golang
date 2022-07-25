@@ -1,10 +1,10 @@
 package service
 
 import (
-	"example/fiber/entity"
-	"example/fiber/pkg/mailer"
-	"example/fiber/security"
-	"example/fiber/utils"
+	"github.com/ckam225/golang/fiber/internal/entity"
+	"github.com/ckam225/golang/fiber/internal/security"
+	"github.com/ckam225/golang/fiber/internal/utils"
+	"github.com/ckam225/golang/fiber/pkg/mailer"
 
 	"github.com/bxcodec/faker/v3"
 	"gorm.io/gorm"

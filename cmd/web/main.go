@@ -1,14 +1,15 @@
 package main
 
 import (
-	"example/fiber/config"
-	"example/fiber/database"
-	"example/fiber/http/middleware"
-	"example/fiber/jobs"
-	"example/fiber/routes"
 	"fmt"
 	"log"
 	"os"
+
+	"github.com/ckam225/golang/fiber/internal/config"
+	"github.com/ckam225/golang/fiber/internal/database"
+	"github.com/ckam225/golang/fiber/internal/http/middleware"
+	"github.com/ckam225/golang/fiber/internal/jobs"
+	"github.com/ckam225/golang/fiber/internal/routes"
 
 	"github.com/gofiber/fiber/v2"
 )

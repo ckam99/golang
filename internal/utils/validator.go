@@ -1,8 +1,9 @@
 package utils
 
 import (
-	"example/fiber/http/response"
 	"strings"
+
+	"github.com/ckam225/golang/fiber/internal/http/response"
 
 	"github.com/go-playground/validator"
 )

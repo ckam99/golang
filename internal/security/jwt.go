@@ -1,10 +1,11 @@
 package security
 
 import (
-	"example/fiber/entity"
 	"os"
 	"strings"
 	"time"
+
+	"github.com/ckam225/golang/fiber/internal/entity"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/golang-jwt/jwt/v4"

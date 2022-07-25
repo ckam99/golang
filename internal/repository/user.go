@@ -1,10 +1,10 @@
 package repository
 
 import (
-	"example/fiber/entity"
-	"example/fiber/http/request"
-	"example/fiber/http/response"
-	"example/fiber/service"
+	"github.com/ckam225/golang/fiber/internal/entity"
+	"github.com/ckam225/golang/fiber/internal/http/request"
+	"github.com/ckam225/golang/fiber/internal/http/response"
+	"github.com/ckam225/golang/fiber/internal/service"
 
 	"gorm.io/gorm"
 )
