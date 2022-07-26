@@ -24,6 +24,7 @@ type MailMessage struct {
 	SMTPPort       int
 	SMTPUser       string
 	SMTPPassword   string
+	TLS            bool
 }
 
 type ReplyTo struct {
@@ -57,7 +58,9 @@ func (sm *MailMessage) SendMail(subject string, to []string, template string, bo
 	}
 	m.SetBody("text/html", buff)
 	d := mail.NewDialer(sm.SMTPHost, sm.SMTPPort, sm.SMTPUser, sm.SMTPPassword)
-	d.StartTLSPolicy = mail.MandatoryStartTLS
+	if sm.TLS {
+		d.StartTLSPolicy = mail.MandatoryStartTLS
+	}
 	err = d.DialAndSend(m)
 	return err
 }
@@ -65,7 +68,9 @@ func (sm *MailMessage) SendMail(subject string, to []string, template string, bo
 func (sm *MailMessage) Send(subject string, body string, to []string, cc []ReplyTo) error {
 	m := MailBuilder(sm, subject, body, to, cc)
 	d := mail.NewDialer(sm.SMTPHost, sm.SMTPPort, sm.SMTPUser, sm.SMTPPassword)
-	d.StartTLSPolicy = mail.MandatoryStartTLS
+	if sm.TLS {
+		d.StartTLSPolicy = mail.MandatoryStartTLS
+	}
 	err := d.DialAndSend(m)
 	return err
 }
