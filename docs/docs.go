@@ -25,7 +25,7 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
-        "/auth/confirm/email": {
+        "/auth/email/confirm": {
             "post": {
                 "consumes": [
                     "application/json"
@@ -36,7 +36,7 @@ const docTemplate = `{
                 "tags": [
                     "auth"
                 ],
-                "summary": "Email|Phone confirmation",
+                "summary": "Email/Phone confirmation",
                 "parameters": [
                     {
                         "description": "Credential",
@@ -73,7 +73,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/auth/confirm/phone": {
+        "/auth/phone/confirm": {
             "post": {
                 "consumes": [
                     "application/json"
@@ -84,7 +84,7 @@ const docTemplate = `{
                 "tags": [
                     "auth"
                 ],
-                "summary": "Email|Phone confirmation",
+                "summary": "Email/Phone confirmation",
                 "parameters": [
                     {
                         "description": "Credential",
@@ -114,57 +114,6 @@ const docTemplate = `{
                     },
                     "500": {
                         "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/response.ErrorResponse"
-                        }
-                    }
-                }
-            }
-        },
-        "/auth/signin": {
-            "post": {
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "auth"
-                ],
-                "summary": "Sign In",
-                "parameters": [
-                    {
-                        "description": "Credential",
-                        "name": "input",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/request.LoginRequest"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/response.AccessToken"
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/response.ErrorResponse"
-                        }
-                    },
-                    "404": {
-                        "description": "Not Found",
-                        "schema": {
-                            "$ref": "#/definitions/response.ErrorResponse"
-                        }
-                    },
-                    "422": {
-                        "description": "Unprocessable Entity",
                         "schema": {
                             "$ref": "#/definitions/response.ErrorResponse"
                         }
@@ -210,6 +159,102 @@ const docTemplate = `{
                     },
                     "422": {
                         "description": "Unprocessable Entity",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/auth/token": {
+            "post": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "auth"
+                ],
+                "summary": "Token Authentication",
+                "parameters": [
+                    {
+                        "description": "Credential",
+                        "name": "input",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/request.LoginRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.Token"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorResponse"
+                        }
+                    },
+                    "422": {
+                        "description": "Unprocessable Entity",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/auth/token/refresh": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "auth"
+                ],
+                "summary": "Refresh Token",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.Token"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
                         "schema": {
                             "$ref": "#/definitions/response.ErrorResponse"
                         }
@@ -674,7 +719,15 @@ const docTemplate = `{
                 }
             }
         },
-        "response.AccessToken": {
+        "response.ErrorResponse": {
+            "type": "object",
+            "properties": {
+                "message": {
+                    "type": "string"
+                }
+            }
+        },
+        "response.Token": {
             "type": "object",
             "properties": {
                 "access_token": {
@@ -685,13 +738,8 @@ const docTemplate = `{
                 },
                 "id": {
                     "type": "integer"
-                }
-            }
-        },
-        "response.ErrorResponse": {
-            "type": "object",
-            "properties": {
-                "message": {
+                },
+                "refresh_token": {
                     "type": "string"
                 }
             }

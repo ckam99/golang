@@ -19,10 +19,11 @@ type UserResponse struct {
 	DeletedAt        time.Time `json:"deleted_at"`
 }
 
-type AccessToken struct {
-	ID          uint   `json:"id"`
-	Email       string `json:"email"`
-	AccessToken string `json:"access_token"`
+type Token struct {
+	ID           uint   `json:"id"`
+	Email        string `json:"email"`
+	AccessToken  string `json:"access_token"`
+	RefreshToken string `json:"refresh_token"`
 }
 
 func ParseUserEntity(u *entity.User) *UserResponse {

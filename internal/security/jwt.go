@@ -1,6 +1,7 @@
 package security
 
 import (
+	"errors"
 	"os"
 	"strings"
 	"time"
@@ -11,9 +12,23 @@ import (
 	"github.com/golang-jwt/jwt/v4"
 )
 
+func GenerateJWT(claims jwt.MapClaims) (string, error) {
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
+	return token.SignedString([]byte(os.Getenv("SECRET_KEY")))
+}
+
 func CreateAccessToken(user *entity.User) (string, error) {
 	claims := jwt.MapClaims{
 		"email": user.Email,
+		"exp":   time.Now().Add(time.Minute * 2).Unix(),
+	}
+	return GenerateJWT(claims)
+}
+
+func RefreshAccessToken(user *entity.User, oldAccessToken string) (string, error) {
+	claims := jwt.MapClaims{
+		"email": user.Email,
+		"token": oldAccessToken,
 		"exp":   time.Now().Add(time.Minute * 2).Unix(),
 	}
 	return GenerateJWT(claims)
@@ -43,13 +58,11 @@ func ExtractJsonWebToken(c *fiber.Ctx) (*jwt.MapClaims, error) {
 	return &claims, err
 }
 
-func GenerateJWT(claims jwt.MapClaims) (string, error) {
-	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
-	return token.SignedString([]byte(os.Getenv("SECRET_KEY")))
-}
-
 func VerifyJWT(decodedToken string) (*jwt.Token, error) {
-	tokenString := DecodeJWT(decodedToken)
+	tokenString, err := DecodeJWT(decodedToken)
+	if err != nil {
+		return nil, err
+	}
 	token, err := jwt.Parse(tokenString, func(t *jwt.Token) (interface{}, error) {
 		return []byte(os.Getenv("SECRET_KEY")), nil
 	})
@@ -59,10 +72,14 @@ func VerifyJWT(decodedToken string) (*jwt.Token, error) {
 	return token, nil
 }
 
-func DecodeJWT(bearToken string) string {
-	onlyToken := strings.Split(bearToken, " ")
-	if len(onlyToken) == 2 {
-		return onlyToken[1]
+func DecodeJWT(bearToken string) (string, error) {
+	tokenArray := strings.Split(bearToken, " ")
+	accessToken := ""
+	if len(tokenArray) == 2 {
+		accessToken = tokenArray[1]
 	}
-	return ""
+	if accessToken == "" {
+		return "", errors.New("token is empty or invalid")
+	}
+	return accessToken, nil
 }
