@@ -1,4 +1,4 @@
-package schemas
+package dto
 
 import (
 	"net/http"
