@@ -24,7 +24,7 @@ func NewUserStore(db *sqlx.DB) IUserStore {
 
 func (s *userStore) GetUsers(limit, offset int) ([]entity.User, error) {
 	var users []entity.User
-	query := fmt.Sprintf(`SELECT FROM %s LIMIT $1 OFFSET $2`, userTable)
+	query := fmt.Sprintf(`SELECT * FROM %s LIMIT $1 OFFSET $2`, userTable)
 	if err := s.Select(&users, query, limit, offset); err != nil {
 		return []entity.User{}, fmt.Errorf("error getting list users: %w", err)
 	}
@@ -33,7 +33,7 @@ func (s *userStore) GetUsers(limit, offset int) ([]entity.User, error) {
 
 func (s *userStore) GetUser(id uuid.UUID) (entity.User, error) {
 	var user entity.User
-	query := fmt.Sprintf(`SELECT FROM %s WHERE id = $1`, userTable)
+	query := fmt.Sprintf(`SELECT * FROM %s WHERE id = $1`, userTable)
 	if err := s.Get(&user, query, id); err != nil {
 		return entity.User{}, fmt.Errorf("error getting user: %w", err)
 	}

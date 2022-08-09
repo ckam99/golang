@@ -24,7 +24,7 @@ func NewPostStore(db *sqlx.DB) IPostStore {
 
 func (p *postStore) GetPosts(limit, offset int) ([]entity.Post, error) {
 	var posts []entity.Post
-	query := fmt.Sprintf(`SELECT FROM %s LIMIT $1 OFFSET $2`, postTable)
+	query := fmt.Sprintf(`SELECT * FROM %s LIMIT $1 OFFSET $2`, postTable)
 	if err := p.Select(&posts, query, limit, offset); err != nil {
 		return []entity.Post{}, fmt.Errorf("error getting posts: %w", err)
 	}
@@ -33,7 +33,7 @@ func (p *postStore) GetPosts(limit, offset int) ([]entity.Post, error) {
 
 func (p *postStore) GetPostsByUser(userId uuid.UUID, limit, offset int) ([]entity.Post, error) {
 	var posts []entity.Post
-	query := fmt.Sprintf(`SELECT FROM %s WHERE user_id = $1 LIMIT $2 OFFSET $3`, postTable)
+	query := fmt.Sprintf(`SELECT * FROM %s WHERE user_id = $1 LIMIT $2 OFFSET $3`, postTable)
 	if err := p.Select(&posts, query, userId, limit, offset); err != nil {
 		return []entity.Post{}, fmt.Errorf("error getting posts: %w", err)
 	}
@@ -42,7 +42,7 @@ func (p *postStore) GetPostsByUser(userId uuid.UUID, limit, offset int) ([]entit
 
 func (p *postStore) GetPost(id uuid.UUID) (entity.Post, error) {
 	var post entity.Post
-	query := fmt.Sprintf(`SELECT FROM %s WHERE id = $1`, postTable)
+	query := fmt.Sprintf(`SELECT * FROM %s WHERE id = $1`, postTable)
 	if err := p.Get(&post, query, id); err != nil {
 		return entity.Post{}, fmt.Errorf("error getting post: %w", err)
 	}

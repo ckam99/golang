@@ -22,7 +22,7 @@ func NewCommentStore(db *sqlx.DB) ICommentStore {
 
 func (s *commentStore) GetComments(limit, offset int) ([]entity.Comment, error) {
 	var comments []entity.Comment
-	if err := s.Select(&comments, `SELECT FROM $1 LIMIT $2 OFFSET $3`, commentTable, limit, offset); err != nil {
+	if err := s.Select(&comments, `SELECT * FROM $1 LIMIT $2 OFFSET $3`, commentTable, limit, offset); err != nil {
 		return []entity.Comment{}, fmt.Errorf("error getting comments: %w", err)
 	}
 	return comments, nil
@@ -30,7 +30,7 @@ func (s *commentStore) GetComments(limit, offset int) ([]entity.Comment, error) 
 
 func (s *commentStore) GetCommentsByPost(postId uuid.UUID, limit, offset int) ([]entity.Comment, error) {
 	var comments []entity.Comment
-	if err := s.Select(&comments, `SELECT FROM $1 WHERE post_id = $2 LIMIT $3 OFFSET $4`, commentTable, postId, limit, offset); err != nil {
+	if err := s.Select(&comments, `SELECT * FROM $1 WHERE post_id = $2 LIMIT $3 OFFSET $4`, commentTable, postId, limit, offset); err != nil {
 		return []entity.Comment{}, fmt.Errorf("error getting comments: %w", err)
 	}
 	return comments, nil
@@ -38,7 +38,7 @@ func (s *commentStore) GetCommentsByPost(postId uuid.UUID, limit, offset int) ([
 
 func (s *commentStore) GetComment(id uuid.UUID) (entity.Comment, error) {
 	var comment entity.Comment
-	if err := s.Get(&comment, `SELECT FROM $1 WHERE id = $2`, commentTable, id); err != nil {
+	if err := s.Get(&comment, `SELECT * FROM $1 WHERE id = $2`, commentTable, id); err != nil {
 		return entity.Comment{}, fmt.Errorf("error getting comment: %w", err)
 	}
 	return comment, nil
