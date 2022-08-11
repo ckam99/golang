@@ -1,19 +1,14 @@
-package controller
+package handler
 
 import (
 	"strconv"
 
 	"github.com/ckam225/golang/fiber/internal/http/request"
 	"github.com/ckam225/golang/fiber/internal/http/response"
-	"github.com/ckam225/golang/fiber/internal/repository"
 	"github.com/ckam225/golang/fiber/internal/utils"
 
 	"github.com/gofiber/fiber/v2"
 )
-
-type UserController struct {
-	Repo repository.UserRepository
-}
 
 // @Summary     User Health Check
 // @Description  User Health Check
@@ -26,7 +21,7 @@ type UserController struct {
 // @Failure      404  {object}   response.ErrorResponse
 // @Failure      500  {object}   response.ErrorResponse
 // @Router       /users/health [get]
-func (r *UserController) UserHealthCheck(ctx *fiber.Ctx) error {
+func (h *Handler) UserHealthCheck(ctx *fiber.Ctx) error {
 	return ctx.JSON(fiber.Map{
 		"message": "ok",
 	})
@@ -42,7 +37,7 @@ func (r *UserController) UserHealthCheck(ctx *fiber.Ctx) error {
 // @Success      200  {array}   response.UserResponse
 // @Failure      404,400,401  {object}   response.ErrorResponse
 // @Router       /users [get]
-func (r *UserController) GetUsersHandler(c *fiber.Ctx) error {
+func (h *Handler) GetUsersHandler(c *fiber.Ctx) error {
 	queryParam := request.UserFilterParam{
 		Skip:  0,
 		Limit: 100,
@@ -53,7 +48,7 @@ func (r *UserController) GetUsersHandler(c *fiber.Ctx) error {
 	if limit, _ := strconv.Atoi(c.Query("limit", "100")); limit != 0 {
 		queryParam.Limit = limit
 	}
-	users, err := r.Repo.GetAllUsers(queryParam)
+	users, err := h.repo.User.GetAllUsers(queryParam)
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(response.SetHttpError(err.Error()))
 	}
@@ -69,7 +64,7 @@ func (r *UserController) GetUsersHandler(c *fiber.Ctx) error {
 // @Success      201  {object}  response.UserResponse
 // @Failure      404,422,400  {object}   response.ErrorResponse
 // @Router       /users [post]
-func (r *UserController) CreateUserHandler(c *fiber.Ctx) error {
+func (h *Handler) CreateUserHandler(c *fiber.Ctx) error {
 	body := request.CreateUser{}
 	if err := c.BodyParser(&body); err != nil {
 		return c.Status(fiber.StatusUnprocessableEntity).JSON(response.SetHttpError(err.Error()))
@@ -77,7 +72,7 @@ func (r *UserController) CreateUserHandler(c *fiber.Ctx) error {
 	if errors := utils.ValidateCredentials(body); errors != nil {
 		return c.Status(fiber.StatusUnprocessableEntity).JSON(errors)
 	}
-	if user, err := r.Repo.CreateUser(&body); err != nil {
+	if user, err := h.repo.User.CreateUser(&body); err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(response.SetHttpError(err.Error()))
 	} else {
 		return c.Status(fiber.StatusCreated).JSON(response.ParseUserEntity(user))
@@ -93,11 +88,11 @@ func (r *UserController) CreateUserHandler(c *fiber.Ctx) error {
 // @Success      200  {object}   response.UserResponse
 // @Failure      404  {object}   response.ErrorResponse
 // @Router       /users/{user_id} [get]
-func (r *UserController) GetUserHandler(c *fiber.Ctx) error {
+func (h *Handler) GetUserHandler(c *fiber.Ctx) error {
 	if id, err := c.ParamsInt("id"); err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(response.SetHttpError(err.Error()))
 	} else {
-		user, err := r.Repo.GetUserByID(id)
+		user, err := h.repo.User.GetUserByID(id)
 		if err != nil {
 			return c.Status(fiber.StatusNotFound).JSON(response.SetHttpError(err.Error()))
 		}
@@ -115,13 +110,13 @@ func (r *UserController) GetUserHandler(c *fiber.Ctx) error {
 // @Success      200  {object}   response.UserResponse
 // @Failure      404  {object}   response.ErrorResponse
 // @Router       /users/{user_id} [put]
-func (r *UserController) UpdateUserHandler(c *fiber.Ctx) error {
+func (h *Handler) UpdateUserHandler(c *fiber.Ctx) error {
 	body := request.UpdateUser{}
 	id, _ := c.ParamsInt("id", 0)
 	if err := c.BodyParser(&body); err != nil {
 		return c.Status(fiber.StatusUnprocessableEntity).JSON(err.Error())
 	}
-	user, err := r.Repo.UpdateUser(id, &body)
+	user, err := h.repo.User.UpdateUser(id, &body)
 	if err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(response.SetHttpError(err.Error()))
 	}
@@ -137,9 +132,9 @@ func (r *UserController) UpdateUserHandler(c *fiber.Ctx) error {
 // @Success      204
 // @Failure      404  {object}   response.ErrorResponse
 // @Router       /users/{user_id} [delete]
-func (r *UserController) DeleteUserHandler(c *fiber.Ctx) error {
+func (h *Handler) DeleteUserHandler(c *fiber.Ctx) error {
 	id, _ := c.ParamsInt("id")
-	if err := r.Repo.DeleteUser(uint(id), true); err != nil {
+	if err := h.repo.User.DeleteUser(uint(id), true); err != nil {
 		c.Status(fiber.StatusBadRequest).JSON(err.Error())
 	}
 	return c.Status(fiber.StatusNoContent).JSON(nil)

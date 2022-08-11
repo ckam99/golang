@@ -1,4 +1,4 @@
-package controller
+package handler
 
 import (
 	"log"
@@ -6,17 +6,12 @@ import (
 
 	"github.com/ckam225/golang/fiber/internal/http/request"
 	"github.com/ckam225/golang/fiber/internal/http/response"
-	"github.com/ckam225/golang/fiber/internal/repository"
 	"github.com/ckam225/golang/fiber/internal/security"
 	"github.com/ckam225/golang/fiber/internal/service"
 	"github.com/ckam225/golang/fiber/internal/utils"
 
 	"github.com/gofiber/fiber/v2"
 )
-
-type AuthController struct {
-	Repo repository.AuthRepository
-}
 
 // @Summary     Sign Up
 // @Tags         auth
@@ -26,7 +21,7 @@ type AuthController struct {
 // @Success      201  {object}  response.UserResponse
 // @Failure      400,422,500  {object}   response.ErrorResponse
 // @Router       /auth/signup [post]
-func (c *AuthController) SignUpHandler(ctx *fiber.Ctx) error {
+func (h *Handler) SignUpHandler(ctx *fiber.Ctx) error {
 	var body request.RegisterRequest
 	if err := ctx.BodyParser(&body); err != nil {
 		return response.HttpResponseError(ctx, fiber.StatusBadRequest, err.Error())
@@ -34,11 +29,11 @@ func (c *AuthController) SignUpHandler(ctx *fiber.Ctx) error {
 	if errors := utils.ValidateCredentials(body); errors != nil {
 		return ctx.Status(fiber.StatusUnprocessableEntity).JSON(errors)
 	}
-	user, err := c.Repo.SignUp(body)
+	user, err := h.repo.Auth.SignUp(body)
 	if err != nil {
 		return response.HttpResponseError(ctx, fiber.StatusBadRequest, err.Error())
 	}
-	go service.SendConfirmationEmail(c.Repo.Query, user)
+	go service.SendConfirmationEmail(h.repo.DB, user)
 	return ctx.Status(fiber.StatusCreated).JSON(response.ParseUserEntity(user))
 }
 
@@ -50,8 +45,8 @@ func (c *AuthController) SignUpHandler(ctx *fiber.Ctx) error {
 // @Success      200  {object}  response.UserResponse
 // @Failure      400,401,500  {object}   response.ErrorResponse
 // @Router       /auth/user [get]
-func (c *AuthController) CurrentUserHandler(ctx *fiber.Ctx) error {
-	user, err := security.GetAuthUser(c.Repo.Query, ctx)
+func (h *Handler) CurrentUserHandler(ctx *fiber.Ctx) error {
+	user, err := security.GetAuthUser(h.repo.DB, ctx)
 	if err != nil {
 		return response.HttpResponseError(ctx, fiber.StatusUnauthorized, err.Error())
 	}
@@ -67,7 +62,7 @@ func (c *AuthController) CurrentUserHandler(ctx *fiber.Ctx) error {
 // @Failure      400,401,500  {object}   response.ErrorResponse
 // @Router       /auth/email/confirm [post]
 // @Router       /auth/phone/confirm [post]
-func (c *AuthController) EmailConfirmationHandler(ctx *fiber.Ctx) error {
+func (h *Handler) EmailConfirmationHandler(ctx *fiber.Ctx) error {
 	var req request.EmailConfirmRequest
 	if err := ctx.BodyParser(&req); err != nil {
 		return response.HttpResponseError(ctx, fiber.StatusBadRequest, err.Error())
@@ -75,19 +70,19 @@ func (c *AuthController) EmailConfirmationHandler(ctx *fiber.Ctx) error {
 	if errors := utils.ValidateCredentials(req); errors != nil {
 		return ctx.Status(fiber.StatusUnprocessableEntity).JSON(errors)
 	}
-	verifyCode, err := service.VerifyConfirmationCode(c.Repo.Query, &req)
+	verifyCode, err := service.VerifyConfirmationCode(h.repo.DB, &req)
 	if err != nil {
 		return response.HttpResponseError(ctx, fiber.StatusBadRequest, err.Error())
 	}
-	user, err := service.GetUserByEmail(c.Repo.Query, req.Email)
+	user, err := service.GetUserByEmail(h.repo.DB, req.Email)
 	if err != nil {
 		return response.HttpResponseError(ctx, fiber.StatusBadRequest, err.Error())
 	}
-	if err = c.Repo.Query.Model(&user).UpdateColumn("email_confirmed_at", time.Now()).Error; err != nil {
+	if err = h.repo.DB.Model(&user).UpdateColumn("email_confirmed_at", time.Now()).Error; err != nil {
 		return response.HttpResponseError(ctx, fiber.StatusBadRequest, err.Error())
 	}
 	go func() {
-		if err = c.Repo.Query.Unscoped().Delete(&verifyCode).Error; err != nil {
+		if err = h.repo.DB.Unscoped().Delete(&verifyCode).Error; err != nil {
 			log.Println(err.Error())
 		}
 	}()
@@ -103,7 +98,7 @@ func (c *AuthController) EmailConfirmationHandler(ctx *fiber.Ctx) error {
 // @Success      200  {object}  response.Token
 // @Failure      404,422,400  {object}   response.ErrorResponse
 // @Router       /auth/token [post]
-func (c *AuthController) TokenAuthenticationHandler(ctx *fiber.Ctx) error {
+func (h *Handler) TokenAuthenticationHandler(ctx *fiber.Ctx) error {
 	body := request.LoginRequest{}
 
 	if err := ctx.BodyParser(&body); err != nil {
@@ -112,7 +107,7 @@ func (c *AuthController) TokenAuthenticationHandler(ctx *fiber.Ctx) error {
 	if errors := utils.ValidateCredentials(&body); errors != nil {
 		return ctx.Status(fiber.StatusUnprocessableEntity).JSON(errors)
 	}
-	user, err := c.Repo.SignIn(&body)
+	user, err := h.repo.Auth.SignIn(&body)
 	if err != nil {
 		return response.HttpResponseError(ctx, fiber.StatusUnauthorized, "Bad credentials")
 	}
@@ -136,8 +131,8 @@ func (c *AuthController) TokenAuthenticationHandler(ctx *fiber.Ctx) error {
 // @Success      200  {object}  response.Token
 // @Failure      400,401,500  {object}   response.ErrorResponse
 // @Router       /auth/token/refresh [get]
-func (c *AuthController) RefreshTokenHandler(ctx *fiber.Ctx) error {
-	user, err := security.GetAuthUser(c.Repo.Query, ctx)
+func (h *Handler) RefreshTokenHandler(ctx *fiber.Ctx) error {
+	user, err := security.GetAuthUser(h.repo.DB, ctx)
 	if err != nil {
 		return response.HttpResponseError(ctx, fiber.StatusUnauthorized, err.Error())
 	}

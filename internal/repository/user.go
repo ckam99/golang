@@ -5,60 +5,65 @@ import (
 	"github.com/ckam225/golang/fiber/internal/http/request"
 	"github.com/ckam225/golang/fiber/internal/http/response"
 	"github.com/ckam225/golang/fiber/internal/service"
-
 	"gorm.io/gorm"
 )
 
-type UserRepository struct {
-	Query *gorm.DB
+type userRepository struct {
+	db *gorm.DB
 }
 
-func (r *UserRepository) FetchAllUsers() (*[]response.UserResponse, error) {
+func NewUserRepository(db *gorm.DB) *userRepository {
+	return &userRepository{
+		db: db,
+	}
+}
+
+func (r *userRepository) FetchAllUsers() (*[]response.UserResponse, error) {
 	var users []response.UserResponse
-	if err := r.Query.Model(&entity.User{}).Find(&users).Error; err != nil {
+	if err := r.db.Model(&entity.User{}).Find(&users).Error; err != nil {
 		return nil, err
 	}
 	return &users, nil
 }
 
-func (r *UserRepository) GetAllUsers(p request.UserFilterParam) (*[]entity.User, error) {
+func (r *userRepository) GetAllUsers(p request.UserFilterParam) (*[]entity.User, error) {
 	var users []entity.User
-	if err := r.Query.Offset(p.Skip).Limit(p.Limit).Find(&users).Error; err != nil {
+	if err := r.db.Offset(p.Skip).Limit(p.Limit).Find(&users).Error; err != nil {
 		return nil, err
 	}
 	return &users, nil
 }
 
-func (r *UserRepository) CreateUser(obj *request.CreateUser) (*entity.User, error) {
+func (r *userRepository) CreateUser(obj *request.CreateUser) (*entity.User, error) {
 	user := entity.User{
 		Name:  obj.Name,
 		Email: obj.Email,
 		Phone: obj.Phone,
 	}
-	_, err := service.CreateUser(r.Query, &user)
+	_, err := service.CreateUser(r.db, &user)
 	return &user, err
 }
 
-func (r *UserRepository) GetUser(user *entity.User) (*entity.User, error) {
-	if err := r.Query.Find(&user).Error; err != nil {
+func (r *userRepository) GetUser(user *entity.User) (*entity.User, error) {
+	if err := r.db.Find(&user).Error; err != nil {
 		return nil, err
 	}
 	return user, nil
 }
 
-func (r *UserRepository) GetUserByID(id int) (*entity.User, error) {
-	return service.GetUserByID(r.Query, id)
+func (r *userRepository) GetUserByID(id int) (*entity.User, error) {
+	return service.GetUserByID(r.db, id)
 }
 
-func (r *UserRepository) GetUserByEmail(email string) (*entity.User, error) {
-	return service.GetUserByEmail(r.Query, email)
+func (r *userRepository) GetUserByEmail(email string) (*entity.User, error) {
+	return service.GetUserByEmail(r.db, email)
 }
 
-func (r *UserRepository) UpdateUser(userId int, payload *request.UpdateUser) (*entity.User, error) {
+func (r *userRepository) UpdateUser(userId int, payload *request.UpdateUser) (*entity.User, error) {
 	if user, err := r.GetUserByID(userId); err != nil {
 		return nil, err
 	} else {
-		err := r.Query.Model(&user).Updates(entity.User{
+		err := r.db.Model(&user).Updates(entity.User{
 			Name:  payload.Name,
 			Phone: payload.Phone,
 		}).Error
@@ -66,17 +71,17 @@ func (r *UserRepository) UpdateUser(userId int, payload *request.UpdateUser) (*e
 	}
 }
 
-func (r *UserRepository) DeleteUser(userId uint, isSoftDelete bool) error {
+func (r *userRepository) DeleteUser(userId uint, isSoftDelete bool) error {
 	if !isSoftDelete {
-		return r.Query.Unscoped().Where("id = ?", userId).Delete(&entity.User{}).Error
+		return r.db.Unscoped().Where("id = ?", userId).Delete(&entity.User{}).Error
 	}
-	return r.Query.Where("id = ?", userId).Delete(&entity.User{}).Error
+	return r.db.Where("id = ?", userId).Delete(&entity.User{}).Error
 }
 
-func (r *UserRepository) CreateFakeUsers(maxLines int) error {
-	return service.CreateFakeUsers(r.Query, maxLines)
+func (r *userRepository) CreateFakeUsers(maxLines int) error {
+	return service.CreateFakeUsers(r.db, maxLines)
 }
 
-func (r *UserRepository) CreateFakeUser() error {
-	return service.CreateFakeUser(r.Query)
+func (r *userRepository) CreateFakeUser() error {
+	return service.CreateFakeUser(r.db)
 }

@@ -11,12 +11,18 @@ import (
 	"gorm.io/gorm"
 )
 
-type AuthRepository struct {
-	Query *gorm.DB
+type authRepository struct {
+	db *gorm.DB
 }
 
-func (r *AuthRepository) SignIn(rq *request.LoginRequest) (*entity.User, error) {
-	user, err := service.GetUserByEmail(r.Query, rq.Email)
+func NewAuthRepository(db *gorm.DB) *authRepository {
+	return &authRepository{
+		db: db,
+	}
+}
+
+func (r *authRepository) SignIn(rq *request.LoginRequest) (*entity.User, error) {
+	user, err := service.GetUserByEmail(r.db, rq.Email)
 	if err != nil {
 		return nil, err
 	}
@@ -26,22 +32,22 @@ func (r *AuthRepository) SignIn(rq *request.LoginRequest) (*entity.User, error) 
 	return user, nil
 }
 
-func (r *AuthRepository) SignUp(body request.RegisterRequest) (*entity.User, error) {
+func (r *authRepository) SignUp(body request.RegisterRequest) (*entity.User, error) {
 	user := entity.User{
 		Name:  body.Name,
 		Email: body.Email,
 		Phone: body.Phone,
 	}
-	_, err := service.CreateUser(r.Query, &user)
+	_, err := service.CreateUser(r.db, &user)
 	return &user, err
 }
 
-func (r *AuthRepository) ChangeUserPassword(user *entity.User, newPassword string) error {
+func (r *authRepository) ChangeUserPassword(user *entity.User, newPassword string) error {
 	var err error
 	user.Password, err = security.HashPassword(newPassword)
 	if err != nil {
 		return err
 	}
-	err = r.Query.Save(&user).Error
+	err = r.db.Save(&user).Error
 	return err
 }

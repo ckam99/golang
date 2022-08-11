@@ -6,12 +6,8 @@ import (
 	"os"
 
 	"github.com/ckam225/golang/fiber/internal/config"
-	"github.com/ckam225/golang/fiber/internal/database"
-	"github.com/ckam225/golang/fiber/internal/http/middleware"
+	"github.com/ckam225/golang/fiber/internal/http/handler"
 	"github.com/ckam225/golang/fiber/internal/jobs"
-	"github.com/ckam225/golang/fiber/internal/routes"
-
-	"github.com/gofiber/fiber/v2"
 )
 
 // @termsOfService  http://swagger.io/terms/
@@ -28,29 +24,17 @@ import (
 // @name Authorization
 func main() {
 	// load environment variable
-	conf, err := config.LoadConfig()
+	cfg, err := config.LoadConfig()
 	if err != nil {
+		log.Fatal(err)
 		panic(err)
 	}
 	// http server
-	app := fiber.New(fiber.Config{
-		Views: conf.Server.HtmlEngine,
-		// ViewsLayout: "layouts/base",
-	})
-	// Database
-	db := database.Init(conf.Database, true) // true for migration database
-	// Routes
-	routes.SetupWebRoutes(app, db)
-	routes.SetupAPIRoutes(app, db)
-	// middleware
-	app.Use(middleware.TestMiddleware)
-	app.Use(middleware.CorsMiddleware())
-	//app.Use(middleware.RouteMiddleware)
-
-	// jobs
+	server := handler.NewHandler(cfg)
+	// register jobs
 	jobs.RegisterNotificationChannel()
-
+	// unregister jobs
 	defer jobs.UnregisterNotificationChannel()
 
-	log.Fatal(app.Listen(fmt.Sprintf(":%s", os.Getenv("APP_PORT"))))
+	log.Fatal(server.Listen(fmt.Sprintf(":%s", os.Getenv("APP_PORT"))))
 }
