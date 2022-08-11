@@ -6,10 +6,6 @@ import (
 	"github.com/ckam225/golang/fiber/internal/repository"
 )
 
-type userService struct {
-	repo repository.Repository
-}
-
 type IUserService interface {
 	GetAllUsers(p request.UserFilterParam) (*[]entity.User, error)
 	GetUser(user *entity.User) (*entity.User, error)
@@ -18,6 +14,10 @@ type IUserService interface {
 	CreateUser(obj *request.CreateUser) (*entity.User, error)
 	UpdateUser(userId int, payload *request.UpdateUser) (*entity.User, error)
 	DeleteUser(userId uint, isSoftDelete bool) error
+}
+
+type userService struct {
+	repo repository.Repository
 }
 
 func UserService(repo repository.Repository) IUserService {

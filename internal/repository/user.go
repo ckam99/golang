@@ -6,10 +6,6 @@ import (
 	"gorm.io/gorm"
 )
 
-type userRepository struct {
-	db *gorm.DB
-}
-
 type IUserRepository interface {
 	GetAllUsers(limit, offset int) (*[]entity.User, error)
 	CreateUser(obj *entity.User) (*entity.User, error)
@@ -19,6 +15,10 @@ type IUserRepository interface {
 	GetUserByUniqueString(uniquId string) (*entity.User, error)
 	UpdateUser(user *entity.User) (*entity.User, error)
 	DeleteUser(userId uint, isSoftDelete bool) error
+}
+
+type userRepository struct {
+	db *gorm.DB
 }
 
 func UserRepository(db *gorm.DB) IUserRepository {
