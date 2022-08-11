@@ -38,7 +38,7 @@ func NewConnection(config *Config) (*gorm.DB, error) {
 }
 
 func Migrate(db *gorm.DB) error {
-	return db.AutoMigrate(&entity.User{}, &entity.Verycode{})
+	return db.AutoMigrate(&entity.User{}, &entity.Verifycode{})
 }
 
 func RunMigrations(db *gorm.DB) {

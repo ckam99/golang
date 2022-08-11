@@ -5,7 +5,7 @@ import (
 
 	"github.com/ckam225/golang/fiber/internal/config"
 	"github.com/ckam225/golang/fiber/internal/http/middleware"
-	"github.com/ckam225/golang/fiber/internal/repository"
+	"github.com/ckam225/golang/fiber/internal/service"
 	"github.com/ckam225/golang/fiber/internal/utils"
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/swagger"
@@ -13,27 +13,27 @@ import (
 
 type Handler struct {
 	*fiber.App
-	repo *repository.Repository
+	service *service.Service
 }
 
 func NewHandler(cfg *config.Configuration) *Handler {
 
-	ctrl := &Handler{
+	h := &Handler{
 		App: fiber.New(fiber.Config{
 			Views: cfg.Server.HtmlEngine,
 			// ViewsLayout: "layouts/base",
 		}),
-		repo: repository.NewRepositoy(*cfg.Database),
+		service: service.NewService(*cfg),
 	}
-	ctrl.setupWebRoutes()
-	ctrl.setupAPIRoutes()
+	h.setupWebRoutes()
+	h.setupAPIRoutes()
 
 	// middleware
-	ctrl.Use(middleware.TestMiddleware)
-	ctrl.Use(middleware.CorsMiddleware())
-	//ctrl.Use(middleware.RouteMiddleware)
+	h.Use(middleware.TestMiddleware)
+	h.Use(middleware.CorsMiddleware())
+	//h.Use(middleware.RouteMiddleware)
 
-	return ctrl
+	return h
 }
 
 func (c *Handler) setupAPIRoutes() {

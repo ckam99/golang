@@ -1,117 +1,69 @@
 package service
 
 import (
-	"errors"
-	"time"
-
 	"github.com/ckam225/golang/fiber/internal/entity"
 	"github.com/ckam225/golang/fiber/internal/http/request"
-	"github.com/ckam225/golang/fiber/internal/security"
-	"github.com/ckam225/golang/fiber/internal/utils"
-	"github.com/ckam225/golang/fiber/pkg/mailer"
-
-	"github.com/bxcodec/faker/v3"
-	"gorm.io/gorm"
+	"github.com/ckam225/golang/fiber/internal/repository"
 )
 
-func CreateFakeUsers(db *gorm.DB, maxLines int) error {
-	var err error
-	for i := 0; i < maxLines; i++ {
-		//if e := db.Omit("email_confirmed_at", "deleted_at", "id").Create(&entity.User{}).Error; e != nil {
-		if e := CreateFakeUser(db); e != nil {
-			err = e
-			break
-		}
-	}
-	return err
+type userService struct {
+	repo repository.Repository
 }
 
-func CreateFakeUser(db *gorm.DB) error {
-	hash, err := security.HashPassword("password")
+type IUserService interface {
+	GetAllUsers(p request.UserFilterParam) (*[]entity.User, error)
+	GetUser(user *entity.User) (*entity.User, error)
+	GetUserByID(id int) (*entity.User, error)
+	GetUserByEmail(email string) (*entity.User, error)
+	CreateUser(obj *request.CreateUser) (*entity.User, error)
+	UpdateUser(userId int, payload *request.UpdateUser) (*entity.User, error)
+	DeleteUser(userId uint, isSoftDelete bool) error
+}
+
+func UserService(repo repository.Repository) IUserService {
+	return &userService{
+		repo: repo,
+	}
+}
+
+func (s *userService) GetAllUsers(p request.UserFilterParam) (*[]entity.User, error) {
+	users, err := s.repo.User.GetAllUsers(p.Limit, p.Skip)
 	if err != nil {
-		return err
-	}
-	err = db.Omit("email_confirmed_at").Create(&entity.User{
-		Name:     faker.Name(),
-		Email:    faker.Email(),
-		Phone:    faker.Phonenumber(),
-		Password: hash,
-	}).Error
-	return err
-}
-
-func GetUserByID(db *gorm.DB, id int) (*entity.User, error) {
-	var user entity.User
-	if err := db.Where("id = ?", id).First(&user).Error; err != nil {
 		return nil, err
 	}
-	return &user, nil
+	return users, nil
 }
 
-func GetUserByEmail(db *gorm.DB, email string) (*entity.User, error) {
-	var user entity.User
-	if err := db.Where("email = ?", email).First(&user).Error; err != nil {
-		return nil, err
+func (s *userService) CreateUser(obj *request.CreateUser) (*entity.User, error) {
+	user := entity.User{
+		Name:  obj.Name,
+		Email: obj.Email,
+		Phone: obj.Phone,
 	}
-	return &user, nil
-}
-
-func GetUserByUniqueString(db *gorm.DB, uniquId string) (*entity.User, error) {
-	var user entity.User
-	err := db.Where("email = ?", uniquId).Or("phone = ?", uniquId).First(&user).Error
+	_, err := s.repo.User.CreateUser(&user)
 	return &user, err
 }
 
-func CreateUser(db *gorm.DB, user *entity.User) (*entity.User, error) {
-	var err error
-	user.Password, err = security.HashPassword(user.Password)
-	if err != nil {
-		return nil, err
-	}
-	if err = db.Omit("email_confirmed_at").Create(&user).Error; err != nil {
-		return nil, err
-	}
-	return user, nil
+func (s *userService) GetUser(user *entity.User) (*entity.User, error) {
+	return s.repo.User.GetUser(user)
 }
 
-func SendConfirmationEmail(db *gorm.DB, user *entity.User) error {
-	vcode := entity.Verycode{
-		Email:  user.Email,
-		Code:   utils.GenerateHashCode(),
-		Target: "email",
-	}
-	if err := db.Create(&vcode).Error; err != nil {
-		return err
-	}
-	mailer.NotificationChannel <- &mailer.Notification{
-		To: []string{user.Email},
-		Data: map[string]string{
-			"email":  user.Email,
-			"name":   user.Name,
-			"code":   vcode.Code,
-			"target": vcode.Target,
-		},
-		Subject:  "Registration",
-		Template: "mail/confirm_action.tmpl",
-	}
-	return nil
+func (s *userService) GetUserByID(id int) (*entity.User, error) {
+	return s.repo.User.GetUserByID(id)
 }
 
-func VerifyConfirmationCode(db *gorm.DB, req *request.EmailConfirmRequest) (*entity.Verycode, error) {
-	var verifyCode entity.Verycode
-	if err := db.Where("email = ?", req.Email).Where("code = ?", req.Code).First(&verifyCode).Error; err != nil {
-		return nil, err
-	}
-	duration := time.Since(verifyCode.CreatedAt)
-	isExpired := false
-	switch req.Target {
-	case "email":
-		isExpired = duration.Hours() > 24.0
-	case "phone":
-		isExpired = duration.Seconds() > 30.0
-	}
-	if isExpired {
-		return nil, errors.New("token is expired")
-	}
-	return &verifyCode, nil
+func (s *userService) GetUserByEmail(email string) (*entity.User, error) {
+	return s.repo.User.GetUserByEmail(email)
+}
+
+func (s *userService) UpdateUser(userId int, payload *request.UpdateUser) (*entity.User, error) {
+	return s.repo.User.UpdateUser(&entity.User{
+		ID:    uint(userId),
+		Name:  payload.Name,
+		Phone: payload.Phone,
+	})
+}
+
+func (s *userService) DeleteUser(userId uint, isSoftDelete bool) error {
+	return s.repo.User.DeleteUser(userId, isSoftDelete)
 }

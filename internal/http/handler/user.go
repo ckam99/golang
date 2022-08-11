@@ -48,7 +48,7 @@ func (h *Handler) GetUsersHandler(c *fiber.Ctx) error {
 	if limit, _ := strconv.Atoi(c.Query("limit", "100")); limit != 0 {
 		queryParam.Limit = limit
 	}
-	users, err := h.repo.User.GetAllUsers(queryParam)
+	users, err := h.service.User.GetAllUsers(queryParam)
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(response.SetHttpError(err.Error()))
 	}
@@ -72,7 +72,7 @@ func (h *Handler) CreateUserHandler(c *fiber.Ctx) error {
 	if errors := utils.ValidateCredentials(body); errors != nil {
 		return c.Status(fiber.StatusUnprocessableEntity).JSON(errors)
 	}
-	if user, err := h.repo.User.CreateUser(&body); err != nil {
+	if user, err := h.service.User.CreateUser(&body); err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(response.SetHttpError(err.Error()))
 	} else {
 		return c.Status(fiber.StatusCreated).JSON(response.ParseUserEntity(user))
@@ -92,7 +92,7 @@ func (h *Handler) GetUserHandler(c *fiber.Ctx) error {
 	if id, err := c.ParamsInt("id"); err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(response.SetHttpError(err.Error()))
 	} else {
-		user, err := h.repo.User.GetUserByID(id)
+		user, err := h.service.User.GetUserByID(id)
 		if err != nil {
 			return c.Status(fiber.StatusNotFound).JSON(response.SetHttpError(err.Error()))
 		}
@@ -116,7 +116,7 @@ func (h *Handler) UpdateUserHandler(c *fiber.Ctx) error {
 	if err := c.BodyParser(&body); err != nil {
 		return c.Status(fiber.StatusUnprocessableEntity).JSON(err.Error())
 	}
-	user, err := h.repo.User.UpdateUser(id, &body)
+	user, err := h.service.User.UpdateUser(id, &body)
 	if err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(response.SetHttpError(err.Error()))
 	}
@@ -134,7 +134,7 @@ func (h *Handler) UpdateUserHandler(c *fiber.Ctx) error {
 // @Router       /users/{user_id} [delete]
 func (h *Handler) DeleteUserHandler(c *fiber.Ctx) error {
 	id, _ := c.ParamsInt("id")
-	if err := h.repo.User.DeleteUser(uint(id), true); err != nil {
+	if err := h.service.User.DeleteUser(uint(id), true); err != nil {
 		c.Status(fiber.StatusBadRequest).JSON(err.Error())
 	}
 	return c.Status(fiber.StatusNoContent).JSON(nil)

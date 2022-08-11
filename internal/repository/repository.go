@@ -7,15 +7,13 @@ import (
 
 type Repository struct {
 	DB   *gorm.DB
-	Auth authRepository
-	User userRepository
+	User IUserRepository
 }
 
 func NewRepositoy(cfg database.Config) *Repository {
 	db := database.Init(&cfg, true)
 	return &Repository{
 		DB:   db,
-		Auth: *NewAuthRepository(db),
-		User: *NewUserRepository(db),
+		User: UserRepository(db),
 	}
 }

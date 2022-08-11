@@ -7,7 +7,6 @@ import (
 
 	"github.com/ckam225/golang/fiber/internal/entity"
 	"github.com/ckam225/golang/fiber/internal/security"
-	"github.com/ckam225/golang/fiber/internal/service"
 
 	"gorm.io/gorm"
 )
@@ -54,7 +53,7 @@ func fakerCommandHdler(db *gorm.DB, cmd *flag.FlagSet, all *bool, table *string,
 
 	switch *table {
 	case "users":
-		if err := service.CreateFakeUsers(db, *count); err != nil {
+		if err := CreateFakeUsers(db, *count); err != nil {
 			panic(err)
 		}
 		fmt.Println("CreateFakeUsers successfully executed!")
