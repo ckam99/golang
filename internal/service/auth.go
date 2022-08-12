@@ -31,7 +31,7 @@ func AuthService(repo repository.Repository) IAuthService {
 }
 
 func (s *authService) SignIn(rq *request.LoginRequest) (*entity.User, error) {
-	user, err := s.repo.User.GetUserByEmail(rq.Email)
+	user, err := s.repo.GetUserByEmail(rq.Email)
 	if err != nil {
 		return nil, err
 	}
@@ -47,7 +47,7 @@ func (s *authService) SignUp(body request.RegisterRequest) (*entity.User, error)
 		Email: body.Email,
 		Phone: body.Phone,
 	}
-	_, err := s.repo.User.CreateUser(&user)
+	_, err := s.repo.CreateUser(&user)
 	return &user, err
 }
 

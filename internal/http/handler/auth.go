@@ -28,11 +28,11 @@ func (h *Handler) SignUpHandler(ctx *fiber.Ctx) error {
 	if errors := utils.ValidateCredentials(body); errors != nil {
 		return ctx.Status(fiber.StatusUnprocessableEntity).JSON(errors)
 	}
-	user, err := h.service.Auth.SignUp(body)
+	user, err := h.service.SignUp(body)
 	if err != nil {
 		return response.HttpResponseError(ctx, fiber.StatusBadRequest, err.Error())
 	}
-	go h.service.Auth.SendConfirmationEmail(user)
+	go h.service.SendConfirmationEmail(user)
 	return ctx.Status(fiber.StatusCreated).JSON(response.ParseUserEntity(user))
 }
 
@@ -45,7 +45,7 @@ func (h *Handler) SignUpHandler(ctx *fiber.Ctx) error {
 // @Failure      400,401,500  {object}   response.ErrorResponse
 // @Router       /auth/user [get]
 func (h *Handler) CurrentUserHandler(ctx *fiber.Ctx) error {
-	user, err := security.GetAuthUser(h.service.Repo.DB, ctx)
+	user, err := security.GetAuthUser(h.service.GetDB(), ctx)
 
 	if err != nil {
 		return response.HttpResponseError(ctx, fiber.StatusUnauthorized, err.Error())
@@ -70,19 +70,19 @@ func (h *Handler) EmailConfirmationHandler(ctx *fiber.Ctx) error {
 	if errors := utils.ValidateCredentials(req); errors != nil {
 		return ctx.Status(fiber.StatusUnprocessableEntity).JSON(errors)
 	}
-	verifyCode, err := h.service.Auth.VerifyConfirmationCode(&req)
+	verifyCode, err := h.service.VerifyConfirmationCode(&req)
 	if err != nil {
 		return response.HttpResponseError(ctx, fiber.StatusBadRequest, err.Error())
 	}
-	user, err := h.service.User.GetUserByEmail(req.Email)
+	user, err := h.service.GetUserByEmail(req.Email)
 	if err != nil {
 		return response.HttpResponseError(ctx, fiber.StatusBadRequest, err.Error())
 	}
-	if err = h.service.Repo.DB.Model(&user).UpdateColumn("email_confirmed_at", time.Now()).Error; err != nil {
+	if err = h.service.GetDB().Model(&user).UpdateColumn("email_confirmed_at", time.Now()).Error; err != nil {
 		return response.HttpResponseError(ctx, fiber.StatusBadRequest, err.Error())
 	}
 	go func() {
-		if err = h.service.Repo.DB.Unscoped().Delete(&verifyCode).Error; err != nil {
+		if err = h.service.GetDB().Unscoped().Delete(&verifyCode).Error; err != nil {
 			log.Println(err.Error())
 		}
 	}()
@@ -107,7 +107,7 @@ func (h *Handler) TokenAuthenticationHandler(ctx *fiber.Ctx) error {
 	if errors := utils.ValidateCredentials(&body); errors != nil {
 		return ctx.Status(fiber.StatusUnprocessableEntity).JSON(errors)
 	}
-	user, err := h.service.Auth.SignIn(&body)
+	user, err := h.service.SignIn(&body)
 	if err != nil {
 		return response.HttpResponseError(ctx, fiber.StatusUnauthorized, "Bad credentials")
 	}
@@ -132,7 +132,7 @@ func (h *Handler) TokenAuthenticationHandler(ctx *fiber.Ctx) error {
 // @Failure      400,401,500  {object}   response.ErrorResponse
 // @Router       /auth/token/refresh [get]
 func (h *Handler) RefreshTokenHandler(ctx *fiber.Ctx) error {
-	user, err := security.GetAuthUser(h.service.Repo.DB, ctx)
+	user, err := security.GetAuthUser(h.service.GetDB(), ctx)
 	if err != nil {
 		return response.HttpResponseError(ctx, fiber.StatusUnauthorized, err.Error())
 	}

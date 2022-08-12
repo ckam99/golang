@@ -27,7 +27,7 @@ func UserService(repo repository.Repository) IUserService {
 }
 
 func (s *userService) GetAllUsers(p request.UserFilterParam) (*[]entity.User, error) {
-	users, err := s.repo.User.GetAllUsers(p.Limit, p.Skip)
+	users, err := s.repo.GetAllUsers(p.Limit, p.Skip)
 	if err != nil {
 		return nil, err
 	}
@@ -40,24 +40,24 @@ func (s *userService) CreateUser(obj *request.CreateUser) (*entity.User, error) 
 		Email: obj.Email,
 		Phone: obj.Phone,
 	}
-	_, err := s.repo.User.CreateUser(&user)
+	_, err := s.repo.CreateUser(&user)
 	return &user, err
 }
 
 func (s *userService) GetUser(user *entity.User) (*entity.User, error) {
-	return s.repo.User.GetUser(user)
+	return s.repo.GetUser(user)
 }
 
 func (s *userService) GetUserByID(id int) (*entity.User, error) {
-	return s.repo.User.GetUserByID(id)
+	return s.repo.GetUserByID(id)
 }
 
 func (s *userService) GetUserByEmail(email string) (*entity.User, error) {
-	return s.repo.User.GetUserByEmail(email)
+	return s.repo.GetUserByEmail(email)
 }
 
 func (s *userService) UpdateUser(userId int, payload *request.UpdateUser) (*entity.User, error) {
-	return s.repo.User.UpdateUser(&entity.User{
+	return s.repo.UpdateUser(&entity.User{
 		ID:    uint(userId),
 		Name:  payload.Name,
 		Phone: payload.Phone,
@@ -65,5 +65,5 @@ func (s *userService) UpdateUser(userId int, payload *request.UpdateUser) (*enti
 }
 
 func (s *userService) DeleteUser(userId uint, isSoftDelete bool) error {
-	return s.repo.User.DeleteUser(userId, isSoftDelete)
+	return s.repo.DeleteUser(userId, isSoftDelete)
 }

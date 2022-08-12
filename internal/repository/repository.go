@@ -6,14 +6,14 @@ import (
 )
 
 type Repository struct {
-	DB   *gorm.DB
-	User IUserRepository
+	DB *gorm.DB
+	IUserRepository
 }
 
 func NewRepositoy(cfg database.Config) *Repository {
 	db := database.Init(&cfg, true)
 	return &Repository{
-		DB:   db,
-		User: UserRepository(db),
+		DB:              db,
+		IUserRepository: UserRepository(db),
 	}
 }
