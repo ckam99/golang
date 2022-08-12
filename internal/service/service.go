@@ -8,6 +8,6 @@ type Service struct {
 
 func NewService(store *storage.Store) *Service {
 	return &Service{
-		IUserService: NewUserService(store),
+		IUserService: UserService(store),
 	}
 }

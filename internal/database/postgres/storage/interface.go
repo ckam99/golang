@@ -25,7 +25,9 @@ type ICommentStore interface {
 
 type IUserStore interface {
 	GetUsers(limit, offset int) ([]entity.User, error)
-	GetUser(id uuid.UUID) (entity.User, error)
+	FindUser(id uuid.UUID) (entity.User, error)
+	FindUserBy(field string, value interface{}) (entity.User, error)
+	CountUserBy(field string, value interface{}) (int, error)
 	CreateUser(t *entity.User) error
 	UpdateUser(t *entity.User) error
 	DeleteUser(id uuid.UUID) error

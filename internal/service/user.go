@@ -8,18 +8,19 @@ import (
 
 type IUserService interface {
 	GetUsers(limit, offset int) ([]entity.User, error)
-	GetUser(id uuid.UUID) (entity.User, error)
+	FindUser(id uuid.UUID) (entity.User, error)
 	GetUserByEmail(email string) (entity.User, error)
 	CreateUser(t *entity.User) error
 	UpdateUser(t *entity.User) error
 	DeleteUser(id uuid.UUID) error
+	IsEmailExist(email string) bool
 }
 
 type userService struct {
 	storage *storage.Store
 }
 
-func NewUserService(store *storage.Store) IUserService {
+func UserService(store *storage.Store) IUserService {
 	u := userService{
 		storage: store,
 	}
@@ -30,8 +31,8 @@ func (u *userService) GetUsers(limit int, offset int) ([]entity.User, error) {
 	return u.storage.GetUsers(limit, offset)
 }
 
-func (u *userService) GetUser(id uuid.UUID) (entity.User, error) {
-	return u.storage.GetUser(id)
+func (u *userService) FindUser(id uuid.UUID) (entity.User, error) {
+	return u.storage.FindUser(id)
 }
 
 func (u *userService) CreateUser(t *entity.User) error {
@@ -47,5 +48,13 @@ func (u *userService) DeleteUser(id uuid.UUID) error {
 }
 
 func (u *userService) GetUserByEmail(email string) (entity.User, error) {
-	panic("not implemented") // TODO: Implement
+	return u.storage.FindUserBy("email", email)
+}
+
+func (u *userService) IsEmailExist(email string) bool {
+	count, err := u.storage.CountUserBy("email", email)
+	if err != nil {
+		return false
+	}
+	return count > 0
 }

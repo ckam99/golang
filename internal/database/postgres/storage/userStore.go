@@ -31,11 +31,23 @@ func (s *userStore) GetUsers(limit, offset int) ([]entity.User, error) {
 	return users, nil
 }
 
-func (s *userStore) GetUser(id uuid.UUID) (entity.User, error) {
+func (s *userStore) FindUser(id uuid.UUID) (entity.User, error) {
 	var user entity.User
 	query := fmt.Sprintf(`SELECT * FROM %s WHERE id = $1`, userTable)
 	if err := s.Get(&user, query, id); err != nil {
 		return entity.User{}, fmt.Errorf("error getting user: %w", err)
+	}
+	return user, nil
+}
+
+func (s *userStore) FindUserBy(field string, value interface{}) (entity.User, error) {
+	var user entity.User
+	stmt, err := s.Preparex(fmt.Sprintf(`SELECT * FROM %s WHERE $1 = $2`, userTable))
+	if err != nil {
+		return entity.User{}, fmt.Errorf("error in statement getting user by %w", err)
+	}
+	if err := stmt.Get(&user, field, value); err != nil {
+		return entity.User{}, fmt.Errorf("error getting user by %s: %w", field, err)
 	}
 	return user, nil
 }
@@ -62,4 +74,13 @@ func (s *userStore) DeleteUser(id uuid.UUID) error {
 		return fmt.Errorf("error deleting user: %w", err)
 	}
 	return nil
+}
+
+func (s *userStore) CountUserBy(field string, value interface{}) (int, error) {
+	query := fmt.Sprintf("SELECT COUNT(*) %s WHERE $1 = $2", userTable)
+	var count int
+	if err := s.Get(&count, query, field, value); err != nil {
+		return count, err
+	}
+	return count, nil
 }

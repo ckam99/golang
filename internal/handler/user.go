@@ -2,6 +2,7 @@ package handler
 
 import (
 	"errors"
+	"fmt"
 	"net/http"
 	"strconv"
 
@@ -31,7 +32,7 @@ func (h *Handler) GetUserHandler(c echo.Context) error {
 	if err != nil {
 		return h.fatal(http.StatusBadRequest, err)
 	}
-	user, err := h.service.GetUser(userId)
+	user, err := h.service.FindUser(userId)
 	if err != nil {
 		return h.fatal(http.StatusInternalServerError, err)
 	}
@@ -49,6 +50,11 @@ func (h *Handler) CreateUserHandler(c echo.Context) error {
 	if err := c.Validate(userDTO); err != nil {
 		return h.fatal(http.StatusUnprocessableEntity, err)
 	}
+
+	if h.service.IsEmailExist(userDTO.Email) {
+		return h.fatal(http.StatusBadRequest, fmt.Errorf("email %s not available", userDTO.Email))
+	}
+
 	if err := h.service.CreateUser(&entity.User{
 		ID:    uuid.New(),
 		Name:  userDTO.Name,
