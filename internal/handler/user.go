@@ -6,53 +6,53 @@ import (
 	"net/http"
 	"strconv"
 
-	"github.com/ckam225/golang/echo/internal/dto"
-	"github.com/ckam225/golang/echo/internal/entity"
+	"github.com/ckam225/golang/fiber-sqlx/internal/dto"
+	"github.com/ckam225/golang/fiber-sqlx/internal/entity"
+	"github.com/gofiber/fiber/v2"
 	"github.com/google/uuid"
-	"github.com/labstack/echo/v4"
 )
 
-func (h *Handler) GetUsersHandler(c echo.Context) error {
-	limit, _ := strconv.Atoi(c.QueryParam("limit"))
+func (h *Handler) GetUsersHandler(c *fiber.Ctx) error {
+	limit, _ := strconv.Atoi(c.Params("limit", "1"))
 	if limit == 0 {
 		limit = 1
 	}
-	offset, _ := strconv.Atoi(c.QueryParam("offset"))
+	offset, _ := strconv.Atoi(c.Params("offset", "0"))
 
 	users, err := h.service.GetUsers(limit, offset)
 
 	if err != nil {
-		return h.fatal(http.StatusInternalServerError, err)
+		return h.Raise(c, http.StatusInternalServerError, err)
 	}
-	return c.JSON(http.StatusOK, &users)
+	return c.JSON(&users)
 }
 
-func (h *Handler) GetUserHandler(c echo.Context) error {
-	userId, err := uuid.Parse(c.Param("id"))
+func (h *Handler) GetUserHandler(c *fiber.Ctx) error {
+	userId, err := uuid.Parse(c.Params("id"))
 	if err != nil {
-		return h.fatal(http.StatusBadRequest, err)
+		return h.Raise(c, http.StatusBadRequest, err)
 	}
 	user, err := h.service.FindUser(userId)
 	if err != nil {
-		return h.fatal(http.StatusInternalServerError, err)
+		return h.Raise(c, http.StatusInternalServerError, err)
 	}
 	if user.ID == uuid.Nil {
-		return h.fatal(http.StatusNotFound, errors.New("user not found"))
+		return h.Raise(c, http.StatusNotFound, errors.New("user not found"))
 	}
-	return c.JSON(http.StatusOK, &user)
+	return c.JSON(&user)
 }
 
-func (h *Handler) CreateUserHandler(c echo.Context) error {
+func (h *Handler) CreateUserHandler(c *fiber.Ctx) error {
 	userDTO := dto.CreateUser{}
-	if err := c.Bind(&userDTO); err != nil {
-		return h.fatal(http.StatusBadRequest, err)
+	if err := c.BodyParser(&userDTO); err != nil {
+		return h.Raise(c, http.StatusBadRequest, err)
 	}
-	if err := c.Validate(userDTO); err != nil {
-		return h.fatal(http.StatusUnprocessableEntity, err)
+	if err := h.Validate(userDTO); err != nil {
+		return c.Status(fiber.StatusUnprocessableEntity).JSON(err)
 	}
 
 	if h.service.IsEmailExist(userDTO.Email) {
-		return h.fatal(http.StatusBadRequest, fmt.Errorf("email %s not available", userDTO.Email))
+		return h.Raise(c, http.StatusBadRequest, fmt.Errorf("email %s not available", userDTO.Email))
 	}
 
 	if err := h.service.CreateUser(&entity.User{
@@ -60,19 +60,19 @@ func (h *Handler) CreateUserHandler(c echo.Context) error {
 		Name:  userDTO.Name,
 		Email: userDTO.Email,
 	}); err != nil {
-		return h.fatal(http.StatusInternalServerError, err)
+		return h.Raise(c, http.StatusInternalServerError, err)
 	}
 
-	return c.JSON(http.StatusCreated, nil)
+	return c.Status(http.StatusNoContent).SendString("")
 }
 
-func (h *Handler) DeleteUserHandler(c echo.Context) error {
-	userId, err := uuid.Parse(c.Param("id"))
+func (h *Handler) DeleteUserHandler(c *fiber.Ctx) error {
+	userId, err := uuid.Parse(c.Params("id"))
 	if err != nil {
-		return h.fatal(http.StatusBadRequest, err)
+		return h.Raise(c, http.StatusBadRequest, err)
 	}
 	if err := h.service.DeleteUser(userId); err != nil {
-		return h.fatal(http.StatusInternalServerError, err)
+		return h.Raise(c, http.StatusInternalServerError, err)
 	}
-	return c.JSON(http.StatusNoContent, nil)
+	return c.Status(http.StatusNoContent).SendString("")
 }

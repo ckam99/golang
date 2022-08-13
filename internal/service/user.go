@@ -1,8 +1,8 @@
 package service
 
 import (
-	"github.com/ckam225/golang/echo/internal/database/postgres/storage"
-	"github.com/ckam225/golang/echo/internal/entity"
+	"github.com/ckam225/golang/fiber-sqlx/internal/database/postgres/storage"
+	"github.com/ckam225/golang/fiber-sqlx/internal/entity"
 	"github.com/google/uuid"
 )
 

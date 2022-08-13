@@ -2,3 +2,10 @@
 
 migrate:
    migrate -source file://internal/database/migrations -database postgres://postgres:postgres@host.docker.internal/golang_echo?sslmode=disable up
+
+
+
+go mod init github.com/ckam225/golang/fiber-sqlx
+
+
+   go get github.com/google/uuid github.com/go-playground/validator github.com/golang-migrate/migrate/v4 github.com/jmoiron/sqlx github.com/lib/pq github.com/gofiber/fiber/v2

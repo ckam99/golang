@@ -3,7 +3,7 @@ package storage
 import (
 	"fmt"
 
-	"github.com/ckam225/golang/echo/internal/entity"
+	"github.com/ckam225/golang/fiber-sqlx/internal/entity"
 	"github.com/google/uuid"
 	"github.com/jmoiron/sqlx"
 )

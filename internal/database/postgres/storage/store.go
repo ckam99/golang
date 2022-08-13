@@ -47,3 +47,7 @@ func (s *Store) RunMigrations() error {
 	}
 	return nil
 }
+
+func (s *Store) GetURL() string {
+	return s.dataSource
+}

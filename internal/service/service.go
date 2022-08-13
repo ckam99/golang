@@ -1,6 +1,6 @@
 package service
 
-import "github.com/ckam225/golang/echo/internal/database/postgres/storage"
+import "github.com/ckam225/golang/fiber-sqlx/internal/database/postgres/storage"
 
 type Service struct {
 	IUserService

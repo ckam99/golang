@@ -2,29 +2,29 @@ package handler
 
 import (
 	"log"
-	"net/http"
+	"strings"
 
-	"github.com/ckam225/golang/echo/internal/database/postgres/storage"
-	"github.com/ckam225/golang/echo/internal/dto"
-	"github.com/ckam225/golang/echo/internal/service"
+	"github.com/ckam225/golang/fiber-sqlx/internal/database/postgres/storage"
+	"github.com/ckam225/golang/fiber-sqlx/internal/dto"
+	"github.com/ckam225/golang/fiber-sqlx/internal/service"
 	"github.com/go-playground/validator"
-	"github.com/labstack/echo/v4"
-	"github.com/labstack/echo/v4/middleware"
+	"github.com/gofiber/fiber/v2"
 )
 
 type Handler struct {
-	*echo.Echo
-	service *service.Service
+	*fiber.App
+	service   *service.Service
+	validator *validator.Validate
 }
 
 func NewHandler(store storage.Store) *Handler {
 	h := &Handler{
-		Echo:    echo.New(),
-		service: service.NewService(&store),
+		App:       fiber.New(),
+		service:   service.NewService(&store),
+		validator: validator.New(),
 	}
-	h.Validator = &dto.CustomValidator{Validator: validator.New()}
-	h.Use(middleware.Logger())
-	h.Use(middleware.Recover())
+	//	h.Use(middleware.Logger())
+	//	h.Use(middleware.Recover())
 
 	h.setupApiRoutes()
 	h.setupWebRoutes()
@@ -33,25 +33,41 @@ func NewHandler(store storage.Store) *Handler {
 }
 
 func (h *Handler) setupApiRoutes() {
-
 	users := h.Group("/users")
-	users.GET("/", h.GetUsersHandler)
-	users.POST("/", h.CreateUserHandler)
-	users.GET("/:id", h.GetUserHandler)
-	users.DELETE("/:id", h.DeleteUserHandler)
+	users.Get("/", h.GetUsersHandler)
+	users.Post("/", h.CreateUserHandler)
+	users.Get("/:id", h.GetUserHandler)
+	users.Delete("/:id", h.DeleteUserHandler)
 }
 
 func (h *Handler) setupWebRoutes() {
-	h.GET("/hello", func(c echo.Context) error {
-		return c.JSON(http.StatusOK, dto.ErrorResponse{
+	h.Get("/hello", func(c *fiber.Ctx) error {
+		return c.JSON(dto.HttpError{
 			Message: "Welcome echo",
 		})
 	})
 }
 
-func (h *Handler) fatal(statusCode int, err error) error {
+func (h *Handler) Raise(c *fiber.Ctx, statusCode int, err error) error {
 	log.Println(err)
-	return echo.NewHTTPError(statusCode, &dto.ErrorResponse{
-		Message: err.Error(),
+	return c.Status(statusCode).JSON(fiber.Map{
+		"message": err.Error(),
 	})
+}
+
+func (h *Handler) Validate(s interface{}) []*dto.ValidateError {
+	var errors []*dto.ValidateError
+	err := h.validator.Struct(s)
+	if err != nil {
+		for _, err := range err.(validator.ValidationErrors) {
+			var element dto.ValidateError
+			element.Namespace = err.StructNamespace()
+			element.Tag = err.Tag()
+			element.Value = err.Param()
+			element.Field = strings.ToLower(err.Field())
+
+			errors = append(errors, &element)
+		}
+	}
+	return errors
 }
