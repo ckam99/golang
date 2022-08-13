@@ -24,6 +24,8 @@ type IPersonRepository interface {
 	BatchInsertPerson(persons []entity.Person) error
 	CreatePersonWithPrepare(person entity.Person) (*entity.Person, error)
 	InsertPersonWithPrepare(person entity.Person) error
+
+	Count(id int) (int, error)
 }
 
 func NewPersonRepository(db *sqlx.DB) IPersonRepository {
@@ -117,4 +119,13 @@ func (r *PersonRepository) BulkInsertPerson(persons []entity.Person) error {
 		tx.NamedExec(query, &person)
 	}
 	return tx.Commit()
+}
+
+func (r *PersonRepository) Count(id int) (int, error) {
+	var count int
+	query := fmt.Sprintf(`SELECT COUNT(*) FROM %s WHERE id = $1`, personTable)
+	if err := r.Get(&count, query, id); err != nil {
+		return count, err
+	}
+	return count, nil
 }

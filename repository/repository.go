@@ -22,6 +22,6 @@ func New(cfg *database.Config) (*Repository, error) {
 	return repo, nil
 }
 
-func (r *Repository) Disconnect() {
+func (r *Repository) Destroy() {
 	defer r.db.Close()
 }

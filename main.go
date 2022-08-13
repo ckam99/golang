@@ -18,14 +18,16 @@ func main() {
 		SSLmode:  "disable",
 		Timeout:  3000,
 	})
+	defer repo.Destroy()
+
 	if err != nil {
 		fmt.Printf(err.Error())
 		panic(err)
 	}
-	CreateOne(repo)
-
-	InsertOne(repo)
-
+	GetCount(repo, 2)
+	GetCount(repo, 19)
+	GetCount(repo, 3)
+	GetCount(repo, 1)
 }
 
 func FetchList(repo *repository.Repository) {
@@ -33,6 +35,15 @@ func FetchList(repo *repository.Repository) {
 	jason, john := people[0], people[1]
 
 	fmt.Printf("%#v\n%#v", jason, john)
+}
+
+func GetCount(repo *repository.Repository, id int) {
+	count, err := repo.Count(id)
+	if err != nil {
+		fmt.Println(err.Error())
+		panic(err)
+	}
+	fmt.Printf("%#v\n", count)
 }
 
 func FetchOne(repo *repository.Repository) {
