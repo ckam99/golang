@@ -1,19 +1,24 @@
 package handler
 
 import (
+	"log"
 	"os"
+	"strings"
 
 	"github.com/ckam225/golang/fiber/internal/config"
 	"github.com/ckam225/golang/fiber/internal/http/middleware"
+	"github.com/ckam225/golang/fiber/internal/http/response"
 	"github.com/ckam225/golang/fiber/internal/service"
 	"github.com/ckam225/golang/fiber/internal/utils"
+	"github.com/go-playground/validator"
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/swagger"
 )
 
 type Handler struct {
 	*fiber.App
-	service *service.Service
+	service   *service.Service
+	validator *validator.Validate
 }
 
 func NewHandler(cfg *config.Configuration) *Handler {
@@ -23,7 +28,8 @@ func NewHandler(cfg *config.Configuration) *Handler {
 			Views: cfg.Server.HtmlEngine,
 			// ViewsLayout: "layouts/base",
 		}),
-		service: service.NewService(*cfg),
+		service:   service.NewService(*cfg),
+		validator: validator.New(),
 	}
 	h.setupWebRoutes()
 	h.setupAPIRoutes()
@@ -70,4 +76,28 @@ func (c *Handler) setupWebRoutes() {
 	c.Get("about", func(c *fiber.Ctx) error {
 		return c.Render("about", fiber.Map{})
 	})
+}
+
+func (h *Handler) Raise(c *fiber.Ctx, statusCode int, err error) error {
+	log.Println(err)
+	return c.Status(statusCode).JSON(fiber.Map{
+		"message": err.Error(),
+	})
+}
+
+func (h *Handler) Validate(s interface{}) []*response.ValidationError {
+	var errors []*response.ValidationError
+	err := h.validator.Struct(s)
+	if err != nil {
+		for _, err := range err.(validator.ValidationErrors) {
+			var element response.ValidationError
+			element.Namespace = err.StructNamespace()
+			element.Tag = err.Tag()
+			element.Value = err.Param()
+			element.Field = strings.ToLower(err.Field())
+
+			errors = append(errors, &element)
+		}
+	}
+	return errors
 }

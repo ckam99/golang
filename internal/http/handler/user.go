@@ -5,7 +5,6 @@ import (
 
 	"github.com/ckam225/golang/fiber/internal/http/request"
 	"github.com/ckam225/golang/fiber/internal/http/response"
-	"github.com/ckam225/golang/fiber/internal/utils"
 
 	"github.com/gofiber/fiber/v2"
 )
@@ -50,7 +49,7 @@ func (h *Handler) GetUsersHandler(c *fiber.Ctx) error {
 	}
 	users, err := h.service.GetAllUsers(queryParam)
 	if err != nil {
-		return c.Status(fiber.StatusInternalServerError).JSON(response.SetHttpError(err.Error()))
+		return h.Raise(c, fiber.StatusInternalServerError, err)
 	}
 	return c.Status(fiber.StatusOK).JSON(response.ParseUserListEntity(users))
 }
@@ -67,13 +66,13 @@ func (h *Handler) GetUsersHandler(c *fiber.Ctx) error {
 func (h *Handler) CreateUserHandler(c *fiber.Ctx) error {
 	body := request.CreateUser{}
 	if err := c.BodyParser(&body); err != nil {
-		return c.Status(fiber.StatusUnprocessableEntity).JSON(response.SetHttpError(err.Error()))
+		return h.Raise(c, fiber.StatusUnprocessableEntity, err)
 	}
-	if errors := utils.ValidateCredentials(body); errors != nil {
-		return c.Status(fiber.StatusUnprocessableEntity).JSON(errors)
+	if err := h.Validate(body); err != nil {
+		return c.Status(fiber.StatusUnprocessableEntity).JSON(err)
 	}
 	if user, err := h.service.CreateUser(&body); err != nil {
-		return c.Status(fiber.StatusBadRequest).JSON(response.SetHttpError(err.Error()))
+		return h.Raise(c, fiber.StatusBadRequest, err)
 	} else {
 		return c.Status(fiber.StatusCreated).JSON(response.ParseUserEntity(user))
 	}
@@ -90,11 +89,11 @@ func (h *Handler) CreateUserHandler(c *fiber.Ctx) error {
 // @Router       /users/{user_id} [get]
 func (h *Handler) GetUserHandler(c *fiber.Ctx) error {
 	if id, err := c.ParamsInt("id"); err != nil {
-		return c.Status(fiber.StatusBadRequest).JSON(response.SetHttpError(err.Error()))
+		return h.Raise(c, fiber.StatusBadRequest, err)
 	} else {
 		user, err := h.service.GetUserByID(id)
 		if err != nil {
-			return c.Status(fiber.StatusNotFound).JSON(response.SetHttpError(err.Error()))
+			return h.Raise(c, fiber.StatusNotFound, err)
 		}
 		return c.Status(fiber.StatusOK).JSON(response.ParseUserEntity(user))
 	}
@@ -118,7 +117,7 @@ func (h *Handler) UpdateUserHandler(c *fiber.Ctx) error {
 	}
 	user, err := h.service.UpdateUser(id, &body)
 	if err != nil {
-		return c.Status(fiber.StatusBadRequest).JSON(response.SetHttpError(err.Error()))
+		return h.Raise(c, fiber.StatusBadRequest, err)
 	}
 	return c.Status(fiber.StatusAccepted).JSON(&user)
 }
@@ -135,7 +134,7 @@ func (h *Handler) UpdateUserHandler(c *fiber.Ctx) error {
 func (h *Handler) DeleteUserHandler(c *fiber.Ctx) error {
 	id, _ := c.ParamsInt("id")
 	if err := h.service.DeleteUser(uint(id), true); err != nil {
-		c.Status(fiber.StatusBadRequest).JSON(err.Error())
+		return h.Raise(c, fiber.StatusBadRequest, err)
 	}
 	return c.Status(fiber.StatusNoContent).JSON(nil)
 }

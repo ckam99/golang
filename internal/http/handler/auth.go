@@ -1,13 +1,13 @@
 package handler
 
 import (
+	"errors"
 	"log"
 	"time"
 
 	"github.com/ckam225/golang/fiber/internal/http/request"
 	"github.com/ckam225/golang/fiber/internal/http/response"
 	"github.com/ckam225/golang/fiber/internal/security"
-	"github.com/ckam225/golang/fiber/internal/utils"
 
 	"github.com/gofiber/fiber/v2"
 )
@@ -23,14 +23,14 @@ import (
 func (h *Handler) SignUpHandler(ctx *fiber.Ctx) error {
 	var body request.RegisterRequest
 	if err := ctx.BodyParser(&body); err != nil {
-		return response.HttpResponseError(ctx, fiber.StatusBadRequest, err.Error())
+		return h.Raise(ctx, fiber.StatusBadRequest, err)
 	}
-	if errors := utils.ValidateCredentials(body); errors != nil {
-		return ctx.Status(fiber.StatusUnprocessableEntity).JSON(errors)
+	if err := h.Validate(body); err != nil {
+		return ctx.Status(fiber.StatusUnprocessableEntity).JSON(err)
 	}
 	user, err := h.service.SignUp(body)
 	if err != nil {
-		return response.HttpResponseError(ctx, fiber.StatusBadRequest, err.Error())
+		return h.Raise(ctx, fiber.StatusBadRequest, err)
 	}
 	go h.service.SendConfirmationEmail(user)
 	return ctx.Status(fiber.StatusCreated).JSON(response.ParseUserEntity(user))
@@ -48,7 +48,7 @@ func (h *Handler) CurrentUserHandler(ctx *fiber.Ctx) error {
 	user, err := security.GetAuthUser(h.service.GetDB(), ctx)
 
 	if err != nil {
-		return response.HttpResponseError(ctx, fiber.StatusUnauthorized, err.Error())
+		return h.Raise(ctx, fiber.StatusUnauthorized, err)
 	}
 	return ctx.JSON(response.ParseUserEntity(user))
 }
@@ -65,21 +65,21 @@ func (h *Handler) CurrentUserHandler(ctx *fiber.Ctx) error {
 func (h *Handler) EmailConfirmationHandler(ctx *fiber.Ctx) error {
 	var req request.EmailConfirmRequest
 	if err := ctx.BodyParser(&req); err != nil {
-		return response.HttpResponseError(ctx, fiber.StatusBadRequest, err.Error())
+		return h.Raise(ctx, fiber.StatusBadRequest, err)
 	}
-	if errors := utils.ValidateCredentials(req); errors != nil {
-		return ctx.Status(fiber.StatusUnprocessableEntity).JSON(errors)
+	if err := h.Validate(req); err != nil {
+		return ctx.Status(fiber.StatusUnprocessableEntity).JSON(err)
 	}
 	verifyCode, err := h.service.VerifyConfirmationCode(&req)
 	if err != nil {
-		return response.HttpResponseError(ctx, fiber.StatusBadRequest, err.Error())
+		return h.Raise(ctx, fiber.StatusBadRequest, err)
 	}
 	user, err := h.service.GetUserByEmail(req.Email)
 	if err != nil {
-		return response.HttpResponseError(ctx, fiber.StatusBadRequest, err.Error())
+		return h.Raise(ctx, fiber.StatusBadRequest, err)
 	}
 	if err = h.service.GetDB().Model(&user).UpdateColumn("email_confirmed_at", time.Now()).Error; err != nil {
-		return response.HttpResponseError(ctx, fiber.StatusBadRequest, err.Error())
+		return h.Raise(ctx, fiber.StatusBadRequest, err)
 	}
 	go func() {
 		if err = h.service.GetDB().Unscoped().Delete(&verifyCode).Error; err != nil {
@@ -102,18 +102,18 @@ func (h *Handler) TokenAuthenticationHandler(ctx *fiber.Ctx) error {
 	body := request.LoginRequest{}
 
 	if err := ctx.BodyParser(&body); err != nil {
-		return response.HttpResponseError(ctx, fiber.StatusBadRequest, err.Error())
+		return h.Raise(ctx, fiber.StatusBadRequest, err)
 	}
-	if errors := utils.ValidateCredentials(&body); errors != nil {
-		return ctx.Status(fiber.StatusUnprocessableEntity).JSON(errors)
+	if err := h.Validate(&body); err != nil {
+		return ctx.Status(fiber.StatusUnprocessableEntity).JSON(err)
 	}
 	user, err := h.service.SignIn(&body)
 	if err != nil {
-		return response.HttpResponseError(ctx, fiber.StatusUnauthorized, "Bad credentials")
+		return h.Raise(ctx, fiber.StatusUnauthorized, errors.New("bad credentials"))
 	}
 	token, err := security.CreateAccessToken(user)
 	if err != nil {
-		return response.HttpResponseError(ctx, fiber.StatusUnauthorized, err.Error())
+		return h.Raise(ctx, fiber.StatusUnauthorized, err)
 	}
 	return ctx.JSON(response.Token{
 		ID:           user.ID,
@@ -134,11 +134,11 @@ func (h *Handler) TokenAuthenticationHandler(ctx *fiber.Ctx) error {
 func (h *Handler) RefreshTokenHandler(ctx *fiber.Ctx) error {
 	user, err := security.GetAuthUser(h.service.GetDB(), ctx)
 	if err != nil {
-		return response.HttpResponseError(ctx, fiber.StatusUnauthorized, err.Error())
+		return h.Raise(ctx, fiber.StatusUnauthorized, err)
 	}
 	currentToken, err := security.DecodeJWT(ctx.Get("Authorization"))
 	if err != nil {
-		return response.HttpResponseError(ctx, fiber.StatusUnauthorized, err.Error())
+		return h.Raise(ctx, fiber.StatusUnauthorized, err)
 	}
 	newToken, err := security.RefreshAccessToken(user, currentToken)
 	return ctx.JSON(response.Token{
