@@ -77,9 +77,12 @@ func (s *userStore) DeleteUser(id uuid.UUID) error {
 }
 
 func (s *userStore) CountUserBy(field string, value interface{}) (int, error) {
-	query := fmt.Sprintf("SELECT COUNT(*) %s WHERE $1 = $2", userTable)
 	var count int
-	if err := s.Get(&count, query, field, value); err != nil {
+	stmt, err := s.Preparex(fmt.Sprintf(`SELECT COUNT(*) FROM %s WHERE %s=$1`, userTable, field))
+	if err != nil {
+		return count, fmt.Errorf("error in statement  user count : %w", err)
+	}
+	if err := stmt.Get(&count, value); err != nil {
 		return count, err
 	}
 	return count, nil
