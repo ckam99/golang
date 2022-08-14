@@ -1,6 +1,6 @@
 FROM golang:1.18-alpine
 
-RUN apk add --no-cache curl git make
+RUN apk add --no-cache curl git make nano
 
 WORKDIR /app
 
