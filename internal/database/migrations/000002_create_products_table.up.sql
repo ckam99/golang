@@ -1,0 +1,32 @@
+CREATE TABLE IF NOT EXISTS  categories(
+    id SERIAL PRIMARY KEY,
+    name VARCHAR(100) NOT NULL,
+    parent_id INT NULL REFERENCES categories(id) ON DELETE SET NULL
+);
+
+CREATE TABLE IF NOT EXISTS brands (
+    id SERIAL PRIMARY KEY,
+    name VARCHAR(100) NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS stores (
+    id SERIAL PRIMARY KEY,
+    name VARCHAR(100) NOT NULL,
+    address VARCHAR(100) NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS products (
+    id SERIAL PRIMARY KEY,
+    name VARCHAR(100) NOT NULL,
+    barcode VARCHAR(100) NOT NULL,
+    price NUMERIC  DEFAULT 0,
+    category_id INT NOT NULL REFERENCES categories(id) ON DELETE CASCADE,
+    brand_id INT NOT NULL REFERENCES brands(id) ON DELETE SET NULL
+);
+
+CREATE TABLE IF NOT EXISTS store_product (
+    id SERIAL PRIMARY KEY,
+    store_id INT NOT NULL REFERENCES stores(id) ON DELETE CASCADE,
+    product_id INT NOT NULL REFERENCES products(id) ON DELETE SET NULL,
+    quantity INT DEFAULT 0
+);

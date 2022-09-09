@@ -3,12 +3,12 @@ package repository
 import (
 	"fmt"
 
-	"github.com/ckam225/golang/sqlx/entity"
+	"github.com/ckam225/golang/sqlx/internal/entity"
 	"github.com/jmoiron/sqlx"
 )
 
 const (
-	personTable = "person"
+	personTable = "persons"
 )
 
 type PersonRepository struct {

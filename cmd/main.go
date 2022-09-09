@@ -3,9 +3,9 @@ package main
 import (
 	"fmt"
 
-	"github.com/ckam225/golang/sqlx/database"
-	"github.com/ckam225/golang/sqlx/entity"
-	"github.com/ckam225/golang/sqlx/repository"
+	"github.com/ckam225/golang/sqlx/internal/database"
+	"github.com/ckam225/golang/sqlx/internal/entity"
+	"github.com/ckam225/golang/sqlx/internal/repository"
 )
 
 func main() {
@@ -24,10 +24,11 @@ func main() {
 		fmt.Printf(err.Error())
 		panic(err)
 	}
-	GetCount(repo, 2)
-	GetCount(repo, 19)
-	GetCount(repo, 3)
-	GetCount(repo, 1)
+	// GetCount(repo, 2)
+	// GetCount(repo, 19)
+	// GetCount(repo, 3)
+	// GetCount(repo, 1)
+	BatchInsert(repo)
 }
 
 func FetchList(repo *repository.Repository) {

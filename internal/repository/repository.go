@@ -1,7 +1,7 @@
 package repository
 
 import (
-	"github.com/ckam225/golang/sqlx/database"
+	"github.com/ckam225/golang/sqlx/internal/database"
 	"github.com/jmoiron/sqlx"
 )
 
