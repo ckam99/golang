@@ -2,7 +2,6 @@ package sqlx
 
 import (
 	"fmt"
-	"reflect"
 	"strings"
 
 	"github.com/ckam225/golang/sqlx/internal/utils"
@@ -155,23 +154,16 @@ func (s *SQLX) Insert(args ...interface{}) error {
 	return err
 }
 
-func (s *SQLX) Create(table string, obj interface{}) string {
-	attrs := maps.Keys(utils.StructToMap(&obj))
+func (s *SQLX) Create(table string, obj interface{}) error {
+	attrs := maps.Keys(utils.ConvertStructToMap(&obj))
 	query := fmt.Sprintf(`INSERT INTO %s(%s) VALUES (:%s)`,
 		table,
 		strings.Join(attrs, ","),
 		strings.Join(attrs, ",:"),
 	)
-	//_, err := s.DB.NamedExec(query, obj)
-	return query
-}
-
-func normalizeInsertValueQuery(query string, fields ...interface{}) string {
-	q := []string{}
-	for k := range fields {
-		q = append(q, fmt.Sprint("$", k+1))
-	}
-	return query + fmt.Sprintf(" VALUES(%s)", strings.Join(q, ","))
+	fmt.Println(query)
+	_, err := s.DB.NamedExec(query, obj)
+	return err
 }
 
 func (s *SQLX) Get(dest interface{}) error {
@@ -182,45 +174,24 @@ func (s *SQLX) Get(dest interface{}) error {
 	if err := stmt.Select(dest); err != nil {
 		return err
 	}
+
+	fmt.Println(s.query)
+	return nil
+}
+
+func (s *SQLX) First(dest interface{}) error {
+	stmt, err := s.DB.Preparex(s.query)
+	if err != nil {
+		return err
+	}
+	if err := stmt.Get(dest); err != nil {
+		return err
+	}
+	fmt.Println(s.query)
 	return nil
 }
 
 func (s *SQLX) RawSQL(dest interface{}, query string, args ...string) *SQLX {
 	s.query = query
 	return s
-}
-
-func normalizeWhereQuery(query, op, field, condition string, value interface{}) string {
-	if strings.Contains(query, "WHERE") {
-		query += " " + op + " "
-	} else {
-		query += " WHERE "
-	}
-	query += fmt.Sprintf("%s%s%v", field, condition, value)
-	return query
-}
-
-func normalizeWhereInQuery(query, op, field, condition string, values interface{}) string {
-	if strings.Contains(query, "WHERE") {
-		query += " " + op + " "
-	} else {
-		query += " WHERE "
-	}
-	query += fmt.Sprintf("%s %s (%s)", field, condition, parseIntf(values))
-	return query
-}
-
-func parseIntf(slice interface{}) string {
-	slc := reflect.ValueOf(slice)
-	if slc.Kind() != reflect.Slice {
-		return ""
-	}
-	if slc.IsNil() {
-		return ""
-	}
-	ret := make([]string, slc.Len())
-	for i := 0; i < slc.Len(); i++ {
-		ret[i] = fmt.Sprint(slc.Index(i))
-	}
-	return strings.Join(ret, ",")
 }
