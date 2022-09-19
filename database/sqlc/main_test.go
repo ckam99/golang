@@ -14,13 +14,13 @@ const (
 	DBURL    = "postgres://postgres:postgres@host.docker.internal:54323/demo?sslmode=disable"
 )
 
-var testQueries *Queries
+var store *Store
 
 func TestMain(m *testing.M) {
 	cnx, err := sql.Open(DBDRIVER, DBURL)
 	if err != nil {
 		log.Fatal("connot connect to the database: ", err.Error())
 	}
-	testQueries = New(cnx)
+	store = NewStore(cnx)
 	os.Exit(m.Run())
 }

@@ -2,7 +2,7 @@
 
 CREATE TABLE IF NOT EXISTS authors(
     id serial primary key,
-    fullname varchar(60) not null,
+    name varchar(60) not null,
     bio        text   NOT NULL,
     created_at timestamp default (now()),
     updated_at timestamp
