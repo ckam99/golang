@@ -1,6 +1,8 @@
 package main
 
 import (
+	"fiber-ws/channels"
+	"fmt"
 	"log"
 	"math/rand"
 	"time"
@@ -35,26 +37,41 @@ func main() {
 			msg []byte
 			err error
 		)
-		for {
-			if mt, msg, err = c.ReadMessage(); err != nil {
-				log.Println("read:", err)
-				break
-			}
-			log.Printf("recv: %s %v", msg, mt)
-			// if err = c.WriteMessage(mt, msg); err != nil {
-			// 	log.Println("write:", err)
-			// 	break
-			// }
+		type Payload struct {
+			Target string      `json:"target"`
+			Data   interface{} `json:"data"`
+		}
 
-			if string(msg) == "TRAVELS-GET" {
+		if mt, msg, err = c.ReadMessage(); err != nil {
+			log.Println("error:", err)
+		}
+		log.Printf("recv: %s %v", msg, mt)
+
+		switch string(msg) {
+		case "GET-USER":
+			c.WriteJSON(Payload{
+				Target: "user",
+				Data: channels.User{
+					Name: fmt.Sprintf("user %d", Random(1, 10)),
+					Age:  Random(1, 99),
+				},
+			})
+			fmt.Println("hello")
+		case "GET-TIMER":
+			{
 				for {
-					c.WriteJSON(map[string]interface{}{
-						"time":    time.Now().Format("15:04:05"),
-						"counter": Random(1, 99),
+					c.WriteJSON(Payload{
+						Target: "timer",
+						Data: map[string]interface{}{
+							"time":    time.Now().Format("15:04:05"),
+							"counter": Random(1, 99),
+						},
 					})
 					time.Sleep(1 * time.Second)
 				}
 			}
+		default:
+			fmt.Println("unknow command")
 		}
 
 	}))
