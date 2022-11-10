@@ -17,13 +17,13 @@ func Task(delay time.Duration) {
 func TrackChannel() {
 	go func() {
 		for s := range ch {
-			fmt.Println(s)
+			fmt.Println("ch", s)
 		}
 	}()
 
 	go func() {
 		for s := range ch2 {
-			fmt.Println(s)
+			fmt.Println("ch2", s)
 		}
 	}()
 
@@ -37,8 +37,9 @@ func TrackChannel() {
 
 func ChannelExample() {
 
-	go Task(5)
-	go Task(2)
+	for i := 0; i < 5; i++ {
+		go Task((time.Duration)(i + 1))
+	}
 
 	go TrackChannel()
 	fmt.Println("Gorotines")

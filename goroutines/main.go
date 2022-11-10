@@ -1,7 +1,7 @@
 package main
 
 func main() {
-	// ChannelExample()
+	ChannelExample()
 	// WaitGroupExample()
-	MutexExample()
+	//MutexExample()
 }
