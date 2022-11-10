@@ -5,9 +5,11 @@ import (
 	"strings"
 )
 
-const ci string = "Ghana"
-const ru string = "Russia"
-const ca string = "Canada"
+const (
+	ci string = "Ghana"
+	ru string = "Russia"
+	ca string = "Canada"
+)
 
 func main() {
 	var age int = 23
