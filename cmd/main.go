@@ -13,19 +13,6 @@ import (
 )
 
 func main() {
-	m, err := migrate.New("./migrations", "postgres",
-		"postgres://postgres:postgres@host.docker.internal/demo?sslmode=disable",
-		&migrate.Config{},
-	)
-	if err != nil {
-		log.Fatal(err)
-	}
-	if err := m.Migrate(); err != nil {
-		panic(err)
-	}
-}
-
-func mainw() {
 
 	pg, err := postgresql.NewClient(context.TODO(), postgresql.Config{
 		Host:     "host.docker.internal",
@@ -37,6 +24,17 @@ func mainw() {
 	if err != nil {
 		log.Fatal(err)
 	}
+	m, err := migrate.New("./migrations", "postgres",
+		"postgres://postgres:postgres@host.docker.internal/demo?sslmode=disable",
+		&migrate.Config{},
+	)
+	if err != nil {
+		log.Fatal(err)
+	}
+	if err := m.Migrate(); err != nil {
+		panic(err)
+	}
+
 	repository := author.NewRepository(pg)
 
 	authors, err := repository.GetAll(context.TODO(), author.FilterParamsDTO{
