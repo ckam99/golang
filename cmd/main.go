@@ -3,17 +3,33 @@ package main
 import (
 	"app/internal/domain/author"
 	"app/pkg/clients/postgresql"
+	"app/pkg/migrate"
 	"context"
 	"encoding/json"
 	"fmt"
 	"log"
+
+	_ "github.com/lib/pq"
 )
 
 func main() {
+	m, err := migrate.New("./migrations", "postgres",
+		"postgres://postgres:postgres@host.docker.internal/demo?sslmode=disable",
+		&migrate.Config{},
+	)
+	if err != nil {
+		log.Fatal(err)
+	}
+	if err := m.Migrate(); err != nil {
+		panic(err)
+	}
+}
+
+func mainw() {
 
 	pg, err := postgresql.NewClient(context.TODO(), postgresql.Config{
 		Host:     "host.docker.internal",
-		Port:     "54323",
+		Port:     "5432",
 		Database: "demo",
 		Password: "postgres",
 		Username: "postgres",

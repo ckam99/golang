@@ -15,7 +15,7 @@ var serv Service
 func TestMain(t *testing.M) {
 	pg, err := postgresql.NewClient(context.TODO(), postgresql.Config{
 		Host:     "host.docker.internal",
-		Port:     "54323",
+		Port:     "5432",
 		Database: "demo",
 		Password: "postgres",
 		Username: "postgres",

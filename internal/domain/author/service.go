@@ -5,15 +5,6 @@ import (
 	"context"
 )
 
-type Service interface {
-	GetAuthors(ctx context.Context, params FilterParamsDTO) ([]Author, error)
-	CreateAuthor(ctx context.Context, author *Author) error
-	FindAuthor(ctx context.Context, id int) (Author, error)
-	UpdateAuthor(ctx context.Context, author *Author) error
-	DeleteAuthor(ctx context.Context, id int, isSoftDelete bool) error
-	SoftDeleteAuthor(ctx context.Context, author *Author) error
-}
-
 func NewService(client postgresql.Client) Service {
 	return &service{
 		repo: NewRepository(client),

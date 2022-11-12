@@ -8,15 +8,6 @@ import (
 	"strings"
 )
 
-type Repository interface {
-	Create(ctx context.Context, author *Author) error
-	GetAll(ctx context.Context, params FilterParamsDTO) (authors []Author, err error)
-	Get(ctx context.Context, id int) (Author, error)
-	Update(ctx context.Context, author *Author) error
-	Delete(ctx context.Context, id int) error
-	SoftDelete(ctx context.Context, author *Author) error
-}
-
 func NewRepository(client postgresql.Client) Repository {
 	return &repository{
 		client: client,
