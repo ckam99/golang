@@ -2,8 +2,9 @@ package v1
 
 import (
 	"database/sql"
-	"github.com/gofiber/fiber/v2"
 	"main/internal/domain/books"
+
+	"github.com/gofiber/fiber/v2"
 )
 
 type BookController struct {
@@ -20,10 +21,6 @@ func (r *BookController) HealthBook(c *fiber.Ctx) error {
 }
 
 func (r *BookController) GetBooks(c *fiber.Ctx) error {
-	return c.SendString("list books")
-}
-
-func (r *BookController) GetBook(c *fiber.Ctx) error {
 	books, err := r.service.GetAll(c.UserContext(), &books.QueryFilterDTO{})
 	if err != nil {
 		return c.Status(500).JSON(fiber.Map{
@@ -31,6 +28,10 @@ func (r *BookController) GetBook(c *fiber.Ctx) error {
 		})
 	}
 	return c.JSON(books)
+}
+
+func (r *BookController) GetBook(c *fiber.Ctx) error {
+	panic("not implemented")
 }
 
 func (r *BookController) PostBook(c *fiber.Ctx) error {
