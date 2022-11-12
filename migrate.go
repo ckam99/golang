@@ -167,12 +167,8 @@ func (m *migration) getFiles(n string) (fss []fs.DirEntry, lastVersion version, 
 	}
 	for _, f := range files {
 		if !f.IsDir() && strings.HasSuffix(f.Name(), "."+n+".sql") {
-			_, err := time.Parse(TIME_LAYOUT, strings.Split(f.Name(), "_")[0])
-			if err != nil {
-				continue
-			}
 			currentVersion, _ := strconv.Atoi(strings.Split(f.Name(), "_")[0])
-			if int64(currentVersion) <= lastVersion.version {
+			if currentVersion == 0 || int64(currentVersion) <= lastVersion.version {
 				continue
 			}
 			fss = append(fss, f)
