@@ -1,4 +1,4 @@
-package books
+package authors
 
 import (
 	"context"
@@ -15,15 +15,15 @@ func NewService(db *sql.DB) Service {
 	}
 }
 
-func (s *service) GetAll(ctx context.Context, param *QueryFilterDTO) ([]Book, error) {
-	return s.repo.GetAll(ctx, param)
-}
-
-func (s *service) Create(ctx context.Context, dto CreateDTO) error {
+func (s *service) GetAll(ctx context.Context, param *QueryFilterDTO) ([]Author, error) {
 	panic("not implemented")
 }
 
-func (s *service) Find(ctx context.Context, id int64) (Book, error) {
+func (s *service) Find(ctx context.Context, id int64) (Author, error) {
+	panic("not implemented")
+}
+
+func (s *service) Create(ctx context.Context, dto CreateDTO) error {
 	panic("not implemented")
 }
 

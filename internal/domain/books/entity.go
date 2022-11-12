@@ -1,20 +1,20 @@
 package books
 
 type Book struct {
-  ID int64 `json:"id"`
-  Title string `json:"title"`
-  Description string `json:"description"`
-  AuthorID string `json:"author_id,omitempty"`
-  Author *Author `json:"author,omitempty"`
+	ID          int64   `json:"id"`
+	Title       string  `json:"title"`
+	Description *string `json:"description"`
+	Esbn        *string `json:"esbn"`
+	AuthorID    string  `json:"author_id,omitempty"`
+	Author      *Author `json:"author"`
+	CreatedAt   *string `json:"created_at"`
+	UpdatedAt   *string `json:"updated_at"`
 }
 
 type Author struct {
-  ID int64 `json:"id"`
-  Name string `json:"name"`
-}
-
-type FilterParam struct {
-  Limit int64 `json:"limit"`
-  Offset int64 `json:"offset"`
-  OrderBy *string `nil=true > one_of=id,title,author_id`
+	ID        int64   `json:"id"`
+	FullName  string  `json:"full_name"`
+	Biography *string `json:"author_id"`
+	CreatedAt *string `json:"created_at"`
+	UpdatedAt *string `json:"updated_at"`
 }

@@ -1,7 +1,9 @@
 create table authors(
  id integer primary key autoincrement,
- name text not null,
- biography text
+ full_name text not null,
+ biography text,
+ create_at text default current_timestamp,
+ updated_at text
 );
 
 create table books(
