@@ -55,9 +55,11 @@ func (r *repo) Find(ctx context.Context, id int64) (Book, error) {
 			&book.CreatedAt,
 			&book.UpdatedAt,
 		); err != nil {
-		return Book{}, err
+		if err != sql.ErrNoRows {
+			return Book{}, err
+		}
 	}
-	return Book{}, nil
+	return book, nil
 }
 
 func (r *repo) Create(ctx context.Context, b *Book) error {

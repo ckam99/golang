@@ -31,7 +31,18 @@ func (r *BookController) GetBooks(c *fiber.Ctx) error {
 }
 
 func (r *BookController) GetBook(c *fiber.Ctx) error {
-	panic("not implemented")
+	id, err := c.ParamsInt("id")
+	if err != nil {
+		return c.Status(400).JSON(fiber.Map{"message": err.Error()})
+	}
+	book, err := r.service.Find(c.UserContext(), int64(id))
+	if err != nil {
+		return c.Status(500).JSON(fiber.Map{"message": err.Error()})
+	}
+	if book.ID == 0 {
+		return c.Status(404).JSON(fiber.Map{"message": "book does not exist"})
+	}
+	return c.JSON(book)
 }
 
 func (r *BookController) PostBook(c *fiber.Ctx) error {

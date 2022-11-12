@@ -15,8 +15,8 @@ type Repository interface {
 
 type Service interface {
 	GetAll(ctx context.Context, param *QueryFilterDTO) ([]Book, error)
-	Create(ctx context.Context, book CreateDTO) error
+	Create(ctx context.Context, book CreateDTO) (Book, error)
 	Find(ctx context.Context, id int64) (Book, error)
-	Update(ctx context.Context, book UpdateDTO) error
+	Update(ctx context.Context, id int64, book UpdateDTO) (Book, error)
 	Delete(ctx context.Context, id int64) error
 }

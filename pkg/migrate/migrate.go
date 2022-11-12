@@ -22,6 +22,7 @@ type migration struct {
 	*sql.DB
 	Config  *Config
 	baseDir string
+	driver  string
 }
 
 type Config struct {
@@ -44,7 +45,7 @@ func New(baseDir, driver, dsn string, cfg *Config) (*migration, error) {
 	if cfg.Table == "" {
 		cfg.Table = "migrations"
 	}
-	m := &migration{DB: db, Config: cfg, baseDir: baseDir}
+	m := &migration{DB: db, Config: cfg, baseDir: baseDir, driver: driver}
 	return m, m.createTable()
 }
 
@@ -102,10 +103,16 @@ func (m *migration) Rollback() error {
 			}
 			fmt.Println(f.Name(), "successfuly rollback")
 		}
-		_, err = m.Exec(
-			fmt.Sprintf(`truncate table %s;`, m.Config.Table),
-		)
-		return err
+		q := fmt.Sprintf(`truncate table %s;`, m.Config.Table)
+		if m.driver == "sqlite3" || m.driver == "sqlite" {
+			q = fmt.Sprintf(`delete from %s;`, m.Config.Table)
+		}
+		_, err = m.Exec(q)
+		if err != nil {
+			log.Println(q)
+			return err
+		}
+		return nil
 	}
 	fmt.Println("no change")
 	return nil

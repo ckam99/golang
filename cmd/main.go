@@ -10,15 +10,17 @@ import (
 
 func main() {
 	cfg := config.Config{}
-	db, err := sqlite.Connect("example.db")
-	if err != nil {
-		panic(err)
-	}
+
 	m, err := migrate.New("./internal/migration", "sqlite3", "example.db", &migrate.Config{})
 	if err != nil {
 		panic(err)
 	}
-	if err = m.Migrate(); err != nil {
+	if err = m.Rollback(); err != nil {
+		panic(err)
+	}
+
+	db, err := sqlite.Connect("example.db")
+	if err != nil {
 		panic(err)
 	}
 	defer db.Close()

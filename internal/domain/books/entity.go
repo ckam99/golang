@@ -5,7 +5,7 @@ type Book struct {
 	Title       string  `json:"title"`
 	Description *string `json:"description"`
 	Esbn        *string `json:"esbn"`
-	AuthorID    string  `json:"author_id,omitempty"`
+	AuthorID    int64   `json:"author_id,omitempty"`
 	Author      *Author `json:"author"`
 	CreatedAt   *string `json:"created_at"`
 	UpdatedAt   *string `json:"updated_at"`
