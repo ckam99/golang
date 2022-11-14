@@ -42,7 +42,12 @@ func (q *QueryFilter) Or(column string, op string, value ...interface{}) *QueryF
 }
 
 func (q *QueryFilter) GroupBy(columns ...string) *QueryFilter {
-	q.Stmt += fmt.Sprintf(" group by %s", strings.Join(columns, ","))
+	s := fmt.Sprintf(" group by %s", strings.Join(columns, ","))
+	if strings.Contains(strings.ToLower(q.Stmt), "group by") {
+		q.Stmt = strings.ReplaceAll(strings.ToLower(q.Stmt), "group by", s+",")
+	} else {
+		q.Stmt += s
+	}
 	q.currentTag = "group by"
 	return q
 }
