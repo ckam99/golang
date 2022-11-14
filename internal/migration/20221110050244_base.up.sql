@@ -1,19 +1,19 @@
 create table
     authors(
-        id integer primary key autoincrement,
-        full_name text not null,
+        id bigserial primary key,
+        full_name varchar(60) not null,
         biography text,
-        create_at text default current_timestamp,
-        updated_at text
+        created_at timestamptz default(now()),
+        updated_at timestamptz
     );
 
 create table
     books(
-        id integer primary key autoincrement,
-        title text not null,
-        esbn text,
+        id bigserial primary key,
+        title varchar(255) not null,
+        esbn varchar(60),
         description text,
-        author_id int references authors(id) on delete cascade,
-        create_at text default current_timestamp,
-        updated_at text
+        author_id bigint references authors(id) on delete cascade,
+        created_at timestamptz default(now()),
+        updated_at timestamptz
     );

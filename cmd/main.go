@@ -1,29 +1,31 @@
 package main
 
 import (
-	"log"
-	"main/internal/config"
-	"main/internal/controller/http"
-	"main/pkg/clients/sqlite"
-	"main/pkg/migrate"
+	"context"
+	"main/internal/adapter/database"
+	"main/pkg/clients/postgresql"
 )
 
 func main() {
-	cfg := config.Config{}
+	//cfg := config.Config{}
 
-	m, err := migrate.New("./internal/migration", "sqlite3", "example.db", &migrate.Config{})
+	db, err := database.Connection(context.Background(), postgresql.Config{
+		Host:     "host.docker.internal",
+		Username: "postgres",
+		Password: "postgres",
+		Database: "demo",
+		Port:     "5432",
+		SSLMode:  "disable",
+	})
 	if err != nil {
 		panic(err)
 	}
-	if err = m.Rollback(); err != nil {
+	if err = db.Rollback(); err != nil {
 		panic(err)
 	}
 
-	db, err := sqlite.Connect("example.db")
-	if err != nil {
-		panic(err)
-	}
 	defer db.Close()
-	server := http.NewHTTP(db, cfg)
-	log.Fatal(server.Run())
+
+	//server := http.NewHTTP(db, cfg)
+	//log.Fatal(server.Run())
 }

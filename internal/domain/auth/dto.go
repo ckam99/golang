@@ -1,9 +1,7 @@
 package auth
 
-type LoginDTO {
-  
+type LoginDTO struct {
 }
 
-type RegisterDTO{
-  
+type RegisterDTO struct {
 }

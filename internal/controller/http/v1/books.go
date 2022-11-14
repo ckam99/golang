@@ -1,8 +1,8 @@
 package v1
 
 import (
-	"database/sql"
 	"main/internal/domain/books"
+	"main/pkg/clients/postgresql"
 
 	"github.com/gofiber/fiber/v2"
 )
@@ -11,7 +11,7 @@ type BookController struct {
 	service books.Service
 }
 
-func NewBookController(db *sql.DB) *BookController {
+func NewBookController(db postgresql.Client) *BookController {
 	return &BookController{
 		service: books.NewService(db),
 	}

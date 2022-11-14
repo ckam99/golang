@@ -34,7 +34,7 @@ type version struct {
 	dirty   *bool
 }
 
-func New(baseDir, driver, dsn string, cfg *Config) (*migration, error) {
+func New(driver, dsn, baseDir string, cfg *Config) (*migration, error) {
 	db, err := sql.Open(driver, dsn)
 	if err != nil {
 		return nil, err
@@ -86,10 +86,14 @@ func (m *migration) Migrate() error {
 
 // ! Rollback all migrations from database
 func (m *migration) Rollback() error {
-	files, lastVersion, err := m.getFiles("down")
-	if lastVersion.version != 0 && confirm("Are you sure to rollback migrations from database?") {
+	if confirm("Are you sure to rollback migrations from database?") {
+		files, lastVersion, err := m.getFiles("down")
 		if err != nil {
 			return err
+		}
+		if lastVersion.version == 0 || len(files) == 0 {
+			fmt.Println("no change")
+			return nil
 		}
 		for _, f := range files {
 			b, err := os.ReadFile(m.baseDir + "/" + f.Name())
@@ -114,7 +118,6 @@ func (m *migration) Rollback() error {
 		}
 		return nil
 	}
-	fmt.Println("no change")
 	return nil
 }
 

@@ -1,21 +1,27 @@
 package v1
 
 import (
-	"database/sql"
+	"main/pkg/clients/postgresql"
+
 	"github.com/gofiber/fiber/v2"
 )
 
 type Router struct {
-	db *sql.DB
+	db postgresql.Client
 }
 
-func NewRouter(db *sql.DB) *Router {
+func NewRouter(db postgresql.Client) *Router {
 	return &Router{
 		db: db,
 	}
 }
 
 func (r *Router) Routes(router fiber.Router) {
+
+  // authentication endpoints 
+  authc:= NewAuthController(r.db)
+  router.Post("/auth/refresh", authc.RefreshToken)
+  Router.Get("/auth/user", authc.CurrentUser)
 
 	// books endpoints
 	book := NewBookController(r.db)

@@ -26,6 +26,7 @@ type Client interface {
 	Query(ctx context.Context, query string, args ...interface{}) (pgx.Rows, error)
 	QueryRow(ctx context.Context, query string, args ...interface{}) pgx.Row
 	Begin(ctx context.Context) (pgx.Tx, error)
+	Close()
 }
 
 type client struct {
@@ -39,6 +40,7 @@ func NewClient(ctx context.Context, cfg Config, maxAttempts int) (Client, error)
 
 func Connection(ctx context.Context, dsn string, maxAttempts int) (Client, error) {
 	var pool *pgxpool.Pool
+
 	var err error
 	err = tryAttempt(func() error {
 		ctx, cancel := context.WithTimeout(ctx, 5*time.Second)
@@ -83,12 +85,4 @@ func tryAttempt(fn func() error, attemtps int, delay time.Duration) (err error) 
 
 func (cfg *Config) GetURL() string {
 	return fmt.Sprintf("postgresql://%s:%s@%s:%s/%s?sslmode=%s", cfg.Username, cfg.Password, cfg.Host, cfg.Port, cfg.Database, cfg.SSLMode)
-}
-
-func (cfg *Config) Migrate() error {
-	panic("not implemented")
-}
-
-func (cfg *Config) Rollback() error {
-	panic("not implemented")
 }

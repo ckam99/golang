@@ -2,16 +2,16 @@ package authors
 
 import (
 	"context"
-	"database/sql"	
+	"main/pkg/clients/postgresql"
 )
 
 type repository struct {
-	*sql.DB
+	postgresql.Client
 }
 
-func NewRepository(db *sql.DB) Repository {
+func NewRepository(db postgresql.Client) Repository {
 	return &repository{
-		DB: db,
+		Client: db,
 	}
 }
 

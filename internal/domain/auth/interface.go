@@ -12,8 +12,8 @@ type Repository interface {
 }
 
 type Service interface {
-   VerifyToken(token string) bool
-   CreateToken(user User) string
+   CreateAccessToken(user User) (string,error)
+  RefreshAccessToken(user User) (string,error)
    FindByID(ctx context.Context, id int64) (User, error)
    FindByEmail(ctx context.Context, email string) (User, error)
    Register(ctx context.Context, dto RegisterDTO)(User, error)

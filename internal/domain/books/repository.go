@@ -3,22 +3,23 @@ package books
 import (
 	"context"
 	"database/sql"
+	"main/pkg/clients/postgresql"
 )
 
 type repo struct {
-	*sql.DB
+	postgresql.Client
 }
 
-func NewRepository(db *sql.DB) Repository {
+func NewRepository(db postgresql.Client) Repository {
 	return &repo{
-		DB: db,
+		Client: db,
 	}
 }
 
 func (r *repo) GetAll(ctx context.Context, param *QueryFilterDTO) ([]Book, error) {
 	q, args := getFilterQuery("select * from books", param)
 
-	rows, err := r.QueryContext(ctx, q, args...)
+	rows, err := r.Query(ctx, q, args...)
 	if err != nil {
 		return []Book{}, err
 	}
@@ -45,7 +46,7 @@ func (r *repo) GetAll(ctx context.Context, param *QueryFilterDTO) ([]Book, error
 func (r *repo) Find(ctx context.Context, id int64) (Book, error) {
 	q := "select * from books where id=$1 limit 1"
 	var book Book
-	if err := r.QueryRowContext(ctx, q, id).
+	if err := r.QueryRow(ctx, q, id).
 		Scan(
 			&book.ID,
 			&book.Title,
@@ -66,7 +67,7 @@ func (r *repo) Create(ctx context.Context, b *Book) error {
 	q := `insert into books(
    title,esbn,description,author_id,updated_at
   ) values($1,$2,$3,$4,datetime('now') returning id,created_at,updated_at`
-	if err := r.QueryRowContext(ctx, q, b.Title, b.Esbn, b.Description, b.AuthorID).
+	if err := r.QueryRow(ctx, q, b.Title, b.Esbn, b.Description, b.AuthorID).
 		Scan(&b.ID, &b.CreatedAt, &b.UpdatedAt); err != nil {
 		return err
 	}
@@ -80,7 +81,7 @@ func (r *repo) Update(ctx context.Context, b *Book) error {
 description=coalesce($3,description),
 updated_at=datetime('now')
   returning id,updated_at`
-	if err := r.QueryRowContext(ctx, q, b.Title, b.Esbn, b.Description).
+	if err := r.QueryRow(ctx, q, b.Title, b.Esbn, b.Description).
 		Scan(&b.ID, &b.UpdatedAt); err != nil {
 		return err
 	}
@@ -94,7 +95,7 @@ func (r *repo) Delete(ctx context.Context, id int64) error {
 func (r *repo) Count(ctx context.Context, param *QueryFilterDTO) (int64, error) {
 	q, args := getFilterQuery("select count(*) from books", param)
 	var count int64
-	if err := r.QueryRowContext(ctx, q, args...).Scan(&count); err != nil {
+	if err := r.QueryRow(ctx, q, args...).Scan(&count); err != nil {
 		return 0, err
 	}
 	return count, nil

@@ -1,16 +1,17 @@
 package v1
 
 import (
-	"database/sql"
-	"github.com/gofiber/fiber/v2"
 	"main/internal/domain/authors"
+	"main/pkg/clients/postgresql"
+
+	"github.com/gofiber/fiber/v2"
 )
 
 type AuthorController struct {
 	service authors.Service
 }
 
-func NewAuthorController(db *sql.DB) *AuthorController {
+func NewAuthorController(db postgresql.Client) *AuthorController {
 	r := &AuthorController{
 		service: authors.NewService(db),
 	}

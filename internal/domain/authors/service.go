@@ -2,14 +2,14 @@ package authors
 
 import (
 	"context"
-	"database/sql"
+	"main/pkg/clients/postgresql"
 )
 
 type service struct {
 	repo Repository
 }
 
-func NewService(db *sql.DB) Service {
+func NewService(db postgresql.Client) Service {
 	return &service{
 		repo: NewRepository(db),
 	}
