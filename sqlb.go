@@ -53,7 +53,7 @@ func (q *QueryFilter) GroupBy(columns ...string) *QueryFilter {
 }
 
 func (q *QueryFilter) Having(column string, op string, value ...interface{}) *QueryFilter {
-	if q.currentTag == "having" || q.currentTag == "group by" {
+	if q.currentTag == "having" || q.currentTag == "group by" || strings.Contains(strings.ToLower(q.Stmt), "group by"){
 		q.clause("having", column, op, value...)
 		return q
 	}
