@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"database/sql"
 	"errors"
+	"flag"
 	"fmt"
 	"io/fs"
 	"log"
@@ -121,24 +122,89 @@ func (m *migration) Rollback() error {
 	return nil
 }
 
-// *Create new migration
-func (m *migration) Create() error {
-	var name string
-	fmt.Print("Enter migration name: ")
-	fmt.Scanf("%s", &name)
-	baseName := fmt.Sprintf("%s/%s_%s", m.baseDir, time.Now().Format("20060201150405999"), name)
+// Create new migration
+func CommandLine() {
+
+	const StringHelp = `
+Usage:
+	migrate <command> [arguments]
+The commands are:
+	migrate help - Help
+	migrate up - Migration database
+	migrate down - Database Rollback
+	migrate create - Create migration
+Use "migrate help" for more information about a command.
+	`
+
+	dir := flag.String("dir", "./migration", "Migration directory")
+	name := flag.String("name", "", "Migration name")
+	database := flag.String("database", "", "Database url")
+	driver := flag.String("driver", "", "Database driver")
+
+	flag.Parse()
+
+	if *dir == "" {
+		fmt.Println("Migration directory is required")
+		return
+	}
+
+	if len(flag.Args()) == 0 {
+		fmt.Println(StringHelp)
+		return
+	}
+
+	switch flag.Args()[0] {
+	case "up":
+		if *database == "" && *driver == "" {
+			fmt.Println("Database url and driver are required")
+			return
+		}
+		mi, err := New(*driver, *database, *dir, &Config{})
+		if err != nil {
+			fmt.Println(err.Error())
+			return
+		}
+		if flag.Args()[0] == "up" {
+			if err = mi.Migrate(); err != nil {
+				fmt.Println(err.Error())
+				return
+			}
+		}
+		if flag.Args()[0] == "down" {
+			if err = mi.Rollback(); err != nil {
+				fmt.Println(err.Error())
+				return
+			}
+		}
+		return
+	case "create":
+		if *name == "" {
+			fmt.Println("Migration name required")
+			return
+		}
+		Create(*dir, *name)
+		return
+	default:
+		fmt.Println("Command is not available")
+		fmt.Println(StringHelp)
+		return
+	}
+}
+
+func Create(dir, name string) {
+	baseName := fmt.Sprintf("%s/%s_%s", dir, time.Now().Format("20060201150405999"), name)
 	file, err := os.Create(fmt.Sprintf("%s.up.sql", baseName))
 	if err != nil {
-		return err
+		log.Fatal(err.Error())
+		return
 	}
 	defer file.Close()
-	fmt.Printf(" migration %s.up.sql\n", baseName)
 	_, err = os.Create(fmt.Sprintf("%s.down.sql", baseName))
 	if err != nil {
-		return err
+		log.Fatal(err.Error())
+		return
 	}
 	fmt.Printf(" migration %s.down.sql\n", baseName)
-	return nil
 }
 
 func (m *migration) checkVersion() (version, error) {
