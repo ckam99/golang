@@ -18,41 +18,41 @@ func NewAuthController(db postgresql.Client) *AuthController {
 	return r
 }
 
-func (r *AuthController) Health(c *fiber.Ctx) error {
-	return c.JSON(fiber.Map{"message": "ok"})
+func (c *AuthController) Health(ctx *fiber.Ctx) error {
+	return ctx.JSON(fiber.Map{"message": "ok"})
 }
 
-func (r *AuthController) GetCurrentUser(c *fiber.Ctx) error {
-  user, err := c.service.GetAuthUser(ctx.Get("Authorization"))
+func (c *AuthController) CurrentUser(ctx *fiber.Ctx) error {
+	user, err := c.service.GetCurrentUser(ctx.UserContext(), ctx.Get("Authorization"))
 	if err != nil {
 		return ctx.Status(401).JSON(fiber.Map{
-      "message": err.Error()
-    })
+			"message": err.Error(),
+		})
 	}
-  return ctx.JSON(user)
-}
-
-func (r *AuthController) SignIn(c *fiber.Ctx) error {
-	return c.SendString("get author by id")
-}
-
-func (r *AuthController) SignUp(c *fiber.Ctx) error {
-	return c.SendString("create author")
+	return ctx.JSON(user)
 }
 
 func (c *AuthController) RefreshToken(ctx *fiber.Ctx) error {
-  bearToken := ctx.Get("Authorization ")
-	user, err := c.service.GetAuthUser(bearToken)
+	bearToken := ctx.Get("Authorization")
+	user, err := c.service.GetCurrentUser(ctx.UserContext(), bearToken)
 	if err != nil {
 		return ctx.Status(401).JSON(fiber.Map{
-      "message": err.Error()
-    })
+			"message": err.Error(),
+		})
 	}
- token, err := c.service.RefreshAccessToken(&user,bearToken)
-  if err != nil{
-    return ctx.Status(401).JSON(fiber.Map{
-      "message": err.Error(),
-    })
-  }
+	token, err := c.service.RefreshAccessToken(&user, bearToken)
+	if err != nil {
+		return ctx.Status(401).JSON(fiber.Map{
+			"message": err.Error(),
+		})
+	}
 	return ctx.JSON(token)
+}
+
+func (c *AuthController) SignIn(ctx *fiber.Ctx) error {
+	return ctx.SendString("get author by id")
+}
+
+func (c *AuthController) SignUp(ctx *fiber.Ctx) error {
+	return ctx.SendString("create author")
 }

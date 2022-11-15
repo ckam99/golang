@@ -3,7 +3,7 @@ package database
 import (
 	"context"
 	"main/pkg/clients/postgresql"
-	"main/pkg/migrate"
+	"main/pkg/migrator"
 
 	_ "github.com/lib/pq"
 )
@@ -26,19 +26,19 @@ func Connection(ctx context.Context, cfg postgresql.Config) (*Database, error) {
 }
 
 func (db *Database) Migrate() error {
-	migration, err := migrate.New("postgres", db.config.GetURL(), db.migrateDir, &migrate.Config{})
+	migrator, err := migrator.New("postgres", db.config.GetURL(), db.migrateDir)
 	if err != nil {
 		return err
 	}
-	return migration.Migrate()
+	return migrator.Migrate()
 }
 
 func (db *Database) Rollback() error {
-	migration, err := migrate.New("postgres", db.config.GetURL(), db.migrateDir, &migrate.Config{})
+	migrator, err := migrator.New("postgres", db.config.GetURL(), db.migrateDir)
 	if err != nil {
 		return err
 	}
-	err = migration.Rollback()
+	err = migrator.Rollback()
 	if err != nil {
 		return err
 	}

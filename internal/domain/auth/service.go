@@ -1,81 +1,115 @@
 package auth
 
 import (
-  "time"
-  
+	"context"
+	"main/pkg/clients/postgresql"
+	"time"
+
+	"github.com/golang-jwt/jwt/v4"
 )
+
 type service struct {
-  repo Repository
+	repo Repository
 }
 
-func NewService(client postgresql.Client) Service{
-  return &service{
-    repo: NewRepository(client)
-  }
+func NewService(client postgresql.Client) Service {
+	return &service{
+		repo: NewRepository(client),
+	}
 }
 
-func(s *service) RefreshAccessToken(user *User, bearer string) (token, error) {
-  oldToken, err := DecodeToken(bearer)
+func (s *service) RefreshAccessToken(user *User, bearer string) (TokenDTO, error) {
+	oldToken, err := DecodeToken(bearer)
 	if err != nil {
-		return Token{}, err
-  }
+		return TokenDTO{}, err
+	}
 	claims := jwt.MapClaims{
 		"email": user.Email,
 		"token": oldToken,
 		"exp":   time.Now().Add(time.Minute * 2).Unix(),
 	}
-	newToken, err:= GenerateToken(claims)
-  if err != nil {
-		return Token{}, err
-  }
-
-return Token{
+	newToken, err := GenerateToken(claims)
+	if err != nil {
+		return TokenDTO{}, err
+	}
+	return TokenDTO{
 		ID:           user.ID,
 		Email:        user.Email,
-		AccessToken:  currentToken,
+		AccessToken:  oldToken,
 		RefreshToken: newToken,
-}, nil
+	}, nil
 }
 
-func(s *service) GetAuthUser(bearerToken string)(User,error){
- token, err := VerifyToken(beareToken)
+// Get current authenticated user decrypting http authorization header
+func (s *service) GetCurrentUser(ctx context.Context, bearerToken string) (User, error) {
+	token, err := VerifyToken(bearerToken)
 	if err != nil {
 		return User{}, err
 	}
 	claims := token.Claims.(jwt.MapClaims)
-  user := entity.User{
+	user := User{
 		Email: claims["email"].(string),
-  }
-	if err = s.repo.Find(ctx,&user); err != nil {
+	}
+	if err = s.repo.Find(ctx, &user); err != nil {
 		return User{}, err
-  }
-  return user, nil
+	}
+	return user, nil
 }
 
-func(s *service) FindByID(ctx context.Context, id int64) (User, error){
- panic("not implemented")
+func (s *service) FindByID(ctx context.Context, id int64) (User, error) {
+	user := User{
+		ID: id,
+	}
+	if err := s.repo.Find(ctx, &user); err != nil {
+		return User{}, err
+	}
+	return user, nil
 }
 
-func(s *service) FindByEmail(ctx context.Context, email string) (User, error){
-  panic("not implemented")
+func (s *service) FindByEmail(ctx context.Context, email string) (User, error) {
+	user := User{
+		Email: email,
+	}
+	if err := s.repo.Find(ctx, &user); err != nil {
+		return User{}, err
+	}
+	return user, nil
 }
 
-func(s *service) Register(ctx context.Context, dto RegisterDTO)(User, error){
-  panic("not implemented")
+func (s *service) FindByPhone(ctx context.Context, phone string) (User, error) {
+	user := User{
+		Phone: &phone,
+	}
+	if err := s.repo.Find(ctx, &user); err != nil {
+		return User{}, err
+	}
+	return user, nil
 }
 
-func(s *service) Login(ctx context.Context, dto LoginDTO)(User, error){
-  user := User{
-    Email: dto.Email,
-    Password: HashPassword(dto.Password)
-  }
-  if err:= s.repo.Find(ctx, &user);err!=nil{
-    return err
-  }
-  claims := jwt.MapClaims{
+func (s *service) Register(ctx context.Context, dto RegisterDTO) (User, error) {
+	panic("not implemented")
+}
+
+func (s *service) Login(ctx context.Context, dto LoginDTO) (TokenDTO, error) {
+	hash, _ := HashPassword(dto.Password)
+	user := User{
+		Email:    dto.Email,
+		Password: &hash,
+	}
+	if err := s.repo.Find(ctx, &user); err != nil {
+		return TokenDTO{}, err
+	}
+	claims := jwt.MapClaims{
 		"email": user.Email,
 		"exp":   time.Now().Add(time.Minute * 2).Unix(),
 	}
 	token, err := GenerateToken(claims)
-  return user, nil
+	if err != nil {
+		return TokenDTO{}, err
+	}
+	return TokenDTO{
+		ID:          user.ID,
+		Email:       user.Email,
+		AccessToken: token,
+	}, nil
 }

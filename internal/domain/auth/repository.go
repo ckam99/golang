@@ -2,18 +2,20 @@ package auth
 
 import (
 	"context"
-	"database/sql"
 	"fmt"
+	"main/pkg/clients/postgresql"
 	"strings"
+
+	"github.com/jackc/pgx/v5"
 )
 
 type repository struct {
-	*sql.DB
+	postgresql.Client
 }
 
-func NewRepository(db *sql.DB) Repository {
+func NewRepository(c postgresql.Client) Repository {
 	return &repository{
-		DB: db,
+		Client: c,
 	}
 }
 
@@ -45,7 +47,7 @@ func (r *repository) Find(ctx context.Context, user *User) error {
 	}
 	q := fmt.Sprintf(`select * from users where %s limit 1`, strings.Join(f, " and "))
 
-	if err := r.QueryRowContext(ctx, q, args...).Scan(
+	if err := r.QueryRow(ctx, q, args...).Scan(
 		&user.ID,
 		&user.FullName,
 		&user.Email,
@@ -58,7 +60,9 @@ func (r *repository) Find(ctx context.Context, user *User) error {
 		&user.CreatedAt,
 		&user.UpatedAt,
 	); err != nil {
-		return err
+		if err == pgx.ErrNoRows {
+			return err
+		}
 	}
 	return nil
 }
@@ -69,7 +73,7 @@ func (r *repository) Create(ctx context.Context, user *User) error {
 ) values($1,$2,$3,$4,$5) returning 
  id,created_at, updated_at
   `
-	if err := r.QueryRowContext(ctx, q, user.FullName, user.Email, user.Phone, user.Role, user.Password).Scan(
+	if err := r.QueryRow(ctx, q, user.FullName, user.Email, user.Phone, user.Role, user.Password).Scan(
 		&user.ID,
 		&user.CreatedAt,
 		&user.UpatedAt,
@@ -87,7 +91,7 @@ func (r *repository) Update(ctx context.Context, user *User) error {
   coalesce($4,role),
   coalesce($5,password),
   returning updated_at where id = $6`
-	if err := r.QueryRowContext(ctx, q,
+	if err := r.QueryRow(ctx, q,
 		user.FullName, user.Email, user.Phone, user.Role, user.Password, user.ID).
 		Scan(&user.UpatedAt); err != nil {
 		return err
@@ -100,7 +104,7 @@ func (r *repository) Delete(ctx context.Context, id int64, soft bool) error {
 	if soft {
 		q = "update users set deleted_at=now() where id = $1"
 	}
-	if _, err := r.ExecContext(ctx, q, id); err != nil {
+	if _, err := r.Exec(ctx, q, id); err != nil {
 		return err
 	}
 	return nil

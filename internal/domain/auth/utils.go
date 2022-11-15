@@ -1,8 +1,12 @@
 package auth
 
 import (
-  "github.com/golang-jwt/jwt/v4"
-"golang.org/x/crypto/bcrypt"
+	"errors"
+	"os"
+	"strings"
+
+	"github.com/golang-jwt/jwt/v4"
+	"golang.org/x/crypto/bcrypt"
 )
 
 // Generate new token
@@ -13,6 +17,8 @@ func GenerateToken(claims jwt.MapClaims) (string, error) {
 
 // verify token
 func VerifyToken(encodedToken string) (*jwt.Token, error) {
+	// token := ctx.Locals("x-fiber-user").(*jwt.Token)
+	// claims := token.Claims.(jwt.MapClaims)
 	tokenString, err := DecodeToken(encodedToken)
 	if err != nil {
 		return nil, err
@@ -39,8 +45,7 @@ func DecodeToken(bearToken string) (string, error) {
 	return accessToken, nil
 }
 
-// hash password 
-
+// hash password
 func HashPassword(password string) (string, error) {
 	hash, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
 	if err != nil {

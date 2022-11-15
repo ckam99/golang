@@ -20,10 +20,9 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
-	if err = db.Rollback(); err != nil {
+	if err = db.Migrate(); err != nil {
 		panic(err)
 	}
-
 	defer db.Close()
 
 	//server := http.NewHTTP(db, cfg)

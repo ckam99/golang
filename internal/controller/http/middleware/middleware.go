@@ -1,7 +1,10 @@
-package middleware 
+package middleware
 
 import (
-  jwtware "github.com/gofiber/jwt/v3"
+	"os"
+
+	"github.com/gofiber/fiber/v2"
+	jwtware "github.com/gofiber/jwt/v3"
 )
 
 func BearerAuthMiddleware() func(*fiber.Ctx) error {

@@ -1,6 +1,7 @@
 package v1
 
 import (
+	"main/internal/controller/http/middleware"
 	"main/pkg/clients/postgresql"
 
 	"github.com/gofiber/fiber/v2"
@@ -18,10 +19,10 @@ func NewRouter(db postgresql.Client) *Router {
 
 func (r *Router) Routes(router fiber.Router) {
 
-  // authentication endpoints 
-  authc:= NewAuthController(r.db)
-  router.Post("/auth/refresh", authc.RefreshToken)
-  Router.Get("/auth/user", authc.CurrentUser)
+	// authentication endpoints
+	authc := NewAuthController(r.db)
+	router.Post("/auth/refresh", middleware.BearerAuthMiddleware(), authc.RefreshToken)
+	router.Get("/auth/user", middleware.BearerAuthMiddleware(), authc.CurrentUser)
 
 	// books endpoints
 	book := NewBookController(r.db)
