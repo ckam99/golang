@@ -8,5 +8,8 @@ require (
 	github.com/golang-jwt/jwt/v4 v4.4.2 // indirect
 	github.com/jackc/pgx/v5 v5.0.4 // indirect
 	github.com/lib/pq v1.10.7 // indirect
+<<<<<<< HEAD
 	golang.org/x/crypto v0.2.0 // indirect
+=======
+>>>>>>> origin/oauth
 )
