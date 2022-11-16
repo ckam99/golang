@@ -95,6 +95,7 @@ func (s *service) Register(ctx context.Context, dto RegisterDTO) (User, error) {
 		Email:    dto.Email,
 		FullName: dto.FullName,
 		Password: &hash,
+		Role:     "user",
 	}
 	if dto.Phone != "" {
 		user.Phone = &dto.Phone
@@ -106,7 +107,10 @@ func (s *service) Register(ctx context.Context, dto RegisterDTO) (User, error) {
 }
 
 func (s *service) Login(ctx context.Context, dto LoginDTO) (TokenDTO, error) {
-	hash, _ := HashPassword(dto.Password)
+	hash, err := HashPassword(dto.Password)
+	if err != nil {
+		return TokenDTO{}, err
+	}
 	user := User{
 		Email:    dto.Email,
 		Password: &hash,
@@ -123,8 +127,9 @@ func (s *service) Login(ctx context.Context, dto LoginDTO) (TokenDTO, error) {
 		return TokenDTO{}, err
 	}
 	return TokenDTO{
-		ID:          user.ID,
-		Email:       user.Email,
-		AccessToken: token,
+		ID:           user.ID,
+		Email:        user.Email,
+		AccessToken:  token,
+		RefreshToken: token,
 	}, nil
 }

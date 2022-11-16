@@ -13,7 +13,7 @@ type LoginDTO struct {
 // RegisterDTO: Register DTO
 type RegisterDTO struct {
 	Email    string `json:"email" validate:"empty=false & format=email"`
-	FullName string `json:"full_name" validate:"empty=false & format=alpha & gte=2"`
+	FullName string `json:"full_name" validate:"empty=false & gte=2"`
 	/*
 	 * Password rules:
 	 * at least 6 letters

@@ -2,7 +2,6 @@ package postgresql
 
 import (
 	"context"
-	"errors"
 	"fmt"
 	"log"
 	"time"
@@ -58,17 +57,6 @@ func Connection(ctx context.Context, dsn string, maxAttempts int) (Client, error
 		Pool: pool,
 		dsn:  dsn,
 	}, err
-}
-
-func Error(err error) error {
-	var pgErr *pgconn.PgError
-	if errors.As(err, &pgErr) {
-		pgErr = err.(*pgconn.PgError)
-		newErr := fmt.Errorf(fmt.Sprintf("SQL Error: %s, Detail: %s, Where: %s, Code: %s, SQLState: %s",
-			pgErr.Message, pgErr.Detail, pgErr.Where, pgErr.Code, pgErr.SQLState()))
-		return newErr
-	}
-	return err
 }
 
 func tryAttempt(fn func() error, attemtps int, delay time.Duration) (err error) {

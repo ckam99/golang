@@ -4,6 +4,7 @@ import (
 	"context"
 	"main/internal/domain/auth"
 	"main/pkg/clients/postgresql"
+	"main/pkg/utils"
 
 	"github.com/gofiber/fiber/v2"
 	"gopkg.in/dealancer/validate.v2"
@@ -52,7 +53,28 @@ func (c *AuthController) RefreshToken(ctx *fiber.Ctx) error {
 }
 
 func (c *AuthController) SignIn(ctx *fiber.Ctx) error {
-	return ctx.SendString("get author by id")
+	var payload auth.LoginDTO
+	if err := ctx.BodyParser(&payload); err != nil {
+		return ctx.Status(fiber.StatusUnprocessableEntity).
+			JSON(fiber.Map{"message": err.Error()})
+	}
+	if err := validate.Validate(&payload); err != nil {
+		return ctx.Status(fiber.StatusUnprocessableEntity).
+			JSON(fiber.Map{"message": err.Error()})
+	}
+	token, err := c.service.Login(context.Background(), payload)
+	if err != nil {
+		if err == utils.ErrNoEntity {
+			return ctx.Status(404).JSON(fiber.Map{
+				"message": "email or password is invalid",
+			})
+		}
+		return ctx.Status(500).JSON(fiber.Map{
+			"message": err.Error(),
+		})
+	}
+
+	return ctx.JSON(token)
 }
 
 func (c *AuthController) SignUp(ctx *fiber.Ctx) error {
@@ -65,11 +87,14 @@ func (c *AuthController) SignUp(ctx *fiber.Ctx) error {
 	}
 	user, err := c.service.Register(context.Background(), payload)
 	if err != nil {
-		return ctx.Status(400).JSON(fiber.Map{"message": err.Error()})
+		if err == utils.ErrUniqueField {
+			return ctx.Status(404).JSON(fiber.Map{
+				"message": "email or phone is not available",
+			})
+		}
+		return ctx.Status(500).JSON(fiber.Map{
+			"message": err.Error(),
+		})
 	}
 	return ctx.JSON(user)
 }
-
-// func httpError(ctx *fiber.Ctx, err error) error {
-
-// }

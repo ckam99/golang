@@ -5,8 +5,6 @@ import (
 	"fmt"
 	"main/pkg/clients/postgresql"
 	"strings"
-
-	"github.com/jackc/pgx/v5"
 )
 
 type repository struct {
@@ -60,9 +58,7 @@ func (r *repository) Find(ctx context.Context, user *User) error {
 		&user.CreatedAt,
 		&user.UpatedAt,
 	); err != nil {
-		if err == pgx.ErrNoRows {
-			return err
-		}
+		return postgresql.Error(err)
 	}
 	return nil
 }

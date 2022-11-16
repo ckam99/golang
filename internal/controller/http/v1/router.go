@@ -21,6 +21,8 @@ func (r *Router) Routes(router fiber.Router) {
 
 	// authentication endpoints
 	authc := NewAuthController(r.db)
+	router.Post("/auth/signup", authc.SignUp)
+	router.Post("/auth/signin", authc.SignIn)
 	router.Post("/auth/refresh", middleware.BearerAuthMiddleware(), authc.RefreshToken)
 	router.Get("/auth/user", middleware.BearerAuthMiddleware(), authc.CurrentUser)
 
