@@ -87,7 +87,22 @@ func (s *service) FindByPhone(ctx context.Context, phone string) (User, error) {
 }
 
 func (s *service) Register(ctx context.Context, dto RegisterDTO) (User, error) {
-	panic("not implemented")
+	hash, err := HashPassword(dto.Password)
+	if err != nil {
+		return User{}, err
+	}
+	user := User{
+		Email:    dto.Email,
+		FullName: dto.FullName,
+		Password: &hash,
+	}
+	if dto.Phone != "" {
+		user.Phone = &dto.Phone
+	}
+	if err := s.repo.Create(ctx, &user); err != nil {
+		return User{}, err
+	}
+	return user, nil
 }
 
 func (s *service) Login(ctx context.Context, dto LoginDTO) (TokenDTO, error) {

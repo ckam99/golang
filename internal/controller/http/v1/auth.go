@@ -1,10 +1,12 @@
 package v1
 
 import (
+	"context"
 	"main/internal/domain/auth"
 	"main/pkg/clients/postgresql"
 
 	"github.com/gofiber/fiber/v2"
+	"gopkg.in/dealancer/validate.v2"
 )
 
 type AuthController struct {
@@ -54,5 +56,20 @@ func (c *AuthController) SignIn(ctx *fiber.Ctx) error {
 }
 
 func (c *AuthController) SignUp(ctx *fiber.Ctx) error {
-	return ctx.SendString("create author")
+	var payload auth.RegisterDTO
+	if err := ctx.BodyParser(&payload); err != nil {
+		return ctx.Status(400).JSON(fiber.Map{"message": err.Error()})
+	}
+	if err := validate.Validate(&payload); err != nil {
+		return ctx.Status(422).JSON(fiber.Map{"message": err.Error()})
+	}
+	user, err := c.service.Register(context.Background(), payload)
+	if err != nil {
+		return ctx.Status(400).JSON(fiber.Map{"message": err.Error()})
+	}
+	return ctx.JSON(user)
 }
+
+// func httpError(ctx *fiber.Ctx, err error) error {
+
+// }
