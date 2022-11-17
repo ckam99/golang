@@ -35,11 +35,6 @@ func (r *repository) Find(ctx context.Context, user *User) error {
 		args = append(args, user.Phone)
 	}
 
-	if user.Password != nil {
-		f = append(f, fmt.Sprintf("password=$%d", len(args)+1))
-		args = append(args, user.Password)
-	}
-
 	if len(f) == 0 {
 		return fmt.Errorf("no parameter set")
 	}
@@ -50,6 +45,7 @@ func (r *repository) Find(ctx context.Context, user *User) error {
 		&user.FullName,
 		&user.Email,
 		&user.Phone,
+		&user.Password,
 		&user.Role,
 		&user.IsActive,
 		&user.EmailConfirmedAt,
@@ -57,6 +53,7 @@ func (r *repository) Find(ctx context.Context, user *User) error {
 		&user.PasswordChangedAt,
 		&user.CreatedAt,
 		&user.UpatedAt,
+		&user.DeletedAt,
 	); err != nil {
 		return postgresql.Error(err)
 	}

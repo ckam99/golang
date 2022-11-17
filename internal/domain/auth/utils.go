@@ -4,10 +4,13 @@ import (
 	"errors"
 	"os"
 	"strings"
+	"time"
 
 	"github.com/golang-jwt/jwt/v4"
 	"golang.org/x/crypto/bcrypt"
 )
+
+var TOKEN_EXPIRE_TIME = time.Now().Add(time.Hour * 1).Unix()
 
 // Generate new token
 func GenerateToken(claims jwt.MapClaims) (string, error) {

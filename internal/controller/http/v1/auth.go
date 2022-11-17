@@ -64,16 +64,15 @@ func (c *AuthController) SignIn(ctx *fiber.Ctx) error {
 	}
 	token, err := c.service.Login(context.Background(), payload)
 	if err != nil {
-		if err == utils.ErrNoEntity {
+		if err == utils.ErrNoEntity || err == utils.ErrInvalidCredentials {
 			return ctx.Status(404).JSON(fiber.Map{
-				"message": "email or password is invalid",
+				"message": "email/phone or password is invalid",
 			})
 		}
 		return ctx.Status(500).JSON(fiber.Map{
 			"message": err.Error(),
 		})
 	}
-
 	return ctx.JSON(token)
 }
 

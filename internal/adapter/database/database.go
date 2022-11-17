@@ -30,6 +30,7 @@ func (db *Database) Migrate() error {
 	if err != nil {
 		return err
 	}
+	defer migrator.Close()
 	return migrator.Migrate()
 }
 
@@ -38,6 +39,7 @@ func (db *Database) Rollback() error {
 	if err != nil {
 		return err
 	}
+	defer migrator.Close()
 	err = migrator.Rollback()
 	if err != nil {
 		return err
