@@ -3,7 +3,6 @@ package postgresql
 import (
 	"errors"
 	"fmt"
-	"log"
 	"main/pkg/utils"
 
 	"github.com/jackc/pgx/v5"
@@ -24,10 +23,11 @@ func Error(err error) error {
 	var pgErr *pgconn.PgError
 	if errors.As(err, &pgErr) {
 		pgErr = err.(*pgconn.PgError)
-		log.Fatalf(fmt.Sprintf("SQL Error: %s, Detail: %s, Where: %s, Code: %s, SQLState: %s",
-			pgErr.Message, pgErr.Detail, pgErr.Where, pgErr.Code, pgErr.SQLState()))
 		if pgErr.Code == "23505" {
 			return utils.ErrUniqueField
+		}
+		if pgErr.Code == "23503" {
+			return utils.ErrInvalidForeinKey
 		}
 	} else if err == pgx.ErrNoRows {
 		return utils.ErrNoEntity
@@ -35,11 +35,12 @@ func Error(err error) error {
 	return err
 }
 
-func ErrorCode(err error) (string, error) {
+func Trace(err error) error {
 	var pgErr *pgconn.PgError
 	if errors.As(err, &pgErr) {
 		pgErr = err.(*pgconn.PgError)
-		return pgErr.Code, err
+		return fmt.Errorf("SQL Error: %s, Detail: %s, Where: %s, Code: %s, SQLState: %s",
+			pgErr.Message, pgErr.Detail, pgErr.Where, pgErr.Code, pgErr.SQLState())
 	}
-	return "", err
+	return err
 }

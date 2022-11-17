@@ -2,6 +2,7 @@ package v1
 
 import (
 	"context"
+	httpUtils "main/internal/controller/http/utils"
 	"main/internal/domain/auth"
 	"main/pkg/clients/postgresql"
 	"main/pkg/utils"
@@ -22,15 +23,13 @@ func NewAuthController(db postgresql.Client) *AuthController {
 }
 
 func (c *AuthController) Health(ctx *fiber.Ctx) error {
-	return ctx.JSON(fiber.Map{"message": "ok"})
+	return ctx.JSON(httpUtils.HTTPMessage("ok"))
 }
 
 func (c *AuthController) CurrentUser(ctx *fiber.Ctx) error {
 	user, err := c.service.GetCurrentUser(ctx.UserContext(), ctx.Get("Authorization"))
 	if err != nil {
-		return ctx.Status(401).JSON(fiber.Map{
-			"message": err.Error(),
-		})
+		return httpUtils.HTTPError(ctx, err.Error(), 401)
 	}
 	return ctx.JSON(user)
 }
@@ -39,15 +38,11 @@ func (c *AuthController) RefreshToken(ctx *fiber.Ctx) error {
 	bearToken := ctx.Get("Authorization")
 	user, err := c.service.GetCurrentUser(ctx.UserContext(), bearToken)
 	if err != nil {
-		return ctx.Status(401).JSON(fiber.Map{
-			"message": err.Error(),
-		})
+		return httpUtils.HTTPError(ctx, err.Error(), 401)
 	}
 	token, err := c.service.RefreshAccessToken(&user, bearToken)
 	if err != nil {
-		return ctx.Status(401).JSON(fiber.Map{
-			"message": err.Error(),
-		})
+		return httpUtils.HTTPError(ctx, err.Error(), 401)
 	}
 	return ctx.JSON(token)
 }
@@ -55,23 +50,17 @@ func (c *AuthController) RefreshToken(ctx *fiber.Ctx) error {
 func (c *AuthController) SignIn(ctx *fiber.Ctx) error {
 	var payload auth.LoginDTO
 	if err := ctx.BodyParser(&payload); err != nil {
-		return ctx.Status(fiber.StatusUnprocessableEntity).
-			JSON(fiber.Map{"message": err.Error()})
+		return httpUtils.HTTPError(ctx, err.Error(), 422)
 	}
 	if err := validate.Validate(&payload); err != nil {
-		return ctx.Status(fiber.StatusUnprocessableEntity).
-			JSON(fiber.Map{"message": err.Error()})
+		return httpUtils.HTTPError(ctx, err.Error(), 422)
 	}
 	token, err := c.service.Login(context.Background(), payload)
 	if err != nil {
 		if err == utils.ErrNoEntity || err == utils.ErrInvalidCredentials {
-			return ctx.Status(404).JSON(fiber.Map{
-				"message": "email/phone or password is invalid",
-			})
+			return httpUtils.HTTPError(ctx, "email/phone or password is invalid", 404)
 		}
-		return ctx.Status(500).JSON(fiber.Map{
-			"message": err.Error(),
-		})
+		return httpUtils.HTTPError(ctx, err.Error(), 500)
 	}
 	return ctx.JSON(token)
 }
@@ -79,21 +68,17 @@ func (c *AuthController) SignIn(ctx *fiber.Ctx) error {
 func (c *AuthController) SignUp(ctx *fiber.Ctx) error {
 	var payload auth.RegisterDTO
 	if err := ctx.BodyParser(&payload); err != nil {
-		return ctx.Status(400).JSON(fiber.Map{"message": err.Error()})
+		return httpUtils.HTTPError(ctx, err.Error(), 400)
 	}
 	if err := validate.Validate(&payload); err != nil {
-		return ctx.Status(422).JSON(fiber.Map{"message": err.Error()})
+		return httpUtils.HTTPError(ctx, err.Error(), 422)
 	}
 	user, err := c.service.Register(context.Background(), payload)
 	if err != nil {
 		if err == utils.ErrUniqueField {
-			return ctx.Status(404).JSON(fiber.Map{
-				"message": "email or phone is not available",
-			})
+			return httpUtils.HTTPError(ctx, "email or phone is not available", 404)
 		}
-		return ctx.Status(500).JSON(fiber.Map{
-			"message": err.Error(),
-		})
+		return httpUtils.HTTPError(ctx, err.Error(), 500)
 	}
-	return ctx.JSON(user)
+	return ctx.Status(201).JSON(user)
 }

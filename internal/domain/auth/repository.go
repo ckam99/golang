@@ -71,7 +71,7 @@ func (r *repository) Create(ctx context.Context, user *User) error {
 		&user.CreatedAt,
 		&user.UpatedAt,
 	); err != nil {
-		return err
+		return postgresql.Error(err)
 	}
 	return nil
 }
@@ -87,7 +87,7 @@ func (r *repository) Update(ctx context.Context, user *User) error {
 	if err := r.QueryRow(ctx, q,
 		user.FullName, user.Email, user.Phone, user.Role, user.Password, user.ID).
 		Scan(&user.UpatedAt); err != nil {
-		return err
+		return postgresql.Error(err)
 	}
 	return nil
 }
@@ -98,7 +98,7 @@ func (r *repository) Delete(ctx context.Context, id int64, soft bool) error {
 		q = "update users set deleted_at=now() where id = $1"
 	}
 	if _, err := r.Exec(ctx, q, id); err != nil {
-		return err
+		return postgresql.Error(err)
 	}
 	return nil
 }

@@ -2,7 +2,6 @@ package books
 
 import (
 	"context"
-	"database/sql"
 	"main/pkg/clients/postgresql"
 )
 
@@ -21,7 +20,7 @@ func (r *repo) GetAll(ctx context.Context, param *QueryFilterDTO) ([]Book, error
 
 	rows, err := r.Query(ctx, q, args...)
 	if err != nil {
-		return []Book{}, err
+		return []Book{}, postgresql.Error(err)
 	}
 
 	books := []Book{}
@@ -36,7 +35,7 @@ func (r *repo) GetAll(ctx context.Context, param *QueryFilterDTO) ([]Book, error
 			&book.CreatedAt,
 			&book.UpdatedAt,
 		); err != nil {
-			return []Book{}, err
+			return []Book{}, postgresql.Error(err)
 		}
 		books = append(books, book)
 	}
@@ -44,7 +43,11 @@ func (r *repo) GetAll(ctx context.Context, param *QueryFilterDTO) ([]Book, error
 }
 
 func (r *repo) Find(ctx context.Context, id int64) (Book, error) {
-	q := "select * from books where id=$1 limit 1"
+	q := `select 
+	books.id, books.title, books.esbn,books.description,books.created_at,books.updated_at, 
+	row_to_json(authors.*) author
+	from books left join authors on authors.id = books.author_id
+	where books.id=$1 limit 1`
 	var book Book
 	if err := r.QueryRow(ctx, q, id).
 		Scan(
@@ -52,13 +55,14 @@ func (r *repo) Find(ctx context.Context, id int64) (Book, error) {
 			&book.Title,
 			&book.Esbn,
 			&book.Description,
-			&book.AuthorID,
+			// &book.AuthorID,
 			&book.CreatedAt,
 			&book.UpdatedAt,
+			&book.Author,
 		); err != nil {
-		if err != sql.ErrNoRows {
-			return Book{}, err
-		}
+
+		return Book{}, postgresql.Error(err)
+
 	}
 	return book, nil
 }
@@ -66,10 +70,10 @@ func (r *repo) Find(ctx context.Context, id int64) (Book, error) {
 func (r *repo) Create(ctx context.Context, b *Book) error {
 	q := `insert into books(
    title,esbn,description,author_id,updated_at
-  ) values($1,$2,$3,$4,datetime('now') returning id,created_at,updated_at`
+  ) values($1,$2,$3,$4,now()) returning id,created_at,updated_at`
 	if err := r.QueryRow(ctx, q, b.Title, b.Esbn, b.Description, b.AuthorID).
 		Scan(&b.ID, &b.CreatedAt, &b.UpdatedAt); err != nil {
-		return err
+		return postgresql.Error(err)
 	}
 	return nil
 }
@@ -83,7 +87,7 @@ updated_at=datetime('now')
   returning id,updated_at`
 	if err := r.QueryRow(ctx, q, b.Title, b.Esbn, b.Description).
 		Scan(&b.ID, &b.UpdatedAt); err != nil {
-		return err
+		return postgresql.Error(err)
 	}
 	return nil
 }
@@ -96,7 +100,7 @@ func (r *repo) Count(ctx context.Context, param *QueryFilterDTO) (int64, error) 
 	q, args := getFilterQuery("select count(*) from books", param)
 	var count int64
 	if err := r.QueryRow(ctx, q, args...).Scan(&count); err != nil {
-		return 0, err
+		return 0, postgresql.Error(err)
 	}
 	return count, nil
 }

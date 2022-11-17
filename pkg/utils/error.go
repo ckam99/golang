@@ -7,3 +7,4 @@ import (
 var ErrNoEntity = errors.New("entity not found")
 var ErrUniqueField = errors.New("unique violation")
 var ErrInvalidCredentials = errors.New("invalid credentials")
+var ErrInvalidForeinKey = errors.New("foreign key violation")

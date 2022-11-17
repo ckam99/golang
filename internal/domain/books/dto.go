@@ -1,14 +1,14 @@
 package books
 
 type CreateDTO struct {
-	Title       string `json:"title" validate:"empty=false & min=2"`
+	Title       string `json:"title" validate:"empty=false & gte=2"`
 	AuthorID    int64  `json:"author_id" validate:"gt=0"`
 	Esbn        string `json:"esbn"`
 	Description string `json:"description"`
 }
 
 type UpdateDTO struct {
-	Title       string `json:"title" validate:"empty=false & min=2"`
+	Title       string `json:"title" validate:"empty=false & gte=2"`
 	AuthorID    int64  `json:"author_id" validate:"gt=0"`
 	Esbn        string `json:"esbn"`
 	Description string `json:"description"`

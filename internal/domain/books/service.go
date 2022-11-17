@@ -24,7 +24,7 @@ func (s *service) Create(ctx context.Context, dto CreateDTO) (Book, error) {
 		Title:       dto.Title,
 		Esbn:        &dto.Esbn,
 		Description: &dto.Description,
-		AuthorID:    dto.AuthorID,
+		AuthorID:    &dto.AuthorID,
 	}
 	if err := s.repo.Create(ctx, &book); err != nil {
 		return Book{}, err
@@ -42,7 +42,7 @@ func (s *service) Update(ctx context.Context, id int64, dto UpdateDTO) (Book, er
 		Title:       dto.Title,
 		Esbn:        &dto.Esbn,
 		Description: &dto.Description,
-		AuthorID:    dto.AuthorID,
+		AuthorID:    &dto.AuthorID,
 	}
 	if err := s.repo.Update(ctx, &book); err != nil {
 		return Book{}, err
