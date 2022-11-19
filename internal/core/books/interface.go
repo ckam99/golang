@@ -1,14 +1,14 @@
-package domain
+package books
 
 import "context"
 
-type BookRepository interface {
+type Repository interface {
 	GetAll(ctx context.Context) ([]Book, error)
 	Find(ctx context.Context, id int) (Book, error)
 	Store(ctx context.Context, book *Book) error
 }
 
-type BookService interface {
+type UseCase interface {
 	GetAll(ctx context.Context) ([]Book, error)
-	Store(ctx context.Context, dto CreateBookDTO) (Book, error)
+	Store(ctx context.Context, dto CreateDTO) (Book, error)
 }
