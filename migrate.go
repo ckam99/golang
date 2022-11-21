@@ -1,7 +1,6 @@
 package migrate
 
 import (
-	"bufio"
 	"database/sql"
 	"errors"
 	"flag"
@@ -19,7 +18,7 @@ const (
 	TIME_LAYOUT = "20060201150405999"
 )
 
-type migration struct {
+type Migration struct {
 	*sql.DB
 	Config  *Config
 	baseDir string
@@ -35,7 +34,7 @@ type version struct {
 	dirty   *bool
 }
 
-func New(driver, dsn, baseDir string, cfg *Config) (*migration, error) {
+func New(driver, dsn, baseDir string) (*Migration, error) {
 	db, err := sql.Open(driver, dsn)
 	if err != nil {
 		return nil, err
@@ -43,15 +42,14 @@ func New(driver, dsn, baseDir string, cfg *Config) (*migration, error) {
 	if err = db.Ping(); err != nil {
 		return nil, err
 	}
-	if cfg.Table == "" {
-		cfg.Table = "migrations"
-	}
-	m := &migration{DB: db, Config: cfg, baseDir: baseDir, driver: driver}
+	m := &Migration{DB: db, Config: &Config{
+		Table: "migrations",
+	}, baseDir: baseDir, driver: driver}
 	return m, m.createTable()
 }
 
 // * Run migrations
-func (m *migration) Migrate() error {
+func (m *Migration) Migrate() error {
 	files, lastVersion, err := m.getFiles("up")
 	if err != nil {
 		return err
@@ -86,58 +84,53 @@ func (m *migration) Migrate() error {
 }
 
 // ! Rollback all migrations from database
-func (m *migration) Rollback() error {
-	if confirm("Are you sure to rollback migrations from database?") {
-		files, lastVersion, err := m.getFiles("down")
-		if err != nil {
-			return err
-		}
-		if lastVersion.version == 0 || len(files) == 0 {
-			fmt.Println("no change")
-			return nil
-		}
-		for _, f := range files {
-			b, err := os.ReadFile(m.baseDir + "/" + f.Name())
-			if err != nil {
-				return err
-			}
-			_, err = m.Exec(string(b))
-			if err != nil {
-				log.Fatalln(string(b), err)
-				return err
-			}
-			fmt.Println(f.Name(), "successfuly rollback")
-		}
-		q := fmt.Sprintf(`truncate table %s;`, m.Config.Table)
-		if m.driver == "sqlite3" || m.driver == "sqlite" {
-			q = fmt.Sprintf(`delete from %s;`, m.Config.Table)
-		}
-		_, err = m.Exec(q)
-		if err != nil {
-			log.Println(q)
-			return err
-		}
+func (m *Migration) Rollback() error {
+	files, lastVersion, err := m.getFiles("down")
+	if err != nil {
+		return err
+	}
+	if lastVersion.version == 0 || len(files) == 0 {
+		fmt.Println("no change")
 		return nil
 	}
+	for _, f := range files {
+		b, err := os.ReadFile(m.baseDir + "/" + f.Name())
+		if err != nil {
+			return err
+		}
+		_, err = m.Exec(string(b))
+		if err != nil {
+			log.Fatalln(string(b), err)
+			return err
+		}
+		fmt.Println(f.Name(), "successfuly rollback")
+	}
+	q := fmt.Sprintf(`truncate table %s;`, m.Config.Table)
+	if m.driver == "sqlite3" || m.driver == "sqlite" {
+		q = fmt.Sprintf(`delete from %s;`, m.Config.Table)
+	}
+	_, err = m.Exec(q)
+	if err != nil {
+		log.Println(q)
+		return err
+	}
 	return nil
+
 }
 
 // Create new migration
 func CommandLine() {
-
-	const StringHelp = `
+	const Help = `
 Usage:
 	migrate <command> [arguments]
 The commands are:
-	migrate help - Help
-	migrate up - Migration database
-	migrate down - Database Rollback
-	migrate create - Create migration
-Use "migrate help" for more information about a command.
-	`
-
-	dir := flag.String("dir", "./migration", "Migration directory")
-	name := flag.String("name", "", "Migration name")
+	help - Help
+	up - Migration database
+	down - Database Rollback
+	create - Create migration
+	help - for more information about a command.
+`
+	dir := flag.String("dir", "./internal/migration", "Migration directory")
 	database := flag.String("database", "", "Database url")
 	driver := flag.String("driver", "", "Database driver")
 
@@ -149,17 +142,17 @@ Use "migrate help" for more information about a command.
 	}
 
 	if len(flag.Args()) == 0 {
-		fmt.Println(StringHelp)
-		return
+		fmt.Print(Help)
+		os.Exit(1)
 	}
 
 	switch flag.Args()[0] {
-	case "up":
+	case "up", "down":
 		if *database == "" && *driver == "" {
 			fmt.Println("Database url and driver are required")
 			return
 		}
-		mi, err := New(*driver, *database, *dir, &Config{})
+		mi, err := New(*driver, *database, *dir)
 		if err != nil {
 			fmt.Println(err.Error())
 			return
@@ -178,6 +171,12 @@ Use "migrate help" for more information about a command.
 		}
 		return
 	case "create":
+		cmd := flag.NewFlagSet("create", flag.ExitOnError)
+		name := cmd.String("name", "", "Migration name")
+		if err := cmd.Parse(os.Args[2:]); err != nil {
+			fmt.Println(err.Error())
+			os.Exit(1)
+		}
 		if *name == "" {
 			fmt.Println("Migration name required")
 			return
@@ -186,13 +185,13 @@ Use "migrate help" for more information about a command.
 		return
 	default:
 		fmt.Println("Command is not available")
-		fmt.Println(StringHelp)
+		fmt.Print(Help)
 		return
 	}
 }
 
 func Create(dir, name string) {
-	baseName := fmt.Sprintf("%s/%s_%s", dir, time.Now().Format("20060201150405999"), name)
+	baseName := fmt.Sprintf("%s/%s_%s", dir, time.Now().Format(TIME_LAYOUT), name)
 	file, err := os.Create(fmt.Sprintf("%s.up.sql", baseName))
 	if err != nil {
 		log.Fatal(err.Error())
@@ -207,7 +206,7 @@ func Create(dir, name string) {
 	fmt.Printf(" migration %s.down.sql\n", baseName)
 }
 
-func (m *migration) checkVersion() (version, error) {
+func (m *Migration) checkVersion() (version, error) {
 	var v version
 	if err := m.QueryRow(fmt.Sprintf("select * from %s order by version desc limit 1", m.Config.Table)).
 		Scan(&v.version, &v.dirty); err != nil {
@@ -223,7 +222,7 @@ func (m *migration) checkVersion() (version, error) {
 	return v, nil
 }
 
-func (m *migration) createTable() error {
+func (m *Migration) createTable() error {
 	_, err := m.Exec(fmt.Sprintf(`create table if not exists %s(
 		 version varchar(60) not null unique,
 		 dirty bool default(false)
@@ -232,7 +231,7 @@ func (m *migration) createTable() error {
 	return err
 }
 
-func (m *migration) getFiles(n string) (fss []fs.DirEntry, lastVersion version, err error) {
+func (m *Migration) getFiles(n string) (fss []fs.DirEntry, lastVersion version, err error) {
 	files, err := os.ReadDir(m.baseDir)
 	if err != nil {
 		return fss, lastVersion, err
@@ -254,22 +253,4 @@ func (m *migration) getFiles(n string) (fss []fs.DirEntry, lastVersion version, 
 		return fss[i].Name() < fss[j].Name()
 	})
 	return fss, lastVersion, nil
-}
-
-func confirm(s string) bool {
-	reader := bufio.NewReader(os.Stdin)
-	for {
-		fmt.Printf("%s [y/n]: ", s)
-		response, err := reader.ReadString('\n')
-		if err != nil {
-			log.Fatal(err)
-		}
-		response = strings.ToLower(strings.TrimSpace(response))
-
-		if response == "y" || response == "yes" {
-			return true
-		} else if response == "n" || response == "no" {
-			return false
-		}
-	}
 }
