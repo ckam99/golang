@@ -7,13 +7,13 @@ import (
 )
 
 func main() {
-	builder := sqlb.QueryFilter{
+	builder := sqlb.QueryBuilder{
 		Stmt:    "select * from users",
 		OrderBy: "ID",
 		Limit:   90,
 		Offset:  7,
 	}
-	args := builder.Where("id", "=", 1).
+	builder.Where("id", "=", 1).
 		Or("email", "=", "aaa@ajks.com").
 		Where("age", "in", 30, 67, "80080").
 		Or("role", "in", "admin", "driver").
@@ -21,5 +21,5 @@ func main() {
 		Having("email", "=", "aaa@ajks.com").
 		Or("item", "in", 0, 1).
 		Build()
-	fmt.Println(sqlb.CleanSQL(builder.Stmt, args...))
+	fmt.Println(builder.Debug())
 }
