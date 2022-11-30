@@ -10,6 +10,16 @@ type bookService struct {
 	repo ports.BookRepository
 }
 
+// Delete implements ports.BookService
+func (*bookService) Delete(ctx context.Context, bookID int64) error {
+	panic("unimplemented")
+}
+
+// Update implements ports.BookService
+func (*bookService) Update(ctx context.Context, book *entity.Book) error {
+	panic("unimplemented")
+}
+
 // Create implements ports.BookService
 func (s *bookService) Create(ctx context.Context, book *entity.Book) error {
 	return s.repo.Create(ctx, book)

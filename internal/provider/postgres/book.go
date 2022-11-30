@@ -5,10 +5,38 @@ import (
 	"example/grpc/internal/core/entity"
 	"example/grpc/internal/core/ports"
 	"example/grpc/pkg/postgresql"
+	"example/grpc/pkg/utils"
 )
 
 type bookRepo struct {
 	postgresql.Client
+}
+
+// Delete implements ports.BookRepository
+func (r *bookRepo) Delete(ctx context.Context, bookID int64) error {
+	q := `delete from books where id=$1;`
+	cmd, err := r.Exec(ctx, q, bookID)
+	if err != nil {
+		return postgresql.Error(err)
+	}
+	if cmd.RowsAffected() == 0 {
+		return utils.ErrNoEntity
+	}
+	return nil
+}
+
+// Update implements ports.BookRepository
+func (r *bookRepo) Update(ctx context.Context, book *entity.Book) error {
+	q := `update books set title=coalesce(nullif($1, ''),title), 
+	description=coalesce(nullif($2, ''),description),
+	published_at=coalesce($3,published_at),
+	updated_at=now() 
+	where id=$4 returning updated_at`
+	if err := r.QueryRow(ctx, q, book.Title, book.Description, book.PublishedAt, book.ID).
+		Scan(&book.UpdatedAt); err != nil {
+		return postgresql.Error(err)
+	}
+	return nil
 }
 
 // Create implements ports.BookRepository
@@ -39,6 +67,7 @@ func (r *bookRepo) GetAll(ctx context.Context) ([]entity.Book, error) {
 			&book.PublishedAt,
 			&book.CreatedAt,
 			&book.UpdatedAt,
+			&book.AuthorID,
 		); err != nil {
 			return []entity.Book{}, postgresql.Error(err)
 		}

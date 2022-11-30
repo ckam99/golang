@@ -1,0 +1,18 @@
+syntax = "proto3";
+
+package protobuf;
+
+option go_package = "example/grpc/internal/controller/rpc/protobuf";
+
+
+message Empty {}
+
+message Id {
+    int64 value = 1;
+}
+
+message QueryRequest {
+    int64 limit = 1;
+    int64 offset = 2; 
+    string order_by = 3;
+}

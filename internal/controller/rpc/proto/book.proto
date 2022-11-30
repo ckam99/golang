@@ -2,23 +2,28 @@ syntax = "proto3";
 
 package protobuf;
 
-option go_package = "example/grpc/internal/controller/rpcg/protobuf";
+option go_package = "example/grpc/internal/controller/rpc/protobuf";
 
 import "google/protobuf/timestamp.proto";
+import "author.proto";
+import "common.proto";
 
 message Book {
     int64 id = 1;
     string title = 2;
     string description = 3;
-    google.protobuf.Timestamp published_at = 4;
-    google.protobuf.Timestamp created_at = 5;
-    google.protobuf.Timestamp updated_at = 6;
+    int64 author_id = 4;
+    google.protobuf.Timestamp published_at = 5;
+    google.protobuf.Timestamp created_at = 6;
+    google.protobuf.Timestamp updated_at = 7;
+    Author author = 8;
 }
 
 message CreateBookRequest {
     string title = 1;
     string description = 2;
-    google.protobuf.Timestamp published_at = 3;
+    int64 author_id = 3;
+    google.protobuf.Timestamp published_at = 4;
 }
 
 message UpdateBookRequest {
@@ -26,15 +31,10 @@ message UpdateBookRequest {
     string description = 2;
 }
 
-message QueryRequest {
-    // int64 limit = 1;
-    // int64 offset = 2;
-}
-
-
-
 service BookService {
     rpc GetBooks (QueryRequest) returns (stream Book) {}
     rpc CreateBook (CreateBookRequest) returns (Book) {}
     rpc UpdateBook (UpdateBookRequest) returns (Book) {}
+    rpc DeleteBook (Id) returns (Empty) {}
+    rpc GetBook  (Id) returns (Book) {}
 }
