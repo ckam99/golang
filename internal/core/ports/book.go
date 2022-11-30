@@ -10,6 +10,8 @@ type BookRepository interface {
 	Create(ctx context.Context, book *entity.Book) error
 	Update(ctx context.Context, book *entity.Book) error
 	Delete(ctx context.Context, bookID int64) error
+	// GetByID get book by ID
+	GetByID(ctx context.Context, bookID int64) (entity.Book, error)
 }
 
 type BookService interface {
@@ -17,4 +19,6 @@ type BookService interface {
 	Create(ctx context.Context, book *entity.Book) error
 	Update(ctx context.Context, book *entity.Book) error
 	Delete(ctx context.Context, bookID int64) error
+	// GetByID get book by ID
+	GetByID(ctx context.Context, bookID int64) (entity.Book, error)
 }

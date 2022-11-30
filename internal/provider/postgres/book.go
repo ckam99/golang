@@ -12,6 +12,24 @@ type bookRepo struct {
 	postgresql.Client
 }
 
+// GetByID implements ports.AuthorRepository
+func (r *bookRepo) GetByID(ctx context.Context, bookID int64) (entity.Book, error) {
+	q := `select * from books where id=$1 limit 1`
+	var book entity.Book
+	if err := r.QueryRow(ctx, q, bookID).Scan(
+		&book.ID,
+		&book.Title,
+		&book.Description,
+		&book.PublishedAt,
+		&book.CreatedAt,
+		&book.UpdatedAt,
+		&book.AuthorID,
+	); err != nil {
+		return entity.Book{}, postgresql.Error(err)
+	}
+	return book, nil
+}
+
 // Delete implements ports.BookRepository
 func (r *bookRepo) Delete(ctx context.Context, bookID int64) error {
 	q := `delete from books where id=$1;`

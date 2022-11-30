@@ -10,14 +10,19 @@ type bookService struct {
 	repo ports.BookRepository
 }
 
+// GetByID implements ports.BookService
+func (s *bookService) GetByID(ctx context.Context, bookID int64) (entity.Book, error) {
+	return s.repo.GetByID(ctx, bookID)
+}
+
 // Delete implements ports.BookService
-func (*bookService) Delete(ctx context.Context, bookID int64) error {
-	panic("unimplemented")
+func (s *bookService) Delete(ctx context.Context, bookID int64) error {
+	return s.repo.Delete(ctx, bookID)
 }
 
 // Update implements ports.BookService
-func (*bookService) Update(ctx context.Context, book *entity.Book) error {
-	panic("unimplemented")
+func (s *bookService) Update(ctx context.Context, book *entity.Book) error {
+	return s.repo.Update(ctx, book)
 }
 
 // Create implements ports.BookService

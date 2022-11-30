@@ -21,7 +21,8 @@
 			},
 			"extensions": [
 				"golang.Go",
-				"zxh404.vscode-proto3"
+				"zxh404.vscode-proto3",
+				"donjayamanne.githistory"
 			]
 		}
 	}

@@ -1,8 +1,10 @@
 package rpc
 
 import (
-	"example/grpc/internal/controller/rpc/handler"
 	"example/grpc/internal/controller/rpc/protobuf"
+	"example/grpc/internal/core/ports"
+	"example/grpc/internal/core/service"
+	"example/grpc/internal/provider/postgres"
 	"example/grpc/pkg/postgresql"
 	"fmt"
 	"log"
@@ -14,27 +16,29 @@ import (
 
 // Server serves gRPC requests for core business logics services.
 type Server struct {
-	db     postgresql.Client
 	logger *log.Logger
-	*handler.AuthorServer
-	*handler.BookServer
+	protobuf.UnimplementedAppServiceServer
+	authorService ports.AuthorService
+	bookService   ports.BookService
 }
 
 // NewServer created a new gRPC server.
 func NewServer(db postgresql.Client, logger *log.Logger) *Server {
 	return &Server{
-		db:     db,
 		logger: logger,
+		authorService: service.NewAuthorService(
+			postgres.NewAuthorRepository(db),
+		),
+		bookService: service.NewBookService(
+			postgres.NewBookRepository(db),
+		),
 	}
 }
 
 // Serve starts gRPC server
 func (s *Server) Serve(host string) error {
 	gRPCServer := grpc.NewServer()
-	// register all grpc service here
-	protobuf.RegisterAuthorServiceServer(gRPCServer, handler.NewAuthorServer(s.db))
-	protobuf.RegisterBookServiceServer(gRPCServer, handler.NewBookServer(s.db))
-
+	protobuf.RegisterAppServiceServer(gRPCServer, s)
 	reflection.Register(gRPCServer)
 	if host == "" {
 		host = ":8000"

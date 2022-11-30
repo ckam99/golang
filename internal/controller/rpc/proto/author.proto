@@ -5,7 +5,7 @@ package protobuf;
 option go_package = "example/grpc/internal/controller/rpc/protobuf";
 
 import "google/protobuf/timestamp.proto";
-import "common.proto";
+// import "common.proto";
 
 
 message Author {
@@ -27,10 +27,10 @@ message UpdateAuthorRequest {
     string biography = 3;
 }
 
-service AuthorService {
-    rpc GetAuthors (QueryRequest) returns (stream Author) {}
-    rpc CreateAuthor (CreateAuthorRequest) returns (Author) {}
-    rpc UpdateAuthor (UpdateAuthorRequest) returns (Author) {}
-    rpc DeleteAuthor (Id) returns (Empty) {}
-    rpc GetAuthor (Id) returns (Author) {}
-}
+// service AuthorService {
+//     rpc GetAuthors (QueryRequest) returns (stream Author) {}
+//     rpc CreateAuthor (CreateAuthorRequest) returns (Author) {}
+//     rpc UpdateAuthor (UpdateAuthorRequest) returns (Author) {}
+//     rpc DeleteAuthor (Id) returns (Empty) {}
+//     rpc GetAuthor (Id) returns (Author) {}
+// }
