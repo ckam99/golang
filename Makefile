@@ -9,6 +9,7 @@ pb:
 	--go_out=${PROTO_OUT} \
 	--go_opt=paths=source_relative \
 	--go-grpc_out=${PROTO_OUT} \
+	--grpc-gateway_out=${PROTO_OUT} --grpc-gateway_opt=paths=source_relative \
 	--go-grpc_opt=paths=source_relative ${PROTO_PATH}/*.proto
 
 migration:

@@ -30,3 +30,11 @@ func ConvertBook(book entity.Book) *pb.Book {
 	}
 	return b
 }
+
+func ConvertListBook(books []entity.Book) []*pb.Book {
+	result := make([]*pb.Book, 0, cap(books))
+	for _, book := range books {
+		result = append(result, ConvertBook(book))
+	}
+	return result
+}

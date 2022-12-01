@@ -3,13 +3,8 @@ package main
 import (
 	"context"
 	"example/grpc/internal/controller/rpc"
-	"example/grpc/internal/core/entity"
-	"example/grpc/internal/core/service"
-	"example/grpc/internal/provider/postgres"
 	"example/grpc/pkg/postgresql"
-	"example/grpc/pkg/utils"
 	"log"
-	"time"
 )
 
 func main() {
@@ -20,7 +15,7 @@ func main() {
 	if err != nil {
 		log.Fatal("cannot connect to the database: ", err)
 	}
-	// testBookService(db)
+	go runHttpGatewayServer(db)
 	runGrpcServer(db)
 }
 
@@ -33,23 +28,11 @@ func runGrpcServer(db postgresql.Client) {
 	}
 }
 
-func testBookService(db postgresql.Client) {
-	book := entity.Book{
-		Title:       "jk jg678",
-		Description: "kj hjjg dfdfdfsdfsdf",
-		PublishedAt: &time.Time{},
-	}
-	bs := service.NewBookService(postgres.NewBookRepository(db))
-	err := bs.Create(context.TODO(), &book)
-	if err != nil {
+func runHttpGatewayServer(db postgresql.Client) {
+	server := rpc.NewServer(db, log.Default())
+	port := ":8000"
+	log.Printf("HTTP gateway server started at 0.0.0.0%s\n", port)
+	if err := server.ServeHttpGateway(port); err != nil {
 		log.Fatal(err)
 	}
-	log.Println("book created")
-	utils.JSON(book)
-
-	books, err := bs.GetAll(context.TODO())
-	if err != nil {
-		log.Fatal(err)
-	}
-	utils.JSON(books)
 }

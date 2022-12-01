@@ -1,0 +1,42 @@
+syntax = "proto3";
+
+package pb;
+
+option go_package = "example/grpc/internal/controller/rpc/pb";
+
+import "google/api/annotations.proto";
+import "common.proto";
+import "author.proto";
+
+service AuthorService {
+    rpc StreamListAuthor (Empty) returns (stream Author){
+        
+    }
+    rpc GetAuthors (QueryRequest) returns (AuthorListResponse) {
+        option (google.api.http) = {
+           get: "/v1/authors"
+        };
+    }
+    rpc FindAuthor (PathRequest) returns (Author) {
+        option (google.api.http) = {
+           get: "/v1/authors/{id}"
+        };
+    }
+    rpc CreateAuthor (CreateAuthorRequest) returns (Author) {
+        option (google.api.http) = {
+           post: "/v1/authors"
+           body: "*"
+        };
+    }
+    rpc UpdateAuthor (UpdateAuthorRequest) returns (Author) {
+        option (google.api.http) = {
+           put: "/v1/authors/{id}"
+           body: "*"
+        };
+    }
+    rpc DeleteAuthor (PathRequest) returns (Empty) {
+        option (google.api.http) = {
+           delete: "/v1/authors/{id}"
+        };
+    }
+}

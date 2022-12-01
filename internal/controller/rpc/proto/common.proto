@@ -7,8 +7,8 @@ option go_package = "example/grpc/internal/controller/rpc/pb";
 
 message Empty {}
 
-message Id {
-    int64 value = 1;
+message PathRequest {
+    int64 id = 1;
 }
 
 message QueryRequest {

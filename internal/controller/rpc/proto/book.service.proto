@@ -1,0 +1,41 @@
+syntax = "proto3";
+
+package pb;
+
+option go_package = "example/grpc/internal/controller/rpc/pb";
+
+import "common.proto";
+import "book.proto";
+import "google/api/annotations.proto";
+
+service BookService {
+    rpc StreamBooks (Empty) returns (stream Book) {
+    }
+    rpc GetBooks (QueryRequest) returns (BookListResponse) {
+        option (google.api.http) = {
+           get: "/v1/books"
+        };
+    }
+    rpc FindBook  (PathRequest) returns (Book) {
+        option (google.api.http) = {
+           get: "/v1/books/{id}"
+        };
+    }
+    rpc CreateBook (CreateBookRequest) returns (Book) {
+        option (google.api.http) = {
+           post: "/v1/books"
+           body: "*"
+        };
+    }
+    rpc UpdateBook (UpdateBookRequest) returns (Book) {
+        option (google.api.http) = {
+           put: "/v1/books/{id}"
+           body: "*"
+        };
+    }
+    rpc DeleteBook (PathRequest) returns (Empty) {
+        option (google.api.http) = {
+           delete: "/v1/books/{id}"
+        };
+    }
+}

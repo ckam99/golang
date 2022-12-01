@@ -27,14 +27,14 @@ func NewServer(db postgresql.Client, logger *log.Logger) *Server {
 }
 
 // Serve starts gRPC server
-func (s *Server) Serve(host string) error {
+func (s *Server) Serve(address string) error {
 	gRPCServer := grpc.NewServer()
 	// register all grpc service here
-	pb.RegisterAuthorServiceServer(gRPCServer, handler.NewAuthorServer(s.db))
-	pb.RegisterBookServiceServer(gRPCServer, handler.NewBookServer(s.db))
+	pb.RegisterAuthorServiceServer(gRPCServer, handler.NewAuthorServer(s.db, s.logger))
+	pb.RegisterBookServiceServer(gRPCServer, handler.NewBookServer(s.db, s.logger))
 	reflection.Register(gRPCServer)
 
-	listener, err := net.Listen("tcp", host)
+	listener, err := net.Listen("tcp", address)
 	if err != nil {
 		return fmt.Errorf("cannot create network listener:%w", err)
 	}

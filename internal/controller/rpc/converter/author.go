@@ -21,3 +21,11 @@ func ConvertAuthor(author entity.Author) *pb.Author {
 	}
 	return b
 }
+
+func ConvertListAuthor(authors []entity.Author) []*pb.Author {
+	result := make([]*pb.Author, 0, cap(authors))
+	for _, author := range authors {
+		result = append(result, ConvertAuthor(author))
+	}
+	return result
+}
