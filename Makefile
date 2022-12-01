@@ -22,4 +22,6 @@ rollback:
 	migrate -source file://${MIGRATION_DIR} -database ${DATABASE_URL} down
 
 evans:
-	evans --host localhost --port 8000 -r repl
+	evans --host localhost --port 5000 -r repl
+serve:
+	go run cmd/main.go

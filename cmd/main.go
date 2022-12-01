@@ -26,8 +26,9 @@ func main() {
 
 func runGrpcServer(db postgresql.Client) {
 	server := rpc.NewServer(db, log.Default())
-	log.Println("gRPC server started at 0.0.0.0:8000")
-	if err := server.Serve(":8000"); err != nil {
+	port := ":5000"
+	log.Printf("gRPC server started at 0.0.0.0%s\n", port)
+	if err := server.Serve(port); err != nil {
 		log.Fatal(err)
 	}
 }

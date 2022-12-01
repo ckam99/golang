@@ -6,7 +6,7 @@ option go_package = "example/grpc/internal/controller/rpc/protobuf";
 
 import "google/protobuf/timestamp.proto";
 import "author.proto";
-// import "common.proto";
+import "common.proto";
 
 message Book {
     int64 id = 1;
@@ -31,10 +31,10 @@ message UpdateBookRequest {
     string description = 2;
 }
 
-// service BookService {
-//     rpc GetBooks (QueryRequest) returns (stream Book) {}
-//     rpc CreateBook (CreateBookRequest) returns (Book) {}
-//     rpc UpdateBook (UpdateBookRequest) returns (Book) {}
-//     rpc DeleteBook (Id) returns (Empty) {}
-//     rpc GetBook  (Id) returns (Book) {}
-// }
+service BookService {
+    rpc GetBooks (QueryRequest) returns (stream Book) {}
+    rpc CreateBook (CreateBookRequest) returns (Book) {}
+    rpc UpdateBook (UpdateBookRequest) returns (Book) {}
+    rpc DeleteBook (Id) returns (Empty) {}
+    rpc GetBook  (Id) returns (Book) {}
+}
