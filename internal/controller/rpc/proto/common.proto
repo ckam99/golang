@@ -1,8 +1,8 @@
 syntax = "proto3";
 
-package protobuf;
+package pb;
 
-option go_package = "example/grpc/internal/controller/rpc/protobuf";
+option go_package = "example/grpc/internal/controller/rpc/pb";
 
 
 message Empty {}

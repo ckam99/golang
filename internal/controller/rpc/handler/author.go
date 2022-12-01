@@ -3,7 +3,7 @@ package handler
 import (
 	"context"
 	"example/grpc/internal/controller/rpc/converter"
-	"example/grpc/internal/controller/rpc/protobuf"
+	"example/grpc/internal/controller/rpc/pb"
 	"example/grpc/internal/core/entity"
 	"example/grpc/internal/core/ports"
 	"example/grpc/internal/core/service"
@@ -16,7 +16,7 @@ import (
 )
 
 type AuthorServer struct {
-	protobuf.UnimplementedAuthorServiceServer
+	pb.UnimplementedAuthorServiceServer
 	service ports.AuthorService
 }
 
@@ -27,7 +27,7 @@ func NewAuthorServer(db postgresql.Client) *AuthorServer {
 		),
 	}
 }
-func (s *AuthorServer) GetAuthors(rq *protobuf.QueryRequest, stream protobuf.AuthorService_GetAuthorsServer) error {
+func (s *AuthorServer) GetAuthors(rq *pb.QueryRequest, stream pb.AuthorService_GetAuthorsServer) error {
 	authors, err := s.service.GetAll(context.Background())
 	if err != nil {
 		return status.Errorf(codes.Internal, "failed to fetch authors: %s", err)
@@ -40,7 +40,7 @@ func (s *AuthorServer) GetAuthors(rq *protobuf.QueryRequest, stream protobuf.Aut
 	return nil
 }
 
-func (s *AuthorServer) CreateAuthor(ctx context.Context, in *protobuf.CreateAuthorRequest) (*protobuf.Author, error) {
+func (s *AuthorServer) CreateAuthor(ctx context.Context, in *pb.CreateAuthorRequest) (*pb.Author, error) {
 	author := entity.Author{
 		Name:      in.GetName(),
 		Biography: in.GetBiography(),
@@ -51,7 +51,7 @@ func (s *AuthorServer) CreateAuthor(ctx context.Context, in *protobuf.CreateAuth
 	return converter.ConvertAuthor(author), nil
 }
 
-func (s *AuthorServer) UpdateAuthor(ctx context.Context, in *protobuf.UpdateAuthorRequest) (*protobuf.Author, error) {
+func (s *AuthorServer) UpdateAuthor(ctx context.Context, in *pb.UpdateAuthorRequest) (*pb.Author, error) {
 	author := entity.Author{
 		ID:        in.Id,
 		Name:      in.GetName(),
@@ -66,7 +66,7 @@ func (s *AuthorServer) UpdateAuthor(ctx context.Context, in *protobuf.UpdateAuth
 	return converter.ConvertAuthor(author), nil
 }
 
-func (s *AuthorServer) DeleteAuthor(ctx context.Context, in *protobuf.Id) (*protobuf.Empty, error) {
+func (s *AuthorServer) DeleteAuthor(ctx context.Context, in *pb.Id) (*pb.Empty, error) {
 	if err := s.service.Delete(ctx, in.GetValue()); err != nil {
 		if err == utils.ErrNoEntity {
 			return nil, status.Errorf(codes.NotFound, "failed to get author :%s", err)
@@ -76,7 +76,7 @@ func (s *AuthorServer) DeleteAuthor(ctx context.Context, in *protobuf.Id) (*prot
 	return nil, nil
 }
 
-func (s *AuthorServer) GetAuthor(ctx context.Context, in *protobuf.Id) (*protobuf.Author, error) {
+func (s *AuthorServer) GetAuthor(ctx context.Context, in *pb.Id) (*pb.Author, error) {
 	author, err := s.service.GetByID(ctx, in.GetValue())
 	if err != nil {
 		if err == utils.ErrNoEntity {

@@ -1,14 +1,14 @@
 package converter
 
 import (
-	"example/grpc/internal/controller/rpc/protobuf"
+	"example/grpc/internal/controller/rpc/pb"
 	"example/grpc/internal/core/entity"
 
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
-func ConvertAuthor(author entity.Author) *protobuf.Author {
-	b := &protobuf.Author{
+func ConvertAuthor(author entity.Author) *pb.Author {
+	b := &pb.Author{
 		Id:        author.ID,
 		Name:      author.Name,
 		Biography: author.Biography,

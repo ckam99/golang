@@ -2,7 +2,7 @@ package rpc
 
 import (
 	"example/grpc/internal/controller/rpc/handler"
-	"example/grpc/internal/controller/rpc/protobuf"
+	"example/grpc/internal/controller/rpc/pb"
 	"example/grpc/pkg/postgresql"
 	"fmt"
 	"log"
@@ -30,8 +30,8 @@ func NewServer(db postgresql.Client, logger *log.Logger) *Server {
 func (s *Server) Serve(host string) error {
 	gRPCServer := grpc.NewServer()
 	// register all grpc service here
-	protobuf.RegisterAuthorServiceServer(gRPCServer, handler.NewAuthorServer(s.db))
-	protobuf.RegisterBookServiceServer(gRPCServer, handler.NewBookServer(s.db))
+	pb.RegisterAuthorServiceServer(gRPCServer, handler.NewAuthorServer(s.db))
+	pb.RegisterBookServiceServer(gRPCServer, handler.NewBookServer(s.db))
 	reflection.Register(gRPCServer)
 
 	listener, err := net.Listen("tcp", host)

@@ -4,7 +4,7 @@
 // - protoc             v3.18.1
 // source: author.proto
 
-package protobuf
+package pb
 
 import (
 	context "context"
@@ -38,7 +38,7 @@ func NewAuthorServiceClient(cc grpc.ClientConnInterface) AuthorServiceClient {
 }
 
 func (c *authorServiceClient) GetAuthors(ctx context.Context, in *QueryRequest, opts ...grpc.CallOption) (AuthorService_GetAuthorsClient, error) {
-	stream, err := c.cc.NewStream(ctx, &AuthorService_ServiceDesc.Streams[0], "/protobuf.AuthorService/GetAuthors", opts...)
+	stream, err := c.cc.NewStream(ctx, &AuthorService_ServiceDesc.Streams[0], "/pb.AuthorService/GetAuthors", opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -71,7 +71,7 @@ func (x *authorServiceGetAuthorsClient) Recv() (*Author, error) {
 
 func (c *authorServiceClient) CreateAuthor(ctx context.Context, in *CreateAuthorRequest, opts ...grpc.CallOption) (*Author, error) {
 	out := new(Author)
-	err := c.cc.Invoke(ctx, "/protobuf.AuthorService/CreateAuthor", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/pb.AuthorService/CreateAuthor", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -80,7 +80,7 @@ func (c *authorServiceClient) CreateAuthor(ctx context.Context, in *CreateAuthor
 
 func (c *authorServiceClient) UpdateAuthor(ctx context.Context, in *UpdateAuthorRequest, opts ...grpc.CallOption) (*Author, error) {
 	out := new(Author)
-	err := c.cc.Invoke(ctx, "/protobuf.AuthorService/UpdateAuthor", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/pb.AuthorService/UpdateAuthor", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -89,7 +89,7 @@ func (c *authorServiceClient) UpdateAuthor(ctx context.Context, in *UpdateAuthor
 
 func (c *authorServiceClient) DeleteAuthor(ctx context.Context, in *Id, opts ...grpc.CallOption) (*Empty, error) {
 	out := new(Empty)
-	err := c.cc.Invoke(ctx, "/protobuf.AuthorService/DeleteAuthor", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/pb.AuthorService/DeleteAuthor", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -98,7 +98,7 @@ func (c *authorServiceClient) DeleteAuthor(ctx context.Context, in *Id, opts ...
 
 func (c *authorServiceClient) GetAuthor(ctx context.Context, in *Id, opts ...grpc.CallOption) (*Author, error) {
 	out := new(Author)
-	err := c.cc.Invoke(ctx, "/protobuf.AuthorService/GetAuthor", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/pb.AuthorService/GetAuthor", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -180,7 +180,7 @@ func _AuthorService_CreateAuthor_Handler(srv interface{}, ctx context.Context, d
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/protobuf.AuthorService/CreateAuthor",
+		FullMethod: "/pb.AuthorService/CreateAuthor",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(AuthorServiceServer).CreateAuthor(ctx, req.(*CreateAuthorRequest))
@@ -198,7 +198,7 @@ func _AuthorService_UpdateAuthor_Handler(srv interface{}, ctx context.Context, d
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/protobuf.AuthorService/UpdateAuthor",
+		FullMethod: "/pb.AuthorService/UpdateAuthor",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(AuthorServiceServer).UpdateAuthor(ctx, req.(*UpdateAuthorRequest))
@@ -216,7 +216,7 @@ func _AuthorService_DeleteAuthor_Handler(srv interface{}, ctx context.Context, d
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/protobuf.AuthorService/DeleteAuthor",
+		FullMethod: "/pb.AuthorService/DeleteAuthor",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(AuthorServiceServer).DeleteAuthor(ctx, req.(*Id))
@@ -234,7 +234,7 @@ func _AuthorService_GetAuthor_Handler(srv interface{}, ctx context.Context, dec 
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/protobuf.AuthorService/GetAuthor",
+		FullMethod: "/pb.AuthorService/GetAuthor",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(AuthorServiceServer).GetAuthor(ctx, req.(*Id))
@@ -246,7 +246,7 @@ func _AuthorService_GetAuthor_Handler(srv interface{}, ctx context.Context, dec 
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
 var AuthorService_ServiceDesc = grpc.ServiceDesc{
-	ServiceName: "protobuf.AuthorService",
+	ServiceName: "pb.AuthorService",
 	HandlerType: (*AuthorServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{

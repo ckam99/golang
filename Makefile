@@ -1,6 +1,6 @@
 MIGRATION_DIR=internal/provider/postgres/migrations
 DATABASE_URL=postgres://postgres:postgres@host.docker.internal/demo?sslmode=disable
-PROTO_OUT=internal/controller/rpc/protobuf
+PROTO_OUT=internal/controller/rpc/pb
 PROTO_PATH=internal/controller/rpc/proto
 
 pb:

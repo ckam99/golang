@@ -4,7 +4,7 @@
 // - protoc             v3.18.1
 // source: book.proto
 
-package protobuf
+package pb
 
 import (
 	context "context"
@@ -38,7 +38,7 @@ func NewBookServiceClient(cc grpc.ClientConnInterface) BookServiceClient {
 }
 
 func (c *bookServiceClient) GetBooks(ctx context.Context, in *QueryRequest, opts ...grpc.CallOption) (BookService_GetBooksClient, error) {
-	stream, err := c.cc.NewStream(ctx, &BookService_ServiceDesc.Streams[0], "/protobuf.BookService/GetBooks", opts...)
+	stream, err := c.cc.NewStream(ctx, &BookService_ServiceDesc.Streams[0], "/pb.BookService/GetBooks", opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -71,7 +71,7 @@ func (x *bookServiceGetBooksClient) Recv() (*Book, error) {
 
 func (c *bookServiceClient) CreateBook(ctx context.Context, in *CreateBookRequest, opts ...grpc.CallOption) (*Book, error) {
 	out := new(Book)
-	err := c.cc.Invoke(ctx, "/protobuf.BookService/CreateBook", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/pb.BookService/CreateBook", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -80,7 +80,7 @@ func (c *bookServiceClient) CreateBook(ctx context.Context, in *CreateBookReques
 
 func (c *bookServiceClient) UpdateBook(ctx context.Context, in *UpdateBookRequest, opts ...grpc.CallOption) (*Book, error) {
 	out := new(Book)
-	err := c.cc.Invoke(ctx, "/protobuf.BookService/UpdateBook", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/pb.BookService/UpdateBook", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -89,7 +89,7 @@ func (c *bookServiceClient) UpdateBook(ctx context.Context, in *UpdateBookReques
 
 func (c *bookServiceClient) DeleteBook(ctx context.Context, in *Id, opts ...grpc.CallOption) (*Empty, error) {
 	out := new(Empty)
-	err := c.cc.Invoke(ctx, "/protobuf.BookService/DeleteBook", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/pb.BookService/DeleteBook", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -98,7 +98,7 @@ func (c *bookServiceClient) DeleteBook(ctx context.Context, in *Id, opts ...grpc
 
 func (c *bookServiceClient) GetBook(ctx context.Context, in *Id, opts ...grpc.CallOption) (*Book, error) {
 	out := new(Book)
-	err := c.cc.Invoke(ctx, "/protobuf.BookService/GetBook", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/pb.BookService/GetBook", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -180,7 +180,7 @@ func _BookService_CreateBook_Handler(srv interface{}, ctx context.Context, dec f
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/protobuf.BookService/CreateBook",
+		FullMethod: "/pb.BookService/CreateBook",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(BookServiceServer).CreateBook(ctx, req.(*CreateBookRequest))
@@ -198,7 +198,7 @@ func _BookService_UpdateBook_Handler(srv interface{}, ctx context.Context, dec f
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/protobuf.BookService/UpdateBook",
+		FullMethod: "/pb.BookService/UpdateBook",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(BookServiceServer).UpdateBook(ctx, req.(*UpdateBookRequest))
@@ -216,7 +216,7 @@ func _BookService_DeleteBook_Handler(srv interface{}, ctx context.Context, dec f
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/protobuf.BookService/DeleteBook",
+		FullMethod: "/pb.BookService/DeleteBook",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(BookServiceServer).DeleteBook(ctx, req.(*Id))
@@ -234,7 +234,7 @@ func _BookService_GetBook_Handler(srv interface{}, ctx context.Context, dec func
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/protobuf.BookService/GetBook",
+		FullMethod: "/pb.BookService/GetBook",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(BookServiceServer).GetBook(ctx, req.(*Id))
@@ -246,7 +246,7 @@ func _BookService_GetBook_Handler(srv interface{}, ctx context.Context, dec func
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
 var BookService_ServiceDesc = grpc.ServiceDesc{
-	ServiceName: "protobuf.BookService",
+	ServiceName: "pb.BookService",
 	HandlerType: (*BookServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{

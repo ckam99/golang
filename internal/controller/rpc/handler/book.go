@@ -3,7 +3,7 @@ package handler
 import (
 	"context"
 	"example/grpc/internal/controller/rpc/converter"
-	"example/grpc/internal/controller/rpc/protobuf"
+	"example/grpc/internal/controller/rpc/pb"
 	"example/grpc/internal/core/entity"
 	"example/grpc/internal/core/ports"
 	"example/grpc/internal/core/service"
@@ -16,7 +16,7 @@ import (
 )
 
 type BookServer struct {
-	protobuf.UnimplementedBookServiceServer
+	pb.UnimplementedBookServiceServer
 	service ports.BookService
 }
 
@@ -28,7 +28,7 @@ func NewBookServer(db postgresql.Client) *BookServer {
 	}
 }
 
-func (s *BookServer) GetBooks(rq *protobuf.QueryRequest, stream protobuf.BookService_GetBooksServer) error {
+func (s *BookServer) GetBooks(rq *pb.QueryRequest, stream pb.BookService_GetBooksServer) error {
 	books, err := s.service.GetAll(context.Background())
 	if err != nil {
 		return status.Errorf(codes.Internal, "failed to fetch books: %s", err)
@@ -41,7 +41,7 @@ func (s *BookServer) GetBooks(rq *protobuf.QueryRequest, stream protobuf.BookSer
 	return nil
 }
 
-func (s *BookServer) CreateBook(ctx context.Context, in *protobuf.CreateBookRequest) (*protobuf.Book, error) {
+func (s *BookServer) CreateBook(ctx context.Context, in *pb.CreateBookRequest) (*pb.Book, error) {
 	dt := in.GetPublishedAt().AsTime()
 	book := entity.Book{
 		Title:       in.GetTitle(),
@@ -57,7 +57,7 @@ func (s *BookServer) CreateBook(ctx context.Context, in *protobuf.CreateBookRequ
 	return converter.ConvertBook(book), nil
 }
 
-func (s *BookServer) UpdateBook(ctx context.Context, in *protobuf.UpdateBookRequest) (*protobuf.Book, error) {
+func (s *BookServer) UpdateBook(ctx context.Context, in *pb.UpdateBookRequest) (*pb.Book, error) {
 	book := entity.Book{
 		ID:          in.GetId(),
 		Description: in.GetDescription(),
@@ -71,7 +71,7 @@ func (s *BookServer) UpdateBook(ctx context.Context, in *protobuf.UpdateBookRequ
 	return converter.ConvertBook(book), nil
 }
 
-func (s *BookServer) DeleteBook(ctx context.Context, in *protobuf.Id) (*protobuf.Empty, error) {
+func (s *BookServer) DeleteBook(ctx context.Context, in *pb.Id) (*pb.Empty, error) {
 	if err := s.service.Delete(ctx, in.GetValue()); err != nil {
 		if err == utils.ErrNoEntity {
 			return nil, status.Errorf(codes.NotFound, "failed to get book :%s", err)
@@ -81,6 +81,6 @@ func (s *BookServer) DeleteBook(ctx context.Context, in *protobuf.Id) (*protobuf
 	return nil, nil
 }
 
-func (s *BookServer) GetBook(ctx context.Context, in *protobuf.Id) (*protobuf.Book, error) {
+func (s *BookServer) GetBook(ctx context.Context, in *pb.Id) (*pb.Book, error) {
 	return nil, status.Errorf(codes.Unimplemented, "not implemented")
 }
