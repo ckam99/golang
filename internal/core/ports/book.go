@@ -6,7 +6,9 @@ import (
 )
 
 type BookRepository interface {
-	GetAll(ctx context.Context) ([]entity.Book, error)
+	GetAll(ctx context.Context, limit, offset int64) ([]entity.Book, error)
+	// Count counts authors
+	Count(ctx context.Context, limit, offset int64) (int64, error)
 	Create(ctx context.Context, book *entity.Book) error
 	Update(ctx context.Context, book *entity.Book) error
 	Delete(ctx context.Context, bookID int64) error
@@ -15,7 +17,9 @@ type BookRepository interface {
 }
 
 type BookService interface {
-	GetAll(ctx context.Context) ([]entity.Book, error)
+	GetAll(ctx context.Context, limit, offset int64) ([]entity.Book, error)
+	// Count counts authors
+	Count(ctx context.Context, limit, offset int64) (int64, error)
 	Create(ctx context.Context, book *entity.Book) error
 	Update(ctx context.Context, book *entity.Book) error
 	Delete(ctx context.Context, bookID int64) error

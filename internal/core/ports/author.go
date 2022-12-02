@@ -7,7 +7,9 @@ import (
 
 type AuthorRepository interface {
 	// GetAll get list authors
-	GetAll(ctx context.Context) ([]entity.Author, error)
+	GetAll(ctx context.Context, limit, offset int64) ([]entity.Author, error)
+	// Count counts authors
+	Count(ctx context.Context, limit, offset int64) (int64, error)
 	// Create create new autthor
 	Create(ctx context.Context, author *entity.Author) error
 	// Update update author by id
@@ -20,7 +22,9 @@ type AuthorRepository interface {
 
 type AuthorService interface {
 	// GetAll get list authors
-	GetAll(ctx context.Context) ([]entity.Author, error)
+	GetAll(ctx context.Context, limit, offset int64) ([]entity.Author, error)
+	// Count counts authors
+	Count(ctx context.Context, limit, offset int64) (int64, error)
 	// Create create new autthor
 	Create(ctx context.Context, author *entity.Author) error
 	// Update update author by id

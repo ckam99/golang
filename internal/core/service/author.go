@@ -10,6 +10,11 @@ type authorService struct {
 	repo ports.AuthorRepository
 }
 
+// Count implements ports.AuthorService
+func (s *authorService) Count(ctx context.Context, limit, offset int64) (int64, error) {
+	return s.repo.Count(ctx, limit, offset)
+}
+
 // GetByID implements ports.AuthorService
 func (s *authorService) GetByID(ctx context.Context, authorID int64) (entity.Author, error) {
 	return s.repo.GetByID(ctx, authorID)
@@ -26,8 +31,8 @@ func (s *authorService) Delete(ctx context.Context, authorID int64) error {
 }
 
 // GetAll implements ports.AuthorService
-func (s *authorService) GetAll(ctx context.Context) ([]entity.Author, error) {
-	return s.repo.GetAll(ctx)
+func (s *authorService) GetAll(ctx context.Context, limit, offset int64) ([]entity.Author, error) {
+	return s.repo.GetAll(ctx, limit, offset)
 }
 
 // Update implements ports.AuthorService

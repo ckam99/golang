@@ -26,6 +26,9 @@ message UpdateAuthorRequest {
 }
 
 message AuthorListResponse {
-   repeated Author authors = 4;
+    int64 page = 1;
+    int64 page_count = 2;
+    int64 total = 3;
+    repeated Author authors = 4;
 }
 

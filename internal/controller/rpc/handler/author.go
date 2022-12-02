@@ -11,6 +11,7 @@ import (
 	"example/grpc/pkg/postgresql"
 	"example/grpc/pkg/utils"
 	"log"
+	"math"
 
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
@@ -32,7 +33,7 @@ func NewAuthorServer(db postgresql.Client, logger *log.Logger) *AuthorServer {
 }
 
 func (s *AuthorServer) StreamListAuthor(q *pb.Empty, stream pb.AuthorService_StreamListAuthorServer) error {
-	authors, err := s.service.GetAll(context.Background())
+	authors, err := s.service.GetAll(context.Background(), 0, 0)
 	if err != nil {
 		s.logger.Println(err)
 		return status.Errorf(codes.Internal, "failed to fetch authors: %s", err)
@@ -46,14 +47,28 @@ func (s *AuthorServer) StreamListAuthor(q *pb.Empty, stream pb.AuthorService_Str
 	return nil
 }
 
-func (s *AuthorServer) GetAuthors(context.Context, *pb.QueryRequest) (*pb.AuthorListResponse, error) {
-	authors, err := s.service.GetAll(context.Background())
+func (s *AuthorServer) GetAuthors(ctx context.Context, q *pb.QueryRequest) (*pb.AuthorListResponse, error) {
+	count, err := s.service.Count(ctx, 0, 0)
+	if err != nil {
+		s.logger.Println(err)
+		return nil, status.Errorf(codes.Internal, "failed to get authors count: %s", err)
+	}
+	var pageCount int64
+	if q.Limit > 0 {
+		pageCount = int64(math.Ceil(float64(count) / float64(q.Limit)))
+	}
+	offset := q.Offset*q.Limit - q.Limit
+
+	authors, err := s.service.GetAll(ctx, q.Limit, offset)
 	if err != nil {
 		s.logger.Println(err)
 		return nil, status.Errorf(codes.Internal, "failed to fetch authors: %s", err)
 	}
 	return &pb.AuthorListResponse{
-		Authors: converter.ConvertListAuthor(authors),
+		PageCount: pageCount,
+		Page:      q.Offset,
+		Total:     count,
+		Authors:   converter.ConvertListAuthor(authors),
 	}, nil
 }
 

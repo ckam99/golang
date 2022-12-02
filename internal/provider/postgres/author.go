@@ -6,10 +6,27 @@ import (
 	"example/grpc/internal/core/ports"
 	"example/grpc/pkg/postgresql"
 	"example/grpc/pkg/utils"
+	"fmt"
 )
 
 type authorRepo struct {
 	postgresql.Client
+}
+
+// Count implements ports.AuthorRepository
+func (r *authorRepo) Count(ctx context.Context, limit, offset int64) (int64, error) {
+	q := `select count(*) from authors`
+	if limit > 0 {
+		q += fmt.Sprint(` limit `, limit)
+	}
+	if offset >= 0 {
+		q += fmt.Sprint(` offset `, offset)
+	}
+	var c int64
+	if err := r.QueryRow(ctx, q).Scan(&c); err != nil {
+		return 0, postgresql.Error(err)
+	}
+	return c, nil
 }
 
 // GetByID implements ports.AuthorRepository
@@ -53,8 +70,14 @@ func (r *authorRepo) Delete(ctx context.Context, authorID int64) error {
 }
 
 // GetAll implements ports.AuthorRepository
-func (r *authorRepo) GetAll(ctx context.Context) ([]entity.Author, error) {
+func (r *authorRepo) GetAll(ctx context.Context, limit, offset int64) ([]entity.Author, error) {
 	q := `select * from authors`
+	if limit > 0 {
+		q += fmt.Sprint(` limit `, limit)
+	}
+	if offset >= 0 {
+		q += fmt.Sprint(` offset `, offset)
+	}
 	rows, err := r.Query(ctx, q)
 	if err != nil {
 		return []entity.Author{}, postgresql.Error(err)

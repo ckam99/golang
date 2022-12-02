@@ -21,15 +21,20 @@ message Book {
 message CreateBookRequest {
     string title = 1;
     string description = 2;
-    int64 author_id = 3;
+    optional int64 author_id = 3;
     google.protobuf.Timestamp published_at = 4;
 }
 
 message UpdateBookRequest {
     int64 id = 1;
-    string description = 2;
+    string title = 2;
+    string description = 3;
+    optional int64 author_id = 4;
 }
 
 message BookListResponse {
+    int64 page = 1;
+    int64 page_count = 2;
+    int64 total = 3;
     repeated Book books = 4;
 }

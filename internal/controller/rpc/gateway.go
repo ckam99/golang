@@ -9,11 +9,21 @@ import (
 	"net/http"
 
 	"github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
+	"google.golang.org/protobuf/encoding/protojson"
 )
 
 // Serve starts gRPC server
 func (s *Server) ServeHttpGateway(address string) error {
-	rmux := runtime.NewServeMux()
+	muxJsonOptions := runtime.WithMarshalerOption(runtime.MIMEWildcard, &runtime.JSONPb{
+		MarshalOptions: protojson.MarshalOptions{
+			UseProtoNames:   true,
+			EmitUnpopulated: true,
+		},
+		UnmarshalOptions: protojson.UnmarshalOptions{
+			DiscardUnknown: true,
+		},
+	})
+	rmux := runtime.NewServeMux(muxJsonOptions)
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 	// register all grpc service handlers
