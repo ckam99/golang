@@ -4,6 +4,7 @@ import (
 	"context"
 	"example/grpc/internal/controller/http"
 	"example/grpc/internal/controller/rpc/handler"
+	"example/grpc/internal/controller/rpc/interceptor"
 	"example/grpc/internal/controller/rpc/pb"
 	"fmt"
 
@@ -27,18 +28,19 @@ func (s *Server) ServeHttpGateway(address string) error {
 	defer cancel()
 	// register all grpc service handlers
 	if err := pb.RegisterAuthorServiceHandlerServer(ctx, rmux,
-		handler.NewAuthorServer(s.db, s.logger)); err != nil {
+		handler.NewAuthorServer(s.db)); err != nil {
 		return fmt.Errorf("cannot register author handler server: %s", err)
 	}
 	if err := pb.RegisterBookServiceHandlerServer(ctx, rmux,
-		handler.NewBookServer(s.db, s.logger)); err != nil {
+		handler.NewBookServer(s.db)); err != nil {
 		return fmt.Errorf("cannot register book handler server: %s", err)
 	}
 	// http server
 	mux := http.NewHTTPServer()
-	mux.Handle("/", rmux)
+	hdle := interceptor.HttpLogger(rmux)
+	mux.Handle("/", hdle)
 	if err := mux.Serve(address); err != nil {
-		return fmt.Errorf("grpc gateway :%w", err)
+		return fmt.Errorf("grpc http gateway :%w", err)
 	}
 	return nil
 }

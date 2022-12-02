@@ -3,7 +3,6 @@ package postgresql
 import (
 	"context"
 	"fmt"
-	"log"
 	"time"
 
 	"github.com/jackc/pgx/v5"
@@ -52,7 +51,7 @@ func Connection(ctx context.Context, dsn string, maxAttempts int) (Client, error
 		return nil
 	}, maxAttempts, 5*time.Second)
 	if err != nil {
-		log.Fatal("error do with tries postgresql")
+		return nil, fmt.Errorf("error do with tries postgresql: %w", err)
 	}
 	return &client{
 		Pool: pool,

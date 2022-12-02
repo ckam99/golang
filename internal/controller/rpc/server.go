@@ -6,7 +6,6 @@ import (
 	"example/grpc/internal/controller/rpc/pb"
 	"example/grpc/pkg/postgresql"
 	"fmt"
-	"log"
 	"net"
 
 	"google.golang.org/grpc"
@@ -15,15 +14,13 @@ import (
 
 // Server serves gRPC requests for core business logics services.
 type Server struct {
-	logger *log.Logger
-	db     postgresql.Client
+	db postgresql.Client
 }
 
 // NewServer created a new gRPC server.
-func NewServer(db postgresql.Client, logger *log.Logger) *Server {
+func NewServer(db postgresql.Client) *Server {
 	return &Server{
-		logger: logger,
-		db:     db,
+		db: db,
 	}
 }
 
@@ -33,8 +30,8 @@ func (s *Server) Serve(address string) error {
 	grpcLogger := grpc.UnaryInterceptor(interceptor.GrpcLogger)
 	gRPCServer := grpc.NewServer(grpcLogger)
 	// register all grpc service here
-	pb.RegisterAuthorServiceServer(gRPCServer, handler.NewAuthorServer(s.db, s.logger))
-	pb.RegisterBookServiceServer(gRPCServer, handler.NewBookServer(s.db, s.logger))
+	pb.RegisterAuthorServiceServer(gRPCServer, handler.NewAuthorServer(s.db))
+	pb.RegisterBookServiceServer(gRPCServer, handler.NewBookServer(s.db))
 	reflection.Register(gRPCServer)
 
 	listener, err := net.Listen("tcp", address)
