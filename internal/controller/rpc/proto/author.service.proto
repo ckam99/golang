@@ -2,11 +2,11 @@ syntax = "proto3";
 
 package pb;
 
-option go_package = "example/grpc/internal/controller/rpc/pb";
-
 import "google/api/annotations.proto";
 import "common.proto";
 import "author.proto";
+
+option go_package = "example/grpc/internal/controller/rpc/pb";
 
 service AuthorService {
     rpc StreamListAuthor (Empty) returns (stream Author){

@@ -1,8 +1,13 @@
 {
   "swagger": "2.0",
   "info": {
-    "title": "author.proto",
-    "version": "version not set"
+    "title": "gRPC with HTTP gateway example",
+    "version": "1.0",
+    "contact": {
+      "name": "gRPC-Gateway project",
+      "url": "https://github.com/ckam225/golang/tree/grpc-gateway",
+      "email": "ckam225@gmail.com"
+    }
   },
   "tags": [
     {

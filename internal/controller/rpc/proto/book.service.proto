@@ -2,11 +2,12 @@ syntax = "proto3";
 
 package pb;
 
-option go_package = "example/grpc/internal/controller/rpc/pb";
-
 import "common.proto";
 import "book.proto";
 import "google/api/annotations.proto";
+
+option go_package = "example/grpc/internal/controller/rpc/pb";
+
 
 service BookService {
     rpc StreamBooks (Empty) returns (stream Book) {
