@@ -28,3 +28,4 @@ logs
 demo*
 tempCodeRunnerFile.go
 .devcontainer
+.DS_Store
