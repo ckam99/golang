@@ -3,6 +3,7 @@ package handler
 import (
 	"context"
 	"example/grpc/internal/controller/rpc/converter"
+	"example/grpc/internal/controller/rpc/helper"
 	"example/grpc/internal/controller/rpc/pb"
 	"example/grpc/internal/core/entity"
 	"example/grpc/internal/core/ports"
@@ -48,6 +49,8 @@ func (s *AuthorServer) StreamListAuthor(q *pb.Empty, stream pb.AuthorService_Str
 }
 
 func (s *AuthorServer) GetAuthors(ctx context.Context, q *pb.QueryRequest) (*pb.AuthorListResponse, error) {
+	mtdt := helper.GetMetaData(ctx)
+	s.logger.Println(mtdt)
 	count, err := s.service.Count(ctx, 0, 0)
 	if err != nil {
 		s.logger.Println(err)
