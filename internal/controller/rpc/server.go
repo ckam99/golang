@@ -2,6 +2,7 @@ package rpc
 
 import (
 	"example/grpc/internal/controller/rpc/handler"
+	"example/grpc/internal/controller/rpc/interceptor"
 	"example/grpc/internal/controller/rpc/pb"
 	"example/grpc/pkg/postgresql"
 	"fmt"
@@ -28,7 +29,9 @@ func NewServer(db postgresql.Client, logger *log.Logger) *Server {
 
 // Serve starts gRPC server
 func (s *Server) Serve(address string) error {
-	gRPCServer := grpc.NewServer()
+
+	grpcLogger := grpc.UnaryInterceptor(interceptor.GrpcLogger)
+	gRPCServer := grpc.NewServer(grpcLogger)
 	// register all grpc service here
 	pb.RegisterAuthorServiceServer(gRPCServer, handler.NewAuthorServer(s.db, s.logger))
 	pb.RegisterBookServiceServer(gRPCServer, handler.NewBookServer(s.db, s.logger))

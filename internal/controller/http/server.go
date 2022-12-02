@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"example/grpc/pkg/security"
 	"fmt"
-	"log"
 	"net"
 	"net/http"
 	"os"
@@ -28,11 +27,10 @@ func NewHTTPServer() *Server {
 func (s *Server) GetTokenHandler(w http.ResponseWriter, r *http.Request) {
 	token, err := security.GenerateToken(map[string]any{
 		"id":  time.Now().Unix(),
-		"exp": time.Now().Add(time.Minute * 10).Unix(),
+		"exp": time.Now().Add(time.Hour * 24).Unix(),
 	}, os.Getenv("SECRET_KEY"))
 
 	if err != nil {
-		log.Println(err)
 		json.NewEncoder(w).Encode(map[string]any{
 			"error": err,
 		})
