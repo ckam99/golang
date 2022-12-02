@@ -37,7 +37,10 @@ func GetMetaData(ctx context.Context) *Metadata {
 		if forwarded := md.Get("x-forwarded-for"); len(forwarded) > 0 {
 			mtd.ClientIP = forwarded[0]
 		}
-		if auth := md.Get("grpcgateway-authorization"); len(auth) > 0 {
+		// if auth := md.Get("grpcgateway-authorization"); len(auth) > 0 {
+		// 	mtd.Authorization = auth[0]
+		// }
+		if auth := md.Get("authorization"); len(auth) > 0 {
 			mtd.Authorization = auth[0]
 		}
 	}

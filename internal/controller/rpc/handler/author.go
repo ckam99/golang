@@ -51,6 +51,11 @@ func (s *AuthorServer) StreamListAuthor(q *pb.Empty, stream pb.AuthorService_Str
 func (s *AuthorServer) GetAuthors(ctx context.Context, q *pb.QueryRequest) (*pb.AuthorListResponse, error) {
 	mtdt := helper.GetMetaData(ctx)
 	s.logger.Println(mtdt)
+
+	if err := helper.Authorized(ctx); err != nil {
+		return nil, status.Errorf(codes.Unauthenticated, "Unauthenticated: %s", err)
+	}
+
 	count, err := s.service.Count(ctx, 0, 0)
 	if err != nil {
 		s.logger.Println(err)

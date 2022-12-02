@@ -34,24 +34,11 @@ func (s *Server) ServeHttpGateway(address string) error {
 		handler.NewBookServer(s.db, s.logger)); err != nil {
 		return fmt.Errorf("cannot register book handler server: %s", err)
 	}
-
+	// http server
 	mux := http.NewHTTPServer()
 	mux.Handle("/", rmux)
 	if err := mux.Serve(address); err != nil {
 		return fmt.Errorf("grpc gateway :%w", err)
 	}
-
-	// mux := http.NewServeMux()
-	// mux.Handle("/", rmux)
-
-	// mux := http.NewHTTP
-
-	// listener, err := net.Listen("tcp", address)
-	// if err != nil {
-	// 	return fmt.Errorf("cannot create http gateway network listener:%w", err)
-	// }
-	// if err = http.Serve(listener, mux); err != nil {
-	// 	return fmt.Errorf("cannot start HTTP gateway server: %w", err)
-	// }
 	return nil
 }
