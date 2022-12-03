@@ -1,9 +1,9 @@
-# gRPC with protoc
-
+# gRPC with protoc + HTTP Gateway + Swagger + Logger
 
 ### install packages
 
 ##### protobuf for go
+
 ```
 go install google.golang.org/protobuf/cmd/protoc-gen-go@v1.28
 go install google.golang.org/grpc/cmd/protoc-gen-go-grpc@v1.2
@@ -19,7 +19,8 @@ go install \
     google.golang.org/grpc/cmd/protoc-gen-go-grpc
 ```
 
-#####  Evans: gRPC client
+##### Evans: gRPC client
+
 ```
 go install github.com/ktr0731/evans@latest
 ```
