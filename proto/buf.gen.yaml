@@ -1,0 +1,19 @@
+version: v1
+plugins:
+  - name: go # or  - remote: buf.build/library/plugins/go:v1.27.1-1
+    out: ../pb
+    opt:
+      - paths=source_relative
+  - name: go-grpc # or - remote: buf.build/library/plugins/go-grpc:v1.1.0-2
+    out: ../pb
+    opt:
+      - paths=source_relative
+  - name: grpc-gateway # or - remote: buf.build/grpc-ecosystem/plugins/grpc-gateway:v2.6.0-1
+    out: ../pb
+    opt:
+      - paths=source_relative
+      - generate_unbound_methods=true
+  - name: openapiv2 # - remote: buf.build/grpc-ecosystem/plugins/openapiv2:v2.6.0-1
+    out: ../pb
+    
+      
